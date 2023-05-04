@@ -4,7 +4,9 @@ var gameDiv = document.getElementById("gameDiv");
 
 ctx.strokeStyle = "#fff";
 ctx.fillStyle = "#fff";
-ctx.lineWidth = 3;
+ctx.lineWidth = 4;
+
+var entities = [];
 
 var arrowUpPressed = false;
 var arrowDownPressed = false;
@@ -19,7 +21,7 @@ var maxSpeed = 8;
 var acceleration = 0.2;
 var trippyMode = false;
 var showVelocity = false;
-var laserSight = true;
+var laserSight = false;
 
 /*----- Game Settings End -----*/
 /*----- Classes -----*/
@@ -57,7 +59,10 @@ class Shape {
         }
     }// constructor(points)
 
-    draw(x, y, dir) {
+    draw(x, y, dir, color) {
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+
         ctx.beginPath();
 
         ctx.moveTo(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)), y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
@@ -72,12 +77,13 @@ class Shape {
 }// Shape
 
 class Entity {
-    constructor(shape) {
+    constructor(shape, color) {
         this.x = canvas.width/2;
         this.y = canvas.height/2;
         this.dir = 0;
         this.xSpeed = 0;
         this.ySpeed = 0;
+        this.color = color;
 
         this.shape = shape;
     }// constructor()
@@ -98,8 +104,12 @@ class Entity {
         this.changeDir(turnSpeed);
     }// turnRight()
 
-    updatePosition() {
+    forward(speed) {
+        this.xSpeed = speed * Math.cos(this.dir * Math.PI/180);
+        this.ySpeed = speed * Math.sin(this.dir * Math.PI/180);
+    }// forward(speed)
 
+    updatePosition() {
         while(this.getAbsSpeed() > maxSpeed) {
             if(this.xSpeed > 0)
                 this.xSpeed -= acceleration;
@@ -132,33 +142,21 @@ class Entity {
     }// updatePosition()
 
     draw() {
-        this.shape.draw(this.x, this.y, this.dir);
+        this.shape.draw(this.x, this.y, this.dir, this.color);
+
         if(showVelocity) {
             ctx.strokeStyle = "#00f";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(this.x + this.xSpeed*10, this.y);
             ctx.stroke();
-
-            ctx.strokeStyle = "#0f0";
+    
+            ctx.strokeStyle = "#f00";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(this.x, this.y + this.ySpeed*20);
             ctx.stroke();
-
-            ctx.strokeStyle = "#fff";
         }
-
-        if(laserSight) {
-            ctx.strokeStyle = "#f00";
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x + (canvas.width * 2) * Math.cos(this.dir * (Math.PI / 180)), this.y + (canvas.width * 2) * Math.sin(this.dir * (Math.PI / 180)));
-            ctx.stroke();
-
-            ctx.strokeStyle = "#fff";
-        }
-
     }// draw()*/
 }// Entity
 
@@ -171,21 +169,62 @@ var shipPoints = [
     new PointValue(-10, -15).getPolar()
 ];
 
+var laserPoints = [
+    new PointValue(0, 1).getPolar(),
+    new PointValue(-10, 1).getPolar(),
+    new PointValue(-10, -1).getPolar(),
+    new PointValue(0, -1).getPolar()
+];
+
 /*----- Other Things End -----*/
 
-var ship = new Entity(new Shape(shipPoints));
+var ship = new Entity(new Shape(shipPoints), "#fff");
+entities[0] = ship;
 ship.dir = 270;
-
-/*
 ship.draw = function() {
-    ctx.beginPath();
-    ctx.moveTo(this.x + 25 * Math.cos((this.dir) * (Math.PI / 180)), this.y + 25 * Math.sin((this.dir) * (Math.PI / 180)));
-    ctx.lineTo(this.x + 20 * Math.cos((this.dir + 135) * (Math.PI / 180)), this.y + 20 * Math.sin((this.dir + 135) * (Math.PI / 180)));
-    ctx.lineTo(this.x + 20 * Math.cos((this.dir + 225) * (Math.PI / 180)), this.y + 20 * Math.sin((this.dir + 225) * (Math.PI / 180)));
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-}// ship.draw() */
+    this.shape.draw(this.x, this.y, this.dir, this.color);
+
+    if(showVelocity) {
+        ctx.strokeStyle = "#00f";
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x + this.xSpeed*10, this.y);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#f00";
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x, this.y + this.ySpeed*20);
+        ctx.stroke();
+    }
+
+    if(laserSight) {
+        ctx.strokeStyle = "#0f0";
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x + (canvas.width * 2) * Math.cos(this.dir * (Math.PI / 180)), this.y + (canvas.width * 2) * Math.sin(this.dir * (Math.PI / 180)));
+        ctx.stroke();
+    }
+}// ship.draw()
+
+function shoot() {
+    console.log("shoot");
+    var laser = new Entity(new Shape(laserPoints), "#f00");
+    var index = entities.length;
+    entities[index] = laser;
+
+    laser.dir = ship.dir;
+    laser.x = ship.x;
+    laser.y = ship.y;
+    console.log("laser created");
+
+    laser.forward(20);
+
+    console.log("laser shot");
+
+}// shoot()
+
+/*----- I/O -----*/
 
 document.addEventListener("keydown", function(event) {
     switch(event.key) {
@@ -200,6 +239,9 @@ document.addEventListener("keydown", function(event) {
             break;
         case "ArrowRight":
             arrowRightPressed = true;
+            break;
+        case " ":
+            shoot();
             break;
     }
 });// keydown
@@ -221,6 +263,9 @@ document.addEventListener("keyup", function(event) {
     }
 });// keyup
 
+/*----- I/O End -----*/
+/*----- Update -----*/
+
 function updateMovement() {
     if(arrowUpPressed) {
         ship.xSpeed += acceleration * Math.cos(ship.dir * (Math.PI / 180));
@@ -237,8 +282,13 @@ function updateMovement() {
         ship.turnRight()
     }
 
-    ship.updatePosition();
-    
+    //ship.updatePosition();
+
+    for(let i = 0; i < entities.length; i++) {
+        if(entities[i] != null) {
+            entities[i].updatePosition();
+        }
+    }
 }// updateMovement()
 
 function updateSize() {
@@ -261,6 +311,14 @@ function updateSize() {
     gameDiv.style.margin = "auto";
 }// updateSize()
 
+function drawEntities() {
+    for(let i = 0; i < entities.length; i++) {
+        if(entities[i] != null) {
+            entities[i].draw();
+        }
+    }
+}// drawEntities()
+
 function updateScreen() {
     updateSize();
 
@@ -269,9 +327,13 @@ function updateScreen() {
 
     updateMovement();
 
-    ship.draw();
+    drawEntities();
 }// updateScreen()
 
+/*----- Update End -----*/
+
+
+// inits
 function init() {
     var updateInterval = setInterval(updateScreen, 1000/60);
 }// init()
