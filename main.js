@@ -1,7 +1,10 @@
 var canvas = document.getElementById("game");
 var ctx = canvas.getContext("2d");
 var gameDiv = document.getElementById("gameDiv");
+
 ctx.strokeStyle = "#fff";
+ctx.fillStyle = "#fff";
+ctx.lineWidth = 3;
 
 var arrowUpPressed = false;
 var arrowDownPressed = false;
@@ -10,36 +13,73 @@ var arrowRightPressed = false;
 
 /*----- Game Settings -----*/
 
+var pointSize = 10;
 var turnSpeed = 5;
 var maxSpeed = 8;
 var acceleration = 0.2;
 var trippyMode = false;
+var showVelocity = false;
+var laserSight = true;
 
 /*----- Game Settings End -----*/
-/*----- Other Things -----*/
+/*----- Classes -----*/
 
-var shipPoints = [
-    [25 * Math.cos((this.dir) * (Math.PI / 180)), 25 * Math.sin((this.dir) * (Math.PI / 180))],
-    [20 * Math.cos((this.dir + 135) * (Math.PI / 180)), 20 * Math.sin((this.dir + 135) * (Math.PI / 180))],
-    [20 * Math.cos((this.dir + 225) * (Math.PI / 180)), 20 * Math.sin((this.dir + 225) * (Math.PI / 180))]
-];
+class PointValue {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }// constructor(x, y)
 
-/*----- Other Things End -----*/
+    getPolar() {
+        var r = Math.sqrt((this.x*this.x) + (this.y*this.y));
+        if(this.x > 0)
+            var dir = Math.atan(this.y / this.x) * (180 / Math.PI);
+        else {
+            var dir = Math.atan(this.y / this.x) * (180 / Math.PI) + 180;
+        }
 
+        return new PolarPoint(r, dir);
+    }// getPolar()
+}// PointValue
+
+class PolarPoint {
+    constructor(r, dir) {
+        this.r = r;
+        this.dir = dir;
+    }// constructor(r, dir)
+}// PolarPoint
+
+class Shape {
+    constructor(points) {
+        this.points = [];
+        for(let i = 0; i < points.length; i++) {
+            this.points[i] = points[i];
+        }
+    }// constructor(points)
+
+    draw(x, y, dir) {
+        ctx.beginPath();
+
+        ctx.moveTo(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)), y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
+        for(let i = 1; i < this.points.length; i++) {
+            ctx.lineTo(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)), y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
+        }
+
+        ctx.closePath();
+
+        ctx.stroke();
+    }// draw()
+}// Shape
 
 class Entity {
-    constructor(points) {
+    constructor(shape) {
         this.x = canvas.width/2;
         this.y = canvas.height/2;
         this.dir = 0;
         this.xSpeed = 0;
         this.ySpeed = 0;
 
-        if(points != null)
-            this.points = points;
-        else
-            this.points = shipPoints;
-
+        this.shape = shape;
     }// constructor()
 
     getAbsSpeed() {
@@ -91,20 +131,52 @@ class Entity {
         }
     }// updatePosition()
 
-    /*draw() {
-        ctx.beginPath();
-        ctx.moveTo(this.x + this.points[0][0], this.y + this.points[0][1]);
-        for(let i = 1; i < this.points.length; i++) {
-            ctx.lineTo(this.x + this.points[i][0], this.y + this.points[i][1]);
+    draw() {
+        this.shape.draw(this.x, this.y, this.dir);
+        if(showVelocity) {
+            ctx.strokeStyle = "#00f";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x + this.xSpeed*10, this.y);
+            ctx.stroke();
+
+            ctx.strokeStyle = "#0f0";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x, this.y + this.ySpeed*20);
+            ctx.stroke();
+
+            ctx.strokeStyle = "#fff";
         }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
+
+        if(laserSight) {
+            ctx.strokeStyle = "#f00";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x + (canvas.width * 2) * Math.cos(this.dir * (Math.PI / 180)), this.y + (canvas.width * 2) * Math.sin(this.dir * (Math.PI / 180)));
+            ctx.stroke();
+
+            ctx.strokeStyle = "#fff";
+        }
+
     }// draw()*/
-}
+}// Entity
 
-var ship = new Entity(shipPoints);
+/*----- Classes End -----*/
+/*----- Other Things -----*/
 
+var shipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
+/*----- Other Things End -----*/
+
+var ship = new Entity(new Shape(shipPoints));
+ship.dir = 270;
+
+/*
 ship.draw = function() {
     ctx.beginPath();
     ctx.moveTo(this.x + 25 * Math.cos((this.dir) * (Math.PI / 180)), this.y + 25 * Math.sin((this.dir) * (Math.PI / 180)));
@@ -201,8 +273,6 @@ function updateScreen() {
 }// updateScreen()
 
 function init() {
-    ship.draw();
-
     var updateInterval = setInterval(updateScreen, 1000/60);
 }// init()
 
