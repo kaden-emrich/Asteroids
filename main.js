@@ -248,9 +248,7 @@ class Entity {
                     objectA[0].x <= objectB[1].x &&
                     objectA[2].y >= objectB[0].y &&
                     objectA[0].y <= objectB[2].y &&
-                    this.type != entities[i].type &&
-                    ((this.type == "astroid1" || this.type == "astroid2" || this.type == "astroid3") && 
-                    (entities[i].type == "astroid1" || entities[i].type == "astroid2" || entities[i].type == "astroid3"))
+                    this.type != entities[i].type
                 ) {
                     return entities[i]; 
                 }
@@ -453,19 +451,14 @@ function entityColision(entity) {
     if(entity.checkColision() == null) return;
 
     switch(entity.type) {
-        case "astroid1":
-            astroidColision(entity, 1);
+        case "astroid":
+            astroidColision(entity);
             break;
-        case "astroid2":
-            astroidColision(entity, 2);
-            break;
-        case "astroid3":
-            astroidColision(entity, 3);
-            break;
+
     }
 }// entityColision(entity)
 
-function astroidColision(astroid, size) {
+function astroidColision(astroid) {
     if(astroid.checkColision().type == "ship") {
         entities[astroid.checkColision().index] = null;
         gameOver();
@@ -476,12 +469,12 @@ function astroidColision(astroid, size) {
     entities[astroid.index] = null;
     entities[astroid.checkColision().index] = null;
 
-    if(size == 2) {
+    if(astroid.size == 2) {
         spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
         spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
         spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
     }
-    if(size == 3) {
+    if(astroid.size == 3) {
         spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
         spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
     }
