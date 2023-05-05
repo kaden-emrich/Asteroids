@@ -1,0 +1,14 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+    overflow: hidden;
+}
+
+#game {
+    margin: auto;
+    width: 1000px;
+    height: 1000px;
+    image-rendering: pixelated;
+    background-color: black;
+}
