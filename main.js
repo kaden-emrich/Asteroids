@@ -6,6 +6,9 @@ ctx.strokeStyle = "#fff";
 ctx.fillStyle = "#fff";
 ctx.lineWidth = 4;
 
+var updateInterval;
+
+var ship;
 var entities = [];
 
 var arrowUpPressed = false;
@@ -25,6 +28,8 @@ var laserSight = false;
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
 var astroidSpeed = 2;
+
+var currentDifficulty = 1;
 
 /*----- Game Settings End -----*/
 /*----- Classes -----*/
@@ -94,6 +99,7 @@ class Entity {
         this.ySpeed = 0;
         this.color = color;
         this.type = type;
+        this.rollOverDist = 30;
 
         this.index = entities.length;
         entities[this.index] = this;
@@ -192,17 +198,17 @@ class Entity {
 
         
         // off screen roll-over
-        if(this.x < -30) {
-            this.x = canvas.width + 30;
+        if(this.x < 0-this.rollOverDist) {
+            this.x = canvas.width + this.rollOverDist;
         }
-        if(this.x > canvas.width + 30) {
-            this.x = -30;
+        if(this.x > canvas.width + this.rollOverDist) {
+            this.x = 0-this.rollOverDist;
         }
-        if(this.y < -30) {
-            this.y = canvas.height + 30;
+        if(this.y < 0-this.rollOverDist) {
+            this.y = canvas.height + this.rollOverDist;
         }
-        if(this.y > canvas.height + 30) {
-            this.y = -30;
+        if(this.y > canvas.height + this.rollOverDist) {
+            this.y = 0-this.rollOverDist;
         }
     }// updatePosition()
 
@@ -262,10 +268,6 @@ class Entity {
 /*----- Classes End -----*/
 /*----- Other Things -----*/
 
-function gameOver() {
-    alert("You lose. Reload to retry.");
-}// gameOver()
-
 var shipPoints = [
     new PointValue(30, 0).getPolar(),
     new PointValue(-10, 15).getPolar(),
@@ -281,39 +283,43 @@ var laserPoints = [
 
 /*----- Other Things End -----*/
 
-var ship = new Entity(new Shape(shipPoints), "#fff", "ship");
-ship.dir = 270;
-ship.draw = function() {
-    if(this.checkColision() != null) {
-        this.color = "#f00";
-    }
-    else {
-        this.color = "#fff";
-    }
-    this.shape.draw(this.x, this.y, this.dir, this.color);
+function createShip() {
+    ship = new Entity(new Shape(shipPoints), "#fff", "ship");
+    ship.x = canvas.width * 0.75;
+    ship.y = canvas.height * 0.25;
+    ship.dir = 135;
+    ship.draw = function() {
+        if(this.checkColision() != null) {
+            this.color = "#f00";
+        }
+        else {
+            this.color = "#fff";
+        }
+        this.shape.draw(this.x, this.y, this.dir, this.color);
 
-    if(showVelocity) {
-        ctx.strokeStyle = "#00f";
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x + this.xSpeed*10, this.y);
-        ctx.stroke();
+        if(showVelocity) {
+            ctx.strokeStyle = "#00f";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x + this.xSpeed*10, this.y);
+            ctx.stroke();
 
-        ctx.strokeStyle = "#f00";
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x, this.y + this.ySpeed*20);
-        ctx.stroke();
-    }
+            ctx.strokeStyle = "#f00";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x, this.y + this.ySpeed*20);
+            ctx.stroke();
+        }
 
-    if(laserSight) {
-        ctx.strokeStyle = "#0f0";
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x + (canvas.width * 2) * Math.cos(this.dir * (Math.PI / 180)), this.y + (canvas.width * 2) * Math.sin(this.dir * (Math.PI / 180)));
-        ctx.stroke();
-    }
-}// ship.draw()
+        if(laserSight) {
+            ctx.strokeStyle = "#0f0";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x + (canvas.width * 2) * Math.cos(this.dir * (Math.PI / 180)), this.y + (canvas.width * 2) * Math.sin(this.dir * (Math.PI / 180)));
+            ctx.stroke();
+        }
+    }// ship.draw()
+}// createShip()
 
 function shoot() {
     //console.log("shoot"); // for debugging
@@ -348,23 +354,27 @@ function shoot() {
 
 }// shoot()
 
-function spawnAstroid(x, y, dir, speed, size) {
+function newAstroid(x, y, dir, speed, size) {
     // randomly generate astroid shape
     var astroidPoints = [];
     var min = 60;
     var dif = 30;
+    var rd = 30;
     
     if(size == 3) {
         min = 60;
         dif = 30;
+        rd = 90;
     }
     else if(size == 2) {
         min = 40;
         dif = 15;
+        rd = 55;
     }
     else if(size == 1) {
         min = 20;
         dif = 10;
+        rd = 30;
     }
 
     for(let i = 0; i < 18; i++) {
@@ -372,12 +382,35 @@ function spawnAstroid(x, y, dir, speed, size) {
     }
 
     var astroid = new Entity(new Shape(astroidPoints), "#fff", "astroid");
-    astroid.size = size;
     astroid.x = x;
     astroid.y = y;
     astroid.dir = dir;
+    astroid.size = size;
+    astroid.rollOverDist = rd;
 
     astroid.forward(speed);
+}// newAstroid(x, y, dir, speed, size)
+
+function spawnAstroid() {
+    
+    var dir = Math.random() * 360;
+    var x = Math.random() * canvas.width;
+    var y = Math.random() * canvas.height;
+
+    if(Math.floor(Math.random() * 2) == 1) {
+        if(Math.floor(Math.random() * 2) == 1) 
+            var x = 0 - 90;
+        else
+            var x = canvas.width + 90;
+    }
+    else {
+        if(Math.floor(Math.random() * 2) == 1)
+            var y = 0 - 90;
+        else
+            var y = canvas.height + 90;
+    }
+
+    newAstroid(x, y, dir, astroidSpeed, 3);
 }// spawnAstroid()
 
 /*----- I/O -----*/
@@ -422,6 +455,12 @@ document.addEventListener("keyup", function(event) {
 /*----- I/O End -----*/
 /*----- Update -----*/
 
+function gameOver() {
+    updateInterval = clearInterval(updateInterval);
+    alert("You lose.");
+    newGame();
+}// gameOver()
+
 function updateMovement() {
     if(arrowUpPressed) {
         ship.xSpeed += acceleration * Math.cos(ship.dir * (Math.PI / 180));
@@ -459,25 +498,29 @@ function entityColision(entity) {
 }// entityColision(entity)
 
 function astroidColision(astroid) {
+    if(astroid == null || astroid.checkColision() == null || astroid.checkColision().type == null) return;
+
     if(astroid.checkColision().type == "ship") {
         entities[astroid.checkColision().index] = null;
         gameOver();
+        return;
     }
 
     if(astroid.checkColision().type != "laser") return;
 
-    entities[astroid.index] = null;
     entities[astroid.checkColision().index] = null;
-
+    
     if(astroid.size == 2) {
-        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
-        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
-        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
     }
     if(astroid.size == 3) {
-        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
-        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
+        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
+        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
     }
+
+    entities[astroid.index] = null;
 }// astroidColision(entity)
 
 function updateColision() {
@@ -508,6 +551,24 @@ function updateSize() {
     gameDiv.style.margin = "auto";
 }// updateSize()
 
+function updateAstroids() {
+    var numAstroids = 0;
+    
+    for(let e of entities) {
+        if(e != null && e.type == "astroid") {
+            numAstroids++;
+        }
+    }
+
+    if(numAstroids == 0) {
+        currentDifficulty++;
+
+        for(let i = 0; i < currentDifficulty; i++) {
+            spawnAstroid();
+        }
+    }
+}// updateAstroids()
+
 function drawEntities() {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
@@ -529,15 +590,36 @@ function updateScreen() {
     updateMovement();
     updateColision();
 
+    updateAstroids();
+
     drawEntities();
 }// updateScreen()
 
 /*----- Update End -----*/
 
+function newGame() {
+    updateInterval = clearInterval(updateInterval);
+    entities = [];
+
+    arrowUpPressed = false;
+    arrowDownPressed = false;
+    arrowLeftPressed = false;
+    arrowRightPressed = false;
+
+    ship = null;
+
+    createShip();
+    currentDifficulty = 1;
+    
+    newAstroid(canvas.width/2, canvas.height/2, 0, 0, 3);
+
+    // start update interval
+    updateInterval = setInterval(updateScreen, 1000/60);
+}// startGame()
 
 // inits
 function init() {
-    var updateInterval = setInterval(updateScreen, 1000/60);
+    newGame();
 }// init()
 
 init();
