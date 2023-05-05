@@ -22,8 +22,9 @@ var acceleration = 0.2;
 var trippyMode = false;
 var showVelocity = false;
 var laserSight = false;
-var showBoundingBoxes = true;
+var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
+var astroidSpeed = 2;
 
 /*----- Game Settings End -----*/
 /*----- Classes -----*/
@@ -245,20 +246,27 @@ class Entity {
                 if(
                     objectA[1].x >= objectB[0].x &&
                     objectA[0].x <= objectB[1].x &&
-                    objectA[1].y >= objectB[0].y &&
-                    objectA[0].y <= objectB[1].y
+                    objectA[2].y >= objectB[0].y &&
+                    objectA[0].y <= objectB[2].y &&
+                    this.type != entities[i].type &&
+                    ((this.type == "astroid1" || this.type == "astroid2" || this.type == "astroid3") && 
+                    (entities[i].type == "astroid1" || entities[i].type == "astroid2" || entities[i].type == "astroid3"))
                 ) {
-                    return entities[i].type;
+                    return entities[i]; 
                 }
             }
         }
 
-        return "none";
+        return null;
     }// checkColision()
 }// Entity
 
 /*----- Classes End -----*/
 /*----- Other Things -----*/
+
+function gameOver() {
+    alert("You lose. Reload to retry.");
+}// gameOver()
 
 var shipPoints = [
     new PointValue(30, 0).getPolar(),
@@ -278,7 +286,7 @@ var laserPoints = [
 var ship = new Entity(new Shape(shipPoints), "#fff", "ship");
 ship.dir = 270;
 ship.draw = function() {
-    if(this.checkColision != "none") {
+    if(this.checkColision() != null) {
         this.color = "#f00";
     }
     else {
@@ -323,9 +331,17 @@ function shoot() {
         }
     }
 
+    laser.getBoundingBox = function() {
+        var bBox = [];
+        for(let i = 0; i < 4; i++) {
+            bBox[i] = new PointValue(this.x, this.y);
+        }
+        return bBox;
+    }
+
     laser.dir = ship.dir;
-    laser.x = ship.x;
-    laser.y = ship.y;
+    laser.x = ship.getPoints()[0].x;
+    laser.y = ship.getPoints()[0].y;
     //console.log("laser created"); // for debugging
 
     laser.forward(20);
@@ -334,7 +350,7 @@ function shoot() {
 
 }// shoot()
 
-function spawnAstroid(x, y, dir, size) {
+function spawnAstroid(x, y, dir, speed, size) {
     // randomly generate astroid shape
     var astroidPoints = [];
     var min = 60;
@@ -358,11 +374,12 @@ function spawnAstroid(x, y, dir, size) {
     }
 
     var astroid = new Entity(new Shape(astroidPoints), "#fff", "astroid");
+    astroid.size = size;
     astroid.x = x;
     astroid.y = y;
     astroid.dir = dir;
 
-    astroid.forward(2);
+    astroid.forward(speed);
 }// spawnAstroid()
 
 /*----- I/O -----*/
@@ -432,6 +449,52 @@ function updateMovement() {
     }
 }// updateMovement()
 
+function entityColision(entity) {
+    if(entity.checkColision() == null) return;
+
+    switch(entity.type) {
+        case "astroid1":
+            astroidColision(entity, 1);
+            break;
+        case "astroid2":
+            astroidColision(entity, 2);
+            break;
+        case "astroid3":
+            astroidColision(entity, 3);
+            break;
+    }
+}// entityColision(entity)
+
+function astroidColision(astroid, size) {
+    if(astroid.checkColision().type == "ship") {
+        entities[astroid.checkColision().index] = null;
+        gameOver();
+    }
+
+    if(astroid.checkColision().type != "laser") return;
+
+    entities[astroid.index] = null;
+    entities[astroid.checkColision().index] = null;
+
+    if(size == 2) {
+        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+    }
+    if(size == 3) {
+        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
+        spawnAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
+    }
+}// astroidColision(entity)
+
+function updateColision() {
+    for(let i = 0; i < entities.length; i++) {
+        if(entities[i] != null) {
+            entityColision(entities[i]);
+        }
+    }
+}// updateColision()
+
 function updateSize() {
     var h = window.innerHeight;
     var w = window.innerWidth;
@@ -471,6 +534,7 @@ function updateScreen() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     updateMovement();
+    updateColision();
 
     drawEntities();
 }// updateScreen()
