@@ -463,7 +463,7 @@ document.addEventListener("keyup", function(event) {
 
 function gameOver() {
     updateInterval = clearInterval(updateInterval);
-    alert("You lose. \  nYour Score: " + score + "\nWave: " + currentDifficulty + "\nAccuracy: " + Math.floor(score / shotsFired * 100) + "%");
+    alert("You lose. \nYour Score: " + score + "\nWave: " + currentDifficulty + "\nAccuracy: " + Math.floor(score / shotsFired * 100) + "%");
     newGame();
 }// gameOver()
 
