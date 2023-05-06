@@ -11,10 +11,15 @@ var updateInterval;
 var ship;
 var entities = [];
 
+var score = 0;
+
 var arrowUpPressed = false;
 var arrowDownPressed = false;
 var arrowLeftPressed = false;
 var arrowRightPressed = false;
+
+var currentDifficulty = 1;
+var shotsFired = 0;
 
 /*----- Game Settings -----*/
 
@@ -28,8 +33,9 @@ var laserSight = false;
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
 var astroidSpeed = 2;
-
-var currentDifficulty = 1;
+var fontFamily = "Munro";
+var fontSize = 50;
+var textColor = "#fff";
 
 /*----- Game Settings End -----*/
 /*----- Classes -----*/
@@ -330,7 +336,7 @@ function shoot() {
 
         
         // off screen delete
-        if(this.x < -30  ||  this.x > canvas.width + 30  ||  this.y < -30  || this.y > canvas.height + 30) {
+        if(this.x < -100  ||  this.x > canvas.width + 100  ||  this.y < -100  || this.y > canvas.height + 100) {
             entities[laser.index] = null;
         }
     }
@@ -351,7 +357,7 @@ function shoot() {
     laser.forward(20);
 
     //console.log("laser shot"); // for debugging
-
+    shotsFired++;
 }// shoot()
 
 function newAstroid(x, y, dir, speed, size) {
@@ -457,7 +463,7 @@ document.addEventListener("keyup", function(event) {
 
 function gameOver() {
     updateInterval = clearInterval(updateInterval);
-    alert("You lose.");
+    alert("You lose. \  nYour Score: " + score + "\nWave: " + currentDifficulty + "\nAccuracy: " + Math.floor(score / shotsFired * 100) + "%");
     newGame();
 }// gameOver()
 
@@ -507,6 +513,8 @@ function astroidColision(astroid) {
     }
 
     if(astroid.checkColision().type != "laser") return;
+
+    score++;
 
     entities[astroid.checkColision().index] = null;
     
@@ -581,6 +589,13 @@ function drawEntities() {
     }
 }// drawEntities()
 
+function drawText() {
+    ctx.fillStyle = textColor;
+    ctx.fillText("Score: " + score, 10, 10);
+    ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
+    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired * 100) + "%", 10, fontSize*2 + 30)
+}// drawText()
+
 function updateScreen() {
     updateSize();
 
@@ -591,8 +606,9 @@ function updateScreen() {
     updateColision();
 
     updateAstroids();
-
+    
     drawEntities();
+    drawText();
 }// updateScreen()
 
 /*----- Update End -----*/
@@ -600,6 +616,8 @@ function updateScreen() {
 function newGame() {
     updateInterval = clearInterval(updateInterval);
     entities = [];
+    score = 0;
+    shotsFired = 0;
 
     arrowUpPressed = false;
     arrowDownPressed = false;
@@ -619,7 +637,14 @@ function newGame() {
 
 // inits
 function init() {
+    ctx.font = fontSize + "px " + fontFamily;
+    ctx.textBaseline = "hanging";
     newGame();
 }// init()
 
 init();
+
+/*
+todo:
+ - fix problem where ship only moves horizontal/vertical while at top speed
+*/
