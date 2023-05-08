@@ -23,6 +23,7 @@ var shotsFired = 0;
 
 /*----- Game Settings -----*/
 
+var viewType = "square";
 var pointSize = 10;
 var turnSpeed = 5;
 var maxSpeed = 8;
@@ -657,23 +658,42 @@ function updateColision() {
     }
 }// updateColision()
 
+function updateFullScreen() {
+    var h = window.innerHeight;
+    var w = window.innerWidth;
+    
+    canvas.width = w;
+    canvas.style.width = w + "px";
+    gameDiv.style.width = w + "px";
+    canvas.height = h;
+    canvas.style.height = h + "px";
+    gameDiv.style.height = h + "px";
+}// updateFullScreen()
+
 function updateSize() {
     var h = window.innerHeight;
     var w = window.innerWidth;
 
-    if(w > h) {
-        canvas.style.height = h + "px";
-        canvas.style.width = h + "px";
-        gameDiv.style.height = h + "px";
-        gameDiv.style.width = h + "px";
+    
+    if(viewType == "full") {
+        updateFullScreen();
+        ctx.lineWidth = Math.floor(canvas.height / 250);
     }
     else {
-        canvas.style.height = w + "px";
-        canvas.style.width = w + "px";
-        gameDiv.style.height = w + "px";
-        gameDiv.style.width = w + "px";
+        ctx.lineWidth = 4;
+        if(w > h) {
+            canvas.style.height = h + "px";
+            canvas.style.width = h + "px";
+            gameDiv.style.height = h + "px";
+            gameDiv.style.width = h + "px";
+        }
+        else {
+            canvas.style.height = w + "px";
+            canvas.style.width = w + "px";
+            gameDiv.style.height = w + "px";
+            gameDiv.style.width = w + "px";
+        }
     }
-
     gameDiv.style.margin = "auto";
 }// updateSize()
 
@@ -708,10 +728,13 @@ function drawEntities() {
 }// drawEntities()
 
 function drawText() {
+    fontSize = canvas.height / 20;
+    ctx.font = fontSize + "px " + fontFamily;
+    ctx.textBaseline = "hanging";
     ctx.fillStyle = textColor;
     ctx.fillText("Score: " + score, 10, 10);
     ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
-    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
+    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired * 100) + "%", 10, fontSize*2 + 30);
 }// drawText()
 
 function updateScreen() {
@@ -756,7 +779,6 @@ function newGame() {
 // inits
 function init() {
     ctx.font = fontSize + "px " + fontFamily;
-    ctx.textBaseline = "hanging";
     newGame();
 }// init()
 
