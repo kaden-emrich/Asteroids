@@ -37,6 +37,7 @@ var astroidSpeed = 2;
 var fontFamily = "Munro";
 var fontSize = 50;
 var textColor = "#fff";
+var noClip = false;
 
 /*----- Game Settings End -----*/
 /*----- Classes -----*/
@@ -71,6 +72,34 @@ class PolarPoint {
         return new PointValue(x, y);
     }// getRect()
 }// PolarPoint
+
+class Line {
+    constructor(p1, p2) {
+        this.point1 = p1;
+        this.point2 = p2;
+    }// constructor(p1, p2)
+
+    getOrentation(p, q, r) {
+        var exp = (q.y - p.y)*(r.x - q.x) - (q.x - p.x)*(r.y - q.y);
+        if(exp > 0) return 1;
+        else if(exp < 0) return -1;
+        else return 0;
+    }// getOrentation(p, q, r)
+
+    intersects(line2) { // I think this works. Probably???
+        var a1 = this.point1;
+        var b1 = this.point2;
+        var a2 = line2.point1;
+        var b2 = line2.point2;
+
+        if(
+        this.getOrentation(a1, b1, a2) != this.getOrentation(a1, b1, b2) &&
+        this.getOrentation(a2, b2, a1) != this.getOrentation(a2, b2, b1)
+        ) return true;
+
+        else return false;
+    }// intersects(line2)
+}// line
 
 class Shape {
     constructor(points) {
@@ -250,7 +279,7 @@ class Entity {
         ctx.stroke();
     }// drawBoundingBox()
 
-    checkColision() {
+    checkBoxColision() {
         for(let i = 0; i < entities.length; i++) {
             if(entities[i] != null && i != this.index) {
                 var objectA = this.getBoundingBox();
@@ -269,7 +298,78 @@ class Entity {
         }
 
         return null;
-    }// checkColision()
+    }// checkBoxColision()
+
+    isTouching(e2) {
+        // get bounding total bounding box
+        var xMin = this.getBoundingBox()[0].x;
+        var yMin = this.getBoundingBox()[0].y;
+        var xMax = this.getBoundingBox()[0].x;
+        var yMax = this.getBoundingBox()[0].y;
+
+        // this entity
+        for(let i = 1; i < this.getBoundingBox().length; i++) {
+            if(this.getBoundingBox()[i].x < xMin)
+                xMin = this.getBoundingBox()[i].x;
+            if(this.getBoundingBox()[i].x > xMax)
+                xMax = this.getBoundingBox()[i].x;
+            if(this.getBoundingBox()[i].y < yMin)
+                yMin = this.getBoundingBox()[i].y;
+            if(this.getBoundingBox()[i].y > yMax)
+                yMax = this.getBoundingBox()[i].y;
+        }
+
+        // other entity
+        for(let i = 1; i < e2.getBoundingBox().length; i++) {
+            if(e2.getBoundingBox()[i].x < xMin)
+                xMin = e2.getBoundingBox()[i].x;
+            if(e2.getBoundingBox()[i].x > xMax)
+                xMax = e2.getBoundingBox()[i].x;
+            if(e2.getBoundingBox()[i].y < yMin)
+                yMin = e2.getBoundingBox()[i].y;
+            if(e2.getBoundingBox()[i].y > yMax)
+                yMax = e2.getBoundingBox()[i].y;
+        }
+
+        var bBox = [
+            new PointValue(xMin, yMin),
+            new PointValue(xMax, yMin),
+            new PointValue(xMax, yMax),
+            new PointValue(xMin, yMax)
+        ];
+        
+        // do line colision
+        var numIntersects = 0;
+        for(let i = 0; i < this.getPoints().length; i++) {
+            numIntersects = 0;
+            for(let j = 0; j < e2.getPoints().length; j++) {
+                var line1 = new Line(this.getPoints()[i], bBox[0]);
+                var line2;
+                if(j == e2.getPoints().length - 1) 
+                    line2 = new Line(e2.getPoints()[j], e2.getPoints()[0]);
+                else
+                    line2 = new Line(e2.getPoints()[j], e2.getPoints()[j+1]);
+
+                if(line1.intersects(line2)) {
+                    numIntersects++;
+                }
+            }
+            
+            if(numIntersects != 0 && numIntersects % 2 != 0) return true;
+        }
+
+        return false;
+    }// isTouching(e2)
+
+    checkLineColision() {
+        for(let i = 0; i < entities.length; i++) {
+            if(entities[i] != null && i != this.index) {
+                if(this.isTouching(entities[i])) return entities[i];
+            }
+        }
+
+        return null;
+    }// checkLineColision()
 }// Entity
 
 /*----- Classes End -----*/
@@ -296,13 +396,17 @@ function createShip() {
     ship.y = canvas.height * 0.25;
     ship.dir = 135;
     ship.draw = function() {
-        if(this.checkColision() != null) {
-            this.color = "#f00";
-        }
-        else {
-            this.color = "#fff";
+        if(noClip) {
+            var colision = this.checkLineColision();
+            if(colision != null && colision.type == "astroid") {
+                this.color = "#f00";
+            }
+            else {
+                this.color = "#fff";
+            }
         }
         this.shape.draw(this.x, this.y, this.dir, this.color);
+        
 
         if(showVelocity) {
             ctx.strokeStyle = "#00f";
@@ -425,15 +529,19 @@ function spawnAstroid() {
 document.addEventListener("keydown", function(event) {
     switch(event.key) {
         case "ArrowUp":
+        case "w":
             arrowUpPressed = true;
             break;
         case "ArrowDown":
+        case "s":
             arrowDownPressed = true;
             break;
         case "ArrowLeft":
+        case "a":
             arrowLeftPressed = true;
             break;
         case "ArrowRight":
+        case "d":
             arrowRightPressed = true;
             break;
         case " ":
@@ -445,15 +553,19 @@ document.addEventListener("keydown", function(event) {
 document.addEventListener("keyup", function(event) {
     switch(event.key) {
         case "ArrowUp":
+        case "w":
             arrowUpPressed = false;
             break;
         case "ArrowDown":
+        case "s":
             arrowDownPressed = false;
             break;
         case "ArrowLeft":
+        case "a":
             arrowLeftPressed = false;
             break;
         case "ArrowRight":
+        case "d":
             arrowRightPressed = false;
             break;
     }
@@ -464,7 +576,7 @@ document.addEventListener("keyup", function(event) {
 
 function gameOver() {
     updateInterval = clearInterval(updateInterval);
-    alert("You lose. \nYour Score: " + score + "\nWave: " + currentDifficulty + "\nAccuracy: " + Math.floor(score / shotsFired * 100) + "%");
+    alert("You lose. \nYour Score: " + score + "\nWave: " + currentDifficulty + "\nAccuracy: " + Math.floor(score / shotsFired) + "%");
     newGame();
 }// gameOver()
 
@@ -494,7 +606,7 @@ function updateMovement() {
 }// updateMovement()
 
 function entityColision(entity) {
-    if(entity.checkColision() == null) return;
+    if(entity.checkBoxColision() == null) return;
 
     switch(entity.type) {
         case "astroid":
@@ -505,37 +617,43 @@ function entityColision(entity) {
 }// entityColision(entity)
 
 function astroidColision(astroid) {
-    if(astroid == null || astroid.checkColision() == null || astroid.checkColision().type == null) return;
+    var colision = astroid.checkBoxColision();
 
-    if(astroid.checkColision().type == "ship") {
-        entities[astroid.checkColision().index] = null;
-        gameOver();
-        return;
+    if(astroid == null || colision == null || colision.type == null) return;
+    /*colision = astroid.checkLineColision();
+    if(astroid == null || colision == null || colision.type == null) return;*/
+
+    for(let i = 0; i < entities.length; i++) {
+        if(entities[i] != null) {
+            if(entities[i].type == "ship" && noClip == false && astroid.isTouching(entities[i])) {
+                entities[i] = null;
+                gameOver();
+                return;
+            }
+            else if(entities[i].type == "laser" && astroid.isTouching(entities[i])) {
+                entities[i] = null;
+                score += 100;
+                
+                if(astroid.size == 2) {
+                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+                }
+                if(astroid.size == 3) {
+                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
+                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
+                }
+
+                entities[astroid.index] = null;
+            }
+        }
     }
-
-    if(astroid.checkColision().type != "laser") return;
-
-    score++;
-
-    entities[astroid.checkColision().index] = null;
-    
-    if(astroid.size == 2) {
-        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
-        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
-        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
-    }
-    if(astroid.size == 3) {
-        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
-        newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
-    }
-
-    entities[astroid.index] = null;
 }// astroidColision(entity)
 
 function updateColision() {
     for(let i = 0; i < entities.length; i++) {
-        if(entities[i] != null) {
-            entityColision(entities[i]);
+        if(entities[i] != null && entities[i].type == "astroid") {
+            astroidColision(entities[i]);
         }
     }
 }// updateColision()
@@ -614,9 +732,9 @@ function drawText() {
     ctx.font = fontSize + "px " + fontFamily;
     ctx.textBaseline = "hanging";
     ctx.fillStyle = textColor;
-    ctx.fillText("Score: " + score, fontSize/2, fontSize/2);
-    ctx.fillText("Wave: " + currentDifficulty, fontSize/2, fontSize * 3 / 2);
-    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired * 100) + "%", fontSize/2, fontSize * 5/2)
+    ctx.fillText("Score: " + score, 10, 10);
+    ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
+    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
 }// drawText()
 
 function updateScreen() {
