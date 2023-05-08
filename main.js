@@ -734,7 +734,7 @@ function drawText() {
     ctx.fillStyle = textColor;
     ctx.fillText("Score: " + score, 10, 10);
     ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
-    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired * 100) + "%", 10, fontSize*2 + 30);
+    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
 }// drawText()
 
 function updateScreen() {
