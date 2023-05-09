@@ -625,7 +625,7 @@ function astroidColision(astroid) {
 
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
-            if(entities[i].type == "ship" && noClip == false && astroid.isTouching(entities[i])) {
+            if(noClip == false && entities[i].type == "ship" && astroid.isTouching(entities[i])) {
                 entities[i] = null;
                 gameOver();
                 return;
