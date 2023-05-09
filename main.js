@@ -279,6 +279,22 @@ class Entity {
         ctx.stroke();
     }// drawBoundingBox()
 
+    boxIsTouching(e2) {
+        var objectA = this.getBoundingBox();
+        var objectB = e2.getBoundingBox();
+
+        if(
+            this.type != e2.type &&
+            objectA[1].x >= objectB[0].x &&
+            objectA[0].x <= objectB[1].x &&
+            objectA[2].y >= objectB[0].y &&
+            objectA[0].y <= objectB[2].y
+        ) {
+            return true; 
+        }
+        return false;
+    }// boxIsTouching(e2)
+
     checkBoxColision() {
         for(let i = 0; i < entities.length; i++) {
             if(entities[i] != null && i != this.index) {
@@ -630,7 +646,7 @@ function astroidColision(astroid) {
                 gameOver();
                 return;
             }
-            else if(entities[i].type == "laser" && astroid.isTouching(entities[i])) {
+            else if(entities[i].type == "laser" && astroid.boxIsTouching(entities[i])) {
                 entities[i] = null;
                 score += 100;
                 
