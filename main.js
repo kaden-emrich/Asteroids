@@ -21,6 +21,8 @@ var arrowRightPressed = false;
 var currentDifficulty = 1;
 var shotsFired = 0;
 
+var paused = false;
+
 /*----- Game Settings -----*/
 
 var viewType = "square";
@@ -40,6 +42,20 @@ var textColor = "#fff";
 var noClip = false;
 
 /*----- Game Settings End -----*/
+
+function pause() {
+    if(paused == true) {
+        paused = false;
+        updateInterval = setInterval(updateScreen, 1000/60);
+    }
+    else {
+        paused = true;
+        clearInterval(updateInterval);
+        ctx.fillText("Paused", canvas.width - 180, 30);
+        ctx.stroke();
+    }
+}
+
 /*----- Classes -----*/
 
 class PointValue {
@@ -320,46 +336,31 @@ class Entity {
         // get bounding total bounding box
         var xMin = this.getBoundingBox()[0].x;
         var yMin = this.getBoundingBox()[0].y;
-        var xMax = this.getBoundingBox()[0].x;
-        var yMax = this.getBoundingBox()[0].y;
 
         // this entity
         for(let i = 1; i < this.getBoundingBox().length; i++) {
             if(this.getBoundingBox()[i].x < xMin)
                 xMin = this.getBoundingBox()[i].x;
-            if(this.getBoundingBox()[i].x > xMax)
-                xMax = this.getBoundingBox()[i].x;
             if(this.getBoundingBox()[i].y < yMin)
                 yMin = this.getBoundingBox()[i].y;
-            if(this.getBoundingBox()[i].y > yMax)
-                yMax = this.getBoundingBox()[i].y;
         }
 
         // other entity
         for(let i = 1; i < e2.getBoundingBox().length; i++) {
             if(e2.getBoundingBox()[i].x < xMin)
                 xMin = e2.getBoundingBox()[i].x;
-            if(e2.getBoundingBox()[i].x > xMax)
-                xMax = e2.getBoundingBox()[i].x;
             if(e2.getBoundingBox()[i].y < yMin)
                 yMin = e2.getBoundingBox()[i].y;
-            if(e2.getBoundingBox()[i].y > yMax)
-                yMax = e2.getBoundingBox()[i].y;
         }
 
-        var bBox = [
-            new PointValue(xMin, yMin),
-            new PointValue(xMax, yMin),
-            new PointValue(xMax, yMax),
-            new PointValue(xMin, yMax)
-        ];
+        var point1 = new PointValue(xMin, yMin);
         
         // do line colision
         var numIntersects = 0;
         for(let i = 0; i < this.getPoints().length; i++) {
             numIntersects = 0;
             for(let j = 0; j < e2.getPoints().length; j++) {
-                var line1 = new Line(this.getPoints()[i], bBox[0]);
+                var line1 = new Line(this.getPoints()[i], point1);
                 var line2;
                 if(j == e2.getPoints().length - 1) 
                     line2 = new Line(e2.getPoints()[j], e2.getPoints()[0]);
@@ -563,6 +564,9 @@ document.addEventListener("keydown", function(event) {
         case " ":
             shoot();
             break;
+        case "p":
+            pause();
+            break;
     }
 });// keydown
 
@@ -641,9 +645,12 @@ function astroidColision(astroid) {
 
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
-            if(noClip == false && entities[i].type == "ship" && astroid.isTouching(entities[i])) {
-                entities[i] = null;
-                gameOver();
+            if(entities[i].type == "ship" && astroid.isTouching(entities[i])) {
+                console.log("game over");
+                if(noClip == false) {
+                    entities[i] = null;
+                    gameOver();
+                }
                 return;
             }
             else if(entities[i].type == "laser" && astroid.boxIsTouching(entities[i])) {
@@ -772,6 +779,7 @@ function updateScreen() {
 
 function newGame() {
     updateInterval = clearInterval(updateInterval);
+    pasued = false;
     entities = [];
     score = 0;
     shotsFired = 0;
