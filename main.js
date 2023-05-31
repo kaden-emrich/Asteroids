@@ -29,18 +29,21 @@ var gameOver = false;
 var viewType = "square";
 var pointSize = 10;
 var turnSpeed = 5;
-var maxSpeed = 8;
 var acceleration = 0.2;
 var trippyMode = false;
 var showVelocity = false;
 var laserSight = false;
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
-var asteroidSpeed = 2;
 var fontFamily = "Munro";
 var fontSize = 50;
 var textColor = "#fff";
 var noClip = false;
+
+var shipSpeed = 10;
+var laserSpeed = 20;
+var asteroidSpeed = 2;
+var velocityLimit = 30;
 
 /*----- Game Settings End -----*/
 
@@ -75,7 +78,7 @@ class PointValue {
 
         return new PolarPoint(r, dir);
     }// getPolar()
-}// PointValue
+}// class PointValue
 
 class PolarPoint {
     constructor(r, dir) {
@@ -88,7 +91,55 @@ class PolarPoint {
         var y = this.r * Math.sin(this.dir * Math.PI / 180);
         return new PointValue(x, y);
     }// getRect()
-}// PolarPoint
+}// class PolarPoint
+
+class Vector {
+    constructor(dir, mag) { // dir in radians, mag in units
+        if(mag < 0) dir += Math.PI;
+        if(dir > Math.PI*2 || dir < 0-(Math.PI*2)) dir = dir % (Math.PI * 2)
+        if(dir < 0) dir = (Math.PI*2) + dir;
+
+        this.dir = dir;
+        this.mag = Math.abs(mag);
+    }// constructor
+
+    get x() {
+        return this.mag * Math.cos(this.dir);
+    }// get x
+
+    get y() {
+        return this.mag * Math.sin(this.dir);
+    }// get y
+
+    add(otherVector) {
+        let xTotal = this.x + otherVector.x;
+        let yTotal = this.y + otherVector.y;
+
+        let magTotal = Math.sqrt(Math.pow(otherVector.x + this.x, 2) + Math.pow(otherVector.y + this.y, 2));
+
+        let dirTotal;
+
+        if(xTotal == 0) {
+            if(yTotal > 0) dirTotal = Math.PI/2;
+            else if(yTotal < 0) dirTotal = 0-Math.PI/2;
+            else dirTotal = 0;
+        }
+        else if(xTotal < 0) dirTotal = Math.atan(yTotal / xTotal) + Math.PI;
+        else dirTotal = Math.atan(yTotal / xTotal);
+
+        return new Vector(dirTotal, magTotal);
+    }// add(otherVector)
+
+    fromRect(x, y) {
+        let d;
+        let m = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+
+        if(x < 0) d = Math.atan(y / x) + Math.PI;
+        else d = Math.atan(y / x);
+
+        return new Vector(d, m);
+    }// fromRect(x, y)
+}// class Vector
 
 class Line {
     constructor(p1, p2) {
@@ -144,12 +195,13 @@ class Shape {
 }// Shape
 
 class Entity {
-    constructor(shape, color, type) {
+    constructor(shape, color, type, maxVelocity) {
+        if(maxVelocity > velocityLimit) maxVelocity = velocityLimit;
+        this.maxVelocity = maxVelocity;
         this.x = canvas.width/2;
         this.y = canvas.height/2;
         this.dir = 0;
-        this.xSpeed = 0;
-        this.ySpeed = 0;
+        this.speedVector = new Vector(this.dir, 0);
         this.color = color;
         this.type = type;
         this.rollOverDist = 30;
@@ -212,8 +264,12 @@ class Entity {
         return bBox;
     }// getBoundingBox()
 
+    addSpeedVector(otherVector) {
+        this.speedVector = this.speedVector.add(otherVector);
+    }// addSpeedVector(otherVector)
+
     getAbsSpeed() {
-        return Math.sqrt(Math.pow(this.xSpeed, 2) + Math.pow(this.ySpeed, 2));
+        return this.speedVector.mag;
     }// getAbsSpeed()
     
     changeDir(amount) {
@@ -229,25 +285,22 @@ class Entity {
     }// turnRight()
 
     forward(speed) {
-        this.xSpeed = speed * Math.cos(this.dir * Math.PI/180);
-        this.ySpeed = speed * Math.sin(this.dir * Math.PI/180);
+        this.addSpeedVector(new Vector(this.dir*Math.PI/180, speed));
+        if(this.speedVector.mag > this.maxVelocity) {
+            this.speedVector.mag = this.maxVelocity;
+        }
     }// forward(speed)
 
     updatePosition() {
-        while(this.getAbsSpeed() > maxSpeed) {
-            if(this.xSpeed > 0)
-                this.xSpeed -= acceleration;
-            else if(this.xSpeed < 0)
-                this.xSpeed += acceleration;
-            
-            if(this.ySpeed > 0)
-                this.ySpeed -= acceleration;
-            else if(this.ySpeed < 0)
-                this.ySpeed += acceleration;
+        if(this.speedVector.mag > this.maxVelocity) {
+            this.speedVector.mag = this.maxVelocity;
+        }
+        else if(this.speedVector.mag < 0-this.maxVelocity) {
+            this.speedVector.mag = 0 - this.maxVelocity;
         }
 
-        this.x += this.xSpeed;
-        this.y += this.ySpeed;
+        this.x += this.speedVector.x;
+        this.y += this.speedVector.y;
 
         
         // off screen roll-over
@@ -272,13 +325,13 @@ class Entity {
             ctx.strokeStyle = "#00f";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x + this.xSpeed*10, this.y);
+            ctx.lineTo(this.x + this.speedVector.x*10, this.y);
             ctx.stroke();
     
             ctx.strokeStyle = "#f00";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x, this.y + this.ySpeed*20);
+            ctx.lineTo(this.x, this.y + this.speedVector.y*20);
             ctx.stroke();
         }
     }// draw()*/
@@ -336,25 +389,17 @@ class Entity {
     isTouching(e2) {
         // get bounding total bounding box
         var xMin = this.getBoundingBox()[0].x;
-        var yMin = this.getBoundingBox()[0].y;
-
         // this entity
         for(let i = 1; i < this.getBoundingBox().length; i++) {
             if(this.getBoundingBox()[i].x < xMin)
                 xMin = this.getBoundingBox()[i].x;
-            if(this.getBoundingBox()[i].y < yMin)
-                yMin = this.getBoundingBox()[i].y;
         }
 
         // other entity
         for(let i = 1; i < e2.getBoundingBox().length; i++) {
             if(e2.getBoundingBox()[i].x < xMin)
                 xMin = e2.getBoundingBox()[i].x;
-            if(e2.getBoundingBox()[i].y < yMin)
-                yMin = e2.getBoundingBox()[i].y;
         }
-
-        var point1 = new PointValue(xMin, yMin);
         
         // do line colision
         var numIntersects = 0;
@@ -410,7 +455,7 @@ var laserPoints = [
 /*----- Other Things End -----*/
 
 function createShip() {
-    ship = new Entity(new Shape(shipPoints), "#fff", "ship");
+    ship = new Entity(new Shape(shipPoints), "#fff", "ship", shipSpeed);
     ship.x = canvas.width * 0.75;
     ship.y = canvas.height * 0.25;
     ship.dir = 135;
@@ -431,13 +476,13 @@ function createShip() {
             ctx.strokeStyle = "#00f";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x + this.xSpeed*10, this.y);
+            ctx.lineTo(this.x + this.speedVector.x*10, this.y);
             ctx.stroke();
 
             ctx.strokeStyle = "#f00";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x, this.y + this.ySpeed*20);
+            ctx.lineTo(this.x, this.y + this.speedVector.y*20);
             ctx.stroke();
         }
 
@@ -453,10 +498,11 @@ function createShip() {
 
 function shoot() {
     //console.log("shoot"); // for debugging
-    var laser = new Entity(new Shape(laserPoints), "#f00", "laser");
+    var laser = new Entity(new Shape(laserPoints), "#f00", "laser", laserSpeed);
+
     laser.updatePosition = function() {
-        this.x += this.xSpeed;
-        this.y += this.ySpeed;
+        this.x += this.speedVector.x;
+        this.y += this.speedVector.y;
 
         
         // off screen delete
@@ -476,9 +522,9 @@ function shoot() {
     laser.dir = ship.dir;
     laser.x = ship.getPoints()[0].x;
     laser.y = ship.getPoints()[0].y;
-    //console.log("laser created"); // for debugging
 
-    laser.forward(20);
+    laser.speedVector = new Vector(ship.dir * Math.PI/180, laserSpeed);
+    //console.log("laser created"); // for debugging
 
     //console.log("laser shot"); // for debugging
     shotsFired++;
@@ -511,7 +557,7 @@ function newAsteroid(x, y, dir, speed, size) {
         asteroidPoints[i] = new PolarPoint(Math.random() * dif + min, i * 20);
     }
 
-    var asteroid = new Entity(new Shape(asteroidPoints), "#fff", "asteroid");
+    var asteroid = new Entity(new Shape(asteroidPoints), "#fff", "asteroid", asteroidSpeed);
     asteroid.x = x;
     asteroid.y = y;
     asteroid.dir = dir;
@@ -614,12 +660,10 @@ function gameEnd() {
 
 function updateMovement() {
     if(arrowUpPressed) {
-        ship.xSpeed += acceleration * Math.cos(ship.dir * (Math.PI / 180));
-        ship.ySpeed += acceleration * Math.sin(ship.dir * (Math.PI / 180));
+        ship.forward(acceleration);
     }
     if(arrowDownPressed) {
-        ship.xSpeed -= acceleration * Math.cos(ship.dir * (Math.PI / 180));
-        ship.ySpeed -= acceleration * Math.sin(ship.dir * (Math.PI / 180));
+        ship.forward(0-acceleration);
     }
     if(arrowLeftPressed) {
         ship.turnLeft();
@@ -795,7 +839,7 @@ function updateScreen() {
 
 function newGame() {
     updateInterval = clearInterval(updateInterval);
-    pasued = false;
+    paused = false;
     gameOver = false;
     entities = [];
     score = 0;
@@ -827,5 +871,7 @@ init();
 
 /*
 todo:
- - fix problem where ship only moves horizontal/vertical while at top speed
+    - add a menu
+        - add a how to play
+            - add control changing
 */
