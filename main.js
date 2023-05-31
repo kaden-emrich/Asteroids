@@ -18,6 +18,12 @@ var arrowDownPressed = false;
 var arrowLeftPressed = false;
 var arrowRightPressed = false;
 
+var relMousePos;
+
+var gameStatus = "menu";
+var currentMenu;
+var menuSize = 0;
+
 var currentDifficulty = 1;
 var shotsFired = 0;
 
@@ -32,11 +38,12 @@ var turnSpeed = 5;
 var acceleration = 0.2;
 var trippyMode = false;
 var showVelocity = false;
+var showMousePos = false;
 var laserSight = false;
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
 var fontFamily = "Munro";
-var fontSize = 50;
+var fontSize = canvas.height * 1 / 20;
 var textColor = "#fff";
 var noClip = false;
 
@@ -49,18 +56,18 @@ var velocityLimit = 30;
 
 function pause() {
     if(paused == true) {
+        gameStatus = "game";
+        currentMenu = undefined;
         paused = false;
-        updateInterval = setInterval(updateScreen, 1000/60);
     }
     else {
         paused = true;
-        clearInterval(updateInterval);
-        ctx.fillText("Paused", canvas.width - 180, 30);
-        ctx.stroke();
+        currentMenu = Menus.paused();
+        gameStatus = "menu";
     }
 }
 
-/*----- Classes -----*/
+/* --------------------------------- Classes -------------------------------- */
 
 class PointValue {
     constructor(x, y) {
@@ -79,6 +86,8 @@ class PointValue {
         return new PolarPoint(r, dir);
     }// getPolar()
 }// class PointValue
+
+relMousePos = new PointValue(0, 0)
 
 class PolarPoint {
     constructor(r, dir) {
@@ -206,8 +215,8 @@ class Entity {
         this.type = type;
         this.rollOverDist = 30;
 
-        this.index = entities.length;
-        entities[this.index] = this;
+        this.id = entities.length;
+        entities[this.id] = this;
 
         this.shape = shape;
     }// constructor()
@@ -367,7 +376,7 @@ class Entity {
 
     checkBoxColision() {
         for(let i = 0; i < entities.length; i++) {
-            if(entities[i] != null && i != this.index) {
+            if(entities[i] != null && i != this.id) {
                 var objectA = this.getBoundingBox();
                 var objectB = entities[i].getBoundingBox();
 
@@ -427,7 +436,7 @@ class Entity {
 
     checkLineColision() {
         for(let i = 0; i < entities.length; i++) {
-            if(entities[i] != null && i != this.index) {
+            if(entities[i] != null && i != this.id) {
                 if(this.isTouching(entities[i])) return entities[i];
             }
         }
@@ -436,7 +445,64 @@ class Entity {
     }// checkLineColision()
 }// Entity
 
-/*----- Classes End -----*/
+class Menu {
+    constructor(title, options, actions) {
+        this.title = title;
+        this.options = options;
+        this.actions = actions;
+        this.selection = 0;
+    }// constructor
+    
+    next() {
+        if(this.selection >= this.options.length - 1) this.selection = 0;
+        else this.selection++;
+    }// next()
+
+    last() {
+        if(this.selection <= 0) this.selection = this.options.length - 1;
+        else this.selection--;
+
+    }// last()
+
+    select() {
+        if(this.actions[this.selection]) {
+            this.actions[this.selection]();
+        }
+    }// select()
+
+    draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.lineWidth = 2;
+        // Draw title
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+
+        ctx.font = (fontSize * 4) + "px " + fontFamily;
+        ctx.fillStyle = "#fff";
+
+        ctx.fillText(this.title, canvas.width / 2, canvas.height / 4, canvas.width);
+
+        ctx.font = (fontSize * 2.5) + "px " + fontFamily;
+        // draw buttons
+        for(let o in this.options) {
+            if(this.selection == parseInt(o)) {
+                ctx.fillStyle = "#fff";
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * 2.5)); 
+            } else {
+                ctx.fillStyle = "#000";
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * 2.5)); 
+                ctx.strokeStyle = "#fff";
+                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * 2.5));
+            }
+        }
+
+        ctx.lineWidth = 4;
+    }// draw();
+}// class Menu
+
+/* ------------------------------- Classes End ------------------------------ */
 /*----- Other Things -----*/
 
 var shipPoints = [
@@ -507,7 +573,7 @@ function shoot() {
         
         // off screen delete
         if(this.x < -100  ||  this.x > canvas.width + 100  ||  this.y < -100  || this.y > canvas.height + 100) {
-            entities[laser.index] = null;
+            entities[laser.id] = null;
         }
     }
 
@@ -595,28 +661,66 @@ document.addEventListener("keydown", function(event) {
     switch(event.key) {
         case "ArrowUp":
         case "w":
-            arrowUpPressed = true;
+            switch(gameStatus) {
+                case "game":
+                    arrowUpPressed = true;
+                    break;
+
+                case "menu":
+                    currentMenu.last();
+                    break;
+            }
+            
             break;
+
         case "ArrowDown":
         case "s":
-            arrowDownPressed = true;
+            switch(gameStatus) {
+                case "game":
+                    arrowDownPressed = true;
+                    break;
+
+                case "menu":
+                    currentMenu.next();
+                    break;
+            }
             break;
+
         case "ArrowLeft":
         case "a":
             arrowLeftPressed = true;
             break;
+
         case "ArrowRight":
         case "d":
             arrowRightPressed = true;
             break;
+
+        case "Enter":
         case " ":
-            shoot();
+            switch(gameStatus) {
+                case "game":
+                    shoot();
+                    break;
+                
+                case "menu":
+                    currentMenu.select();
+                    break;
+
+            }
             break;
+        
+        case "Escape":
         case "p":
             pause();
             break;
+
         case "r":
             newGame();
+            break;
+        
+        default:
+            //console.log("Unbound key: \'" + event.key + "\'"); // for debugging
             break;
     }
 });// keydown
@@ -642,20 +746,28 @@ document.addEventListener("keyup", function(event) {
     }
 });// keyup
 
+canvas.addEventListener("mousemove", (event) => {
+    relMousePos.x = (event.clientX - event.target.offsetLeft) * (canvas.width / parseInt(canvas.style.width));
+    relMousePos.y = (event.clientY - event.target.offsetTop) * (canvas.height / parseInt(canvas.style.height));
+});
+
 /*----- I/O End -----*/
 /*----- Update -----*/
 
-function gameOverScreen() {
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = (fontSize * 2) + "px " + fontFamily;
-    ctx.fillText("GAME OVER", canvas.width/2, canvas.height/4);
-    ctx.font = fontSize + "px " + fontFamily;
-    ctx.fillText("press R to retry", canvas.width/2, canvas.height/4 + fontSize + 5);
-}// gameOverScreen()
-
 function gameEnd() {
-    gameOver = true;    
+    if(ship) {
+        entities[ship.id] = null;
+        ship = null;
+    }
+
+    arrowUpPressed = false;
+    arrowDownPressed = false;
+    arrowLeftPressed = false;
+    arrowRightPressed = false;
+
+    gameOver = true;
+    currentMenu = Menus.over();
+    gameStatus = "menu";
 }// gameEnd()
 
 function updateMovement() {
@@ -723,7 +835,7 @@ function asteroidColision(asteroid) {
                     newAsteroid(asteroid.x, asteroid.y, Math.random() * 360, asteroidSpeed, 2);
                 }
 
-                entities[asteroid.index] = null;
+                entities[asteroid.id] = null;
             }
         }
     }
@@ -815,30 +927,42 @@ function drawText() {
     ctx.fillText("Score: " + score, 10, 10);
     ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
     ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
-    
-    if(gameOver) gameOverScreen();
+
+    if(showMousePos) {
+        ctx.fillText("Mouse: ("+ relMousePos.x + ", " + relMousePos.y + ")", 10, fontSize*3 + 60);
+        ctx.fillRect(relMousePos.x, relMousePos.y, 4, 4);
+    }
+
     else if(paused) pausedScreen();
 }// drawText()
 
 function updateScreen() {
     updateSize();
+    fontSize = canvas.height * 1 / 20;
 
     if(!trippyMode)
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    updateMovement();
-    updateColision();
 
-    updateAsteroids();
+    if(!paused) {
+        updateMovement();
+        updateColision();
+
+        updateAsteroids();
+    }
     
     drawEntities();
-    drawText();
+
+    if(currentMenu) currentMenu.draw();
+    else drawText();
 }// updateScreen()
 
 /*----- Update End -----*/
 
 function newGame() {
     updateInterval = clearInterval(updateInterval);
+    gameStatus = "game";
+    currentMenu = undefined;
     paused = false;
     gameOver = false;
     entities = [];
@@ -859,19 +983,52 @@ function newGame() {
 
     // start update interval
     updateInterval = setInterval(updateScreen, 1000/60);
-}// startGame()
+}// newGame()
+
+/* ------------------------------- Menu start ------------------------------- */
+
+// menus
+var Menus = {
+    main : function() {
+        return new Menu("ASTEROIDS", ["START"], [newGame]);
+    },
+    over : function() {
+        return new Menu("GAME OVER", ["retry", "menu"], [newGame, mainMenu])
+    },
+    paused : function() {
+        return new Menu("PAUSED", ["continue", "retry", "menu"], [() => {gameStatus = "game"; currentMenu = undefined; paused = false;}, newGame, mainMenu]);
+    }
+};
+
+// logic
+function mainMenu() {
+    paused = false;
+    gameEnd();
+    gameStatus = "menu";
+    currentMenu = Menus.main();
+}// mainMenu()
+
+/* -------------------------------- Menu end -------------------------------- */
 
 // inits
 function init() {
-    ctx.font = fontSize + "px " + fontFamily;
-    newGame();
+    for(let i = 0; i < 3; i++) {
+        spawnAsteroid();
+    }
+
+    updateInterval = setInterval(updateScreen, 50/3);
+    mainMenu();
 }// init()
 
 init();
 
 /*
 todo:
+    - Make astroids and ship more distinguishable
+    - Add color customization
     - add a menu
         - add a how to play
             - add control changing
+
+    - make ship explode into asteroids apon losing
 */
