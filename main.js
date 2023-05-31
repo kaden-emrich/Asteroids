@@ -22,6 +22,7 @@ var currentDifficulty = 1;
 var shotsFired = 0;
 
 var paused = false;
+var gameOver = false;
 
 /*----- Game Settings -----*/
 
@@ -35,7 +36,7 @@ var showVelocity = false;
 var laserSight = false;
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
-var astroidSpeed = 2;
+var asteroidSpeed = 2;
 var fontFamily = "Munro";
 var fontSize = 50;
 var textColor = "#fff";
@@ -358,9 +359,10 @@ class Entity {
         // do line colision
         var numIntersects = 0;
         for(let i = 0; i < this.getPoints().length; i++) {
+            let tpoint = this.getPoints()[i];
             numIntersects = 0;
             for(let j = 0; j < e2.getPoints().length; j++) {
-                var line1 = new Line(this.getPoints()[i], point1);
+                var line1 = new Line(tpoint, new PointValue(xMin - 5, tpoint.y));
                 var line2;
                 if(j == e2.getPoints().length - 1) 
                     line2 = new Line(e2.getPoints()[j], e2.getPoints()[0]);
@@ -415,7 +417,7 @@ function createShip() {
     ship.draw = function() {
         if(noClip) {
             var colision = this.checkLineColision();
-            if(colision != null && colision.type == "astroid") {
+            if(colision != null && colision.type == "asteroid") {
                 this.color = "#f00";
             }
             else {
@@ -482,9 +484,9 @@ function shoot() {
     shotsFired++;
 }// shoot()
 
-function newAstroid(x, y, dir, speed, size) {
-    // randomly generate astroid shape
-    var astroidPoints = [];
+function newAsteroid(x, y, dir, speed, size) {
+    // randomly generate asteroid shape
+    var asteroidPoints = [];
     var min = 60;
     var dif = 30;
     var rd = 30;
@@ -506,20 +508,20 @@ function newAstroid(x, y, dir, speed, size) {
     }
 
     for(let i = 0; i < 18; i++) {
-        astroidPoints[i] = new PolarPoint(Math.random() * dif + min, i * 20);
+        asteroidPoints[i] = new PolarPoint(Math.random() * dif + min, i * 20);
     }
 
-    var astroid = new Entity(new Shape(astroidPoints), "#fff", "astroid");
-    astroid.x = x;
-    astroid.y = y;
-    astroid.dir = dir;
-    astroid.size = size;
-    astroid.rollOverDist = rd;
+    var asteroid = new Entity(new Shape(asteroidPoints), "#fff", "asteroid");
+    asteroid.x = x;
+    asteroid.y = y;
+    asteroid.dir = dir;
+    asteroid.size = size;
+    asteroid.rollOverDist = rd;
 
-    astroid.forward(speed);
-}// newAstroid(x, y, dir, speed, size)
+    asteroid.forward(speed);
+}// newAsteroid(x, y, dir, speed, size)
 
-function spawnAstroid() {
+function spawnAsteroid() {
     
     var dir = Math.random() * 360;
     var x = Math.random() * canvas.width;
@@ -538,8 +540,8 @@ function spawnAstroid() {
             var y = canvas.height + 90;
     }
 
-    newAstroid(x, y, dir, astroidSpeed, 3);
-}// spawnAstroid()
+    newAsteroid(x, y, dir, asteroidSpeed, 3);
+}// spawnAsteroid()
 
 /*----- I/O -----*/
 
@@ -566,6 +568,9 @@ document.addEventListener("keydown", function(event) {
             break;
         case "p":
             pause();
+            break;
+        case "r":
+            newGame();
             break;
     }
 });// keydown
@@ -594,11 +599,18 @@ document.addEventListener("keyup", function(event) {
 /*----- I/O End -----*/
 /*----- Update -----*/
 
-function gameOver() {
-    updateInterval = clearInterval(updateInterval);
-    alert("You lose. \nYour Score: " + score + "\nWave: " + currentDifficulty + "\nAccuracy: " + Math.floor(score / shotsFired) + "%");
-    newGame();
-}// gameOver()
+function gameOverScreen() {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = (fontSize * 2) + "px " + fontFamily;
+    ctx.fillText("GAME OVER", canvas.width/2, canvas.height/4);
+    ctx.font = fontSize + "px " + fontFamily;
+    ctx.fillText("press R to retry", canvas.width/2, canvas.height/4 + fontSize + 5);
+}// gameOverScreen()
+
+function gameEnd() {
+    gameOver = true;    
+}// gameEnd()
 
 function updateMovement() {
     if(arrowUpPressed) {
@@ -629,54 +641,54 @@ function entityColision(entity) {
     if(entity.checkBoxColision() == null) return;
 
     switch(entity.type) {
-        case "astroid":
-            astroidColision(entity);
+        case "asteroid":
+            asteroidColision(entity);
             break;
 
     }
 }// entityColision(entity)
 
-function astroidColision(astroid) {
-    var colision = astroid.checkBoxColision();
+function asteroidColision(asteroid) {
+    var colision = asteroid.checkBoxColision();
 
-    if(astroid == null || colision == null || colision.type == null) return;
-    /*colision = astroid.checkLineColision();
-    if(astroid == null || colision == null || colision.type == null) return;*/
+    if(asteroid == null || colision == null || colision.type == null) return;
+    /*colision = asteroid.checkLineColision();
+    if(asteroid == null || colision == null || colision.type == null) return;*/
 
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
-            if(entities[i].type == "ship" && astroid.isTouching(entities[i])) {
+            if(entities[i].type == "ship" && asteroid.isTouching(entities[i])) {
                 console.log("game over");
                 if(noClip == false) {
                     entities[i] = null;
-                    gameOver();
+                    gameEnd();
                 }
                 return;
             }
-            else if(entities[i].type == "laser" && astroid.boxIsTouching(entities[i])) {
+            else if(entities[i].type == "laser" && asteroid.boxIsTouching(entities[i])) {
                 entities[i] = null;
                 score += 100;
                 
-                if(astroid.size == 2) {
-                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
-                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
-                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 1);
+                if(asteroid.size == 2) {
+                    newAsteroid(asteroid.x, asteroid.y, Math.random() * 360, asteroidSpeed, 1);
+                    newAsteroid(asteroid.x, asteroid.y, Math.random() * 360, asteroidSpeed, 1);
+                    newAsteroid(asteroid.x, asteroid.y, Math.random() * 360, asteroidSpeed, 1);
                 }
-                if(astroid.size == 3) {
-                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
-                    newAstroid(astroid.x, astroid.y, Math.random() * 360, astroidSpeed, 2);
+                if(asteroid.size == 3) {
+                    newAsteroid(asteroid.x, asteroid.y, Math.random() * 360, asteroidSpeed, 2);
+                    newAsteroid(asteroid.x, asteroid.y, Math.random() * 360, asteroidSpeed, 2);
                 }
 
-                entities[astroid.index] = null;
+                entities[asteroid.index] = null;
             }
         }
     }
-}// astroidColision(entity)
+}// asteroidColision(entity)
 
 function updateColision() {
     for(let i = 0; i < entities.length; i++) {
-        if(entities[i] != null && entities[i].type == "astroid") {
-            astroidColision(entities[i]);
+        if(entities[i] != null && entities[i].type == "asteroid") {
+            asteroidColision(entities[i]);
         }
     }
 }// updateColision()
@@ -720,23 +732,23 @@ function updateSize() {
     gameDiv.style.margin = "auto";
 }// updateSize()
 
-function updateAstroids() {
-    var numAstroids = 0;
+function updateAsteroids() {
+    var numAsteroids = 0;
     
     for(let e of entities) {
-        if(e != null && e.type == "astroid") {
-            numAstroids++;
+        if(e != null && e.type == "asteroid") {
+            numAsteroids++;
         }
     }
 
-    if(numAstroids == 0) {
+    if(numAsteroids == 0) {
         currentDifficulty++;
 
         for(let i = 0; i < currentDifficulty; i++) {
-            spawnAstroid();
+            spawnAsteroid();
         }
     }
-}// updateAstroids()
+}// updateAsteroids()
 
 function drawEntities() {
     for(let i = 0; i < entities.length; i++) {
@@ -754,10 +766,14 @@ function drawText() {
     fontSize = canvas.height / 20;
     ctx.font = fontSize + "px " + fontFamily;
     ctx.textBaseline = "hanging";
+    ctx.textAlign = "left";
     ctx.fillStyle = textColor;
     ctx.fillText("Score: " + score, 10, 10);
     ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
     ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
+    
+    if(gameOver) gameOverScreen();
+    else if(paused) pausedScreen();
 }// drawText()
 
 function updateScreen() {
@@ -769,7 +785,7 @@ function updateScreen() {
     updateMovement();
     updateColision();
 
-    updateAstroids();
+    updateAsteroids();
     
     drawEntities();
     drawText();
@@ -780,6 +796,7 @@ function updateScreen() {
 function newGame() {
     updateInterval = clearInterval(updateInterval);
     pasued = false;
+    gameOver = false;
     entities = [];
     score = 0;
     shotsFired = 0;
@@ -794,7 +811,7 @@ function newGame() {
     createShip();
     currentDifficulty = 1;
     
-    newAstroid(canvas.width/2, canvas.height/2, 0, 0, 3);
+    newAsteroid(canvas.width/2, canvas.height/2, 0, 0, 3);
 
     // start update interval
     updateInterval = setInterval(updateScreen, 1000/60);
