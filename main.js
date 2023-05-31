@@ -75,7 +75,7 @@ class PointValue {
 
         return new PolarPoint(r, dir);
     }// getPolar()
-}// PointValue
+}// class PointValue
 
 class PolarPoint {
     constructor(r, dir) {
@@ -88,7 +88,40 @@ class PolarPoint {
         var y = this.r * Math.sin(this.dir * Math.PI / 180);
         return new PointValue(x, y);
     }// getRect()
-}// PolarPoint
+}// class PolarPoint
+
+class Vector {
+    constructor(dir, mag) { // dir in radians, mag in units
+        this.dir = dir % (Math.PI * 2);
+        this.mag = mag;
+    }// constructor
+
+    get x() {
+        if(this.dir < 0-Math.PI/2 || this.dir >= Math.PI/2) return 0 - (this.mag * Math.cos(this.dir));
+
+        return this.mag * Math.cos(this.dir);
+    }// get x
+
+    get y() {
+        if(this.dir < 0-Math.PI/2 || this.dir >= Math.PI/2) return 0 - (this.mag * Math.sin(this.dir));
+
+        return this.mag * Math.sin(this.dir);
+    }// get y
+
+    add(otherVector) {
+        let xTotal = this.x + otherVector.x;
+        let yTotal = this.y + otherVector.y;
+
+        let magTotal = Math.sqrt(Math.pow(otherVector.x + this.x, 2) + Math.pow(otherVector.y + this.y, 2));
+
+        let dirTotal = Math.atan(yTotal / xTotal);
+
+        // if(xTotal >= 0) dirTotal = Math.atan(yTotal / xTotal);
+        // else dirTotal = Math.atan(yTotal / xTotal) + Math.PI;
+
+        return new Vector(dirTotal, magTotal);
+    }// add(otherVector)
+}// class Vector
 
 class Line {
     constructor(p1, p2) {
@@ -148,8 +181,7 @@ class Entity {
         this.x = canvas.width/2;
         this.y = canvas.height/2;
         this.dir = 0;
-        this.xSpeed = 0;
-        this.ySpeed = 0;
+        this.speedVector = new Vector(0, 0);
         this.color = color;
         this.type = type;
         this.rollOverDist = 30;
@@ -211,6 +243,10 @@ class Entity {
 
         return bBox;
     }// getBoundingBox()
+
+    addSpeedVector(otherVector) {
+        this.speedVector = this.speedVector.add(otherVector);
+    }// addSpeedVector(otherVector)
 
     getAbsSpeed() {
         return Math.sqrt(Math.pow(this.xSpeed, 2) + Math.pow(this.ySpeed, 2));
