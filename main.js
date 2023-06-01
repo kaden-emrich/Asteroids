@@ -24,6 +24,8 @@ var gameStatus = "menu";
 var currentMenu;
 var menuSize = 0;
 
+var currentController;
+
 var currentDifficulty = 1;
 var shotsFired = 0;
 
@@ -126,10 +128,12 @@ currentPalette = 0;
 function pause() {
     if(paused == true) {
         currentMenu = undefined;
+        currentController = new KeyController(gameControlScheme);
         paused = false;
     }
     else {
         paused = true;
+        currentController = new KeyController(menuControlScheme);
         currentMenu = Menus.paused();
     }
 }
@@ -782,6 +786,7 @@ function spawnAsteroid() {
 
 /*----- I/O -----*/
 
+/*
 document.addEventListener("keydown", function(event) {
     switch(event.key) {
         case "ArrowUp":
@@ -865,6 +870,7 @@ document.addEventListener("keyup", function(event) {
             break;
     }
 });// keyup
+*/
 
 canvas.addEventListener("mousemove", (event) => {
     relMousePos.x = (event.clientX - event.target.offsetLeft) * (canvas.width / parseInt(canvas.style.width));
@@ -887,6 +893,7 @@ function gameEnd() {
 
     gameOver = true;
     currentMenu = Menus.over();
+    currentController = new KeyController(menuControlScheme);
     gameStatus = "menu";
 }// gameEnd()
 
@@ -1177,6 +1184,7 @@ function toggleFullscreen() {
 }// toggleFullscreen()
 
 function newGame() {
+    currentController = new KeyController(gameControlScheme);
     updateInterval = clearInterval(updateInterval);
     gameStatus = "game";
     currentMenu = undefined;
@@ -1205,6 +1213,7 @@ function newGame() {
     updateInterval = setInterval(updateScreen, 1000/60);
 }// newGame()
 
+/*
 function gameTransition() {
     gameStatus = "game";
     currentMenu = undefined;
@@ -1313,13 +1322,14 @@ function transitionAnimation(callback) {
         i++;
     }, 1);
 }// transitionAnimation()
+*/
 
 /* ------------------------------- Menu start ------------------------------- */
 
 // menus
 var Menus = {
     main : function() {
-        return new Menu("ASTEROIDS", ["start", "settings"], [newGame, settingsMenu], "main");
+        return new Menu("ASTEROIDS", ["start", "settings", "credit"], [newGame, settingsMenu, () => {currentMenu = Menus.credit();}], "main");
     },
     over : function() {
         return new Menu("GAME OVER", ["retry", "menu"], [newGame, mainMenu], "main")
@@ -1329,6 +1339,7 @@ var Menus = {
             () => {
                 gameStatus = "game"; 
                 currentMenu = undefined; 
+                currentController = new KeyController(gameControlScheme);
                 paused = false;
             }, 
             newGame, 
@@ -1362,6 +1373,10 @@ var Menus = {
         temp.optionsSize = 1;
         
         return temp;
+    },
+
+    credit : function() {
+        return new Menu("KADEN EMRICH", ["menu"], [mainMenu], "main");
     }
 };
 
@@ -1375,6 +1390,28 @@ function mainMenu() {
 
 /* -------------------------------- Menu end -------------------------------- */
 
+/* ---------------------------- controllers start --------------------------- */
+
+var menuControlScheme = [
+    new KeyHandler(["ArrowUp", "w", "W"], () => {currentMenu.last();}),
+    new KeyHandler(["ArrowDown", "s", "S"], () => {currentMenu.next();}),
+    new KeyHandler(["Enter", " "], () => {currentMenu.select();}),
+    new KeyHandler(["Ecape", "p"], () => {if(gameStatus == "game") pause();})
+];
+
+var gameControlScheme = [
+    new KeyHandler(["ArrowUp", "w", "W"], () => {arrowUpPressed = true;}, () => {arrowUpPressed = false;}),
+    new KeyHandler(["ArrowDown", "s", "S"], () => {arrowDownPressed = true;}, () => {arrowDownPressed = false;}),
+    new KeyHandler(["ArrowLeft", "a", "A"], () => {arrowLeftPressed = true;}, () => {arrowLeftPressed = false;}),
+    new KeyHandler(["ArrowRight", "d", "D"], () => {arrowRightPressed = true;}, () => {arrowRightPressed = false;}),
+    new KeyHandler(["Enter", " "], shoot),
+    new KeyHandler(["Escape", "p", "P"], pause),
+    new KeyHandler(["r", "R"], newGame),
+    new KeyHandler(["f", "F"], openFullscreen)
+];
+
+/* ----------------------------- controllers end ---------------------------- */
+
 // inits
 function init() {
     for(let i = 0; i < 3; i++) {
@@ -1383,17 +1420,14 @@ function init() {
 
     updateInterval = setInterval(updateScreen, 50/3);
     mainMenu();
+    currentController = new KeyController(menuControlScheme);
 }// init()
 
 init();
 
 /*
 todo:
-    - Make astroids and ship more distinguishable
-    - Add color customization
-    - add a menu
-        - add a how to play
-            - add control changing
-
-    - make ship explode into asteroids apon losing
+    - add a how to play
+    - add control schemes
+    - make ship, asteroid, and laser classes as children of entity
 */
