@@ -30,9 +30,11 @@ var shotsFired = 0;
 var paused = false;
 var gameOver = false;
 
+var viewTypes = ["square", "full"];
+
 /*----- Game Settings -----*/
 
-var viewType = "square";
+var viewType = 1;
 var pointSize = 10;
 var turnSpeed = 5;
 var acceleration = 0.2;
@@ -52,7 +54,62 @@ var laserSpeed = 20;
 var asteroidSpeed = 2;
 var velocityLimit = 30;
 
+var currentPalette;
+
 /*----- Game Settings End -----*/
+
+const palettes = [
+    {
+        name : "default",
+        ship : "#fff",
+        asteroid : "#999",
+        laser : "#f00",
+        title : "#fff",
+        text : "#fff",
+        background : "#000"
+    },
+
+    {
+        name : "classic",
+        ship : "#fff",
+        asteroid : "#fff",
+        laser : "#fff",
+        title : "#fff",
+        text : "#fff",
+        background : "#000"
+    },
+
+    {
+        name : "blueberry",
+        ship : "#09f",
+        asteroid : "#05f",
+        laser : "#0f9",
+        title : "#fff",
+        text : "#0ff",
+        background : "#024"
+    },
+
+    {
+        name : "hackerman",
+        ship : "#0f0",
+        asteroid : "#f00",
+        laser : "#fff",
+        title : "#0f0",
+        text : "#fff",
+        background : "#000"
+    },
+    
+    {
+        name : "inverted",
+        ship : "#000",
+        asteroid : "#000",
+        laser : "#0ff",
+        title : "#000",
+        text : "#000",
+        background : "#fff"
+    }
+]
+currentPalette = 0;
 
 function pause() {
     if(paused == true) {
@@ -207,6 +264,7 @@ class Entity {
     constructor(shape, color, type, maxVelocity) {
         if(maxVelocity > velocityLimit) maxVelocity = velocityLimit;
         this.maxVelocity = maxVelocity;
+
         this.x = canvas.width/2;
         this.y = canvas.height/2;
         this.dir = 0;
@@ -446,11 +504,17 @@ class Entity {
 }// Entity
 
 class Menu {
-    constructor(title, options, actions) {
+    constructor(title, options, actions, type) {
+        if(type) this.type = type;
+        else this.type = "main";
+
         this.title = title;
         this.options = options;
         this.actions = actions;
         this.selection = 0;
+
+        this.titleSize = 4;
+        this.optionsSize = 2.5;
     }// constructor
     
     next() {
@@ -470,35 +534,81 @@ class Menu {
         }
     }// select()
 
-    draw() {
+    drawMain() {
+        // shade background
         ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         // Draw title
         ctx.textBaseline = "middle";
         ctx.textAlign = "center";
 
-        ctx.font = (fontSize * 4) + "px " + fontFamily;
-        ctx.fillStyle = "#fff";
+        ctx.font = (fontSize * this.titleSize) + "px " + fontFamily;
+        ctx.fillStyle = palettes[currentPalette].title;
 
         ctx.fillText(this.title, canvas.width / 2, canvas.height / 4, canvas.width);
 
-        ctx.font = (fontSize * 2.5) + "px " + fontFamily;
+        ctx.font = (fontSize * this.optionsSize) + "px " + fontFamily;
         // draw buttons
         for(let o in this.options) {
             if(this.selection == parseInt(o)) {
-                ctx.fillStyle = "#fff";
-                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * 2.5)); 
+                ctx.fillStyle = palettes[currentPalette].title;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); 
             } else {
-                ctx.fillStyle = "#000";
-                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * 2.5)); 
-                ctx.strokeStyle = "#fff";
-                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * 2.5));
+                /*ctx.fillStyle = palettes[currentPalette].background;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); */
+                ctx.strokeStyle = palettes[currentPalette].text;
+                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize));
             }
         }
 
         ctx.lineWidth = 4;
+    }// drawMain()
+
+    drawOptions() {
+        // shade background
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.lineWidth = 1;
+        // Draw title
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+
+        ctx.font = (fontSize * this.titleSize) + "px " + fontFamily;
+        ctx.fillStyle = palettes[currentPalette].title;
+
+        ctx.fillText(this.title, canvas.width / 2, canvas.height / 8, canvas.width);
+
+        ctx.font = (fontSize * this.optionsSize) + "px " + fontFamily;
+        // draw buttons
+        for(let o in this.options) {
+            if(this.selection == parseInt(o)) {
+                ctx.fillStyle = palettes[currentPalette].title;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize)); 
+            } else {
+                /*ctx.fillStyle = palettes[currentPalette].background;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize)); */
+                ctx.strokeStyle = palettes[currentPalette].text;
+                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize));
+            }
+        }
+
+        ctx.lineWidth = 4;
+    }// drawOptions()
+
+    draw() {
+        switch(this.type) {
+            case "options":
+                this.drawOptions();
+                break;
+
+            case "main":
+            default:
+                this.drawMain();
+                break;
+        }
     }// draw();
 }// class Menu
 
@@ -521,7 +631,7 @@ var laserPoints = [
 /*----- Other Things End -----*/
 
 function createShip() {
-    ship = new Entity(new Shape(shipPoints), "#fff", "ship", shipSpeed);
+    ship = new Entity(new Shape(shipPoints), palettes[currentPalette].ship, "ship", shipSpeed);
     ship.x = canvas.width * 0.75;
     ship.y = canvas.height * 0.25;
     ship.dir = 135;
@@ -564,7 +674,7 @@ function createShip() {
 
 function shoot() {
     //console.log("shoot"); // for debugging
-    var laser = new Entity(new Shape(laserPoints), "#f00", "laser", laserSpeed);
+    var laser = new Entity(new Shape(laserPoints), palettes[currentPalette].laser, "laser", laserSpeed);
 
     laser.updatePosition = function() {
         this.x += this.speedVector.x;
@@ -618,12 +728,17 @@ function newAsteroid(x, y, dir, speed, size) {
         dif = 10;
         rd = 30;
     }
+    else {
+        min = 10;
+        dif = 5;
+        rd = 15;
+    }
 
     for(let i = 0; i < 18; i++) {
         asteroidPoints[i] = new PolarPoint(Math.random() * dif + min, i * 20);
     }
 
-    var asteroid = new Entity(new Shape(asteroidPoints), "#fff", "asteroid", asteroidSpeed);
+    var asteroid = new Entity(new Shape(asteroidPoints), palettes[currentPalette].asteroid, "asteroid", asteroidSpeed);
     asteroid.x = x;
     asteroid.y = y;
     asteroid.dir = dir;
@@ -770,18 +885,33 @@ function gameEnd() {
     gameStatus = "menu";
 }// gameEnd()
 
+function killPlayer() {
+    if(!ship) {
+        gameEnd();
+        return;
+    }
+
+    newAsteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
+    newAsteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
+    newAsteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
+
+    gameEnd();
+}// killPlayer()
+
 function updateMovement() {
-    if(arrowUpPressed) {
-        ship.forward(acceleration);
-    }
-    if(arrowDownPressed) {
-        ship.forward(0-acceleration);
-    }
-    if(arrowLeftPressed) {
-        ship.turnLeft();
-    }
-    if(arrowRightPressed) {
-        ship.turnRight()
+    if(ship) {
+        if(arrowUpPressed) {
+            ship.forward(acceleration);
+        }
+        if(arrowDownPressed) {
+            ship.forward(0-acceleration);
+        }
+        if(arrowLeftPressed) {
+            ship.turnLeft();
+        }
+        if(arrowRightPressed) {
+            ship.turnRight()
+        }
     }
 
     //ship.updatePosition();
@@ -816,8 +946,7 @@ function asteroidColision(asteroid) {
             if(entities[i].type == "ship" && asteroid.isTouching(entities[i])) {
                 console.log("game over");
                 if(noClip == false) {
-                    entities[i] = null;
-                    gameEnd();
+                    killPlayer();
                 }
                 return;
             }
@@ -850,15 +979,18 @@ function updateColision() {
 }// updateColision()
 
 function updateFullScreen() {
-    var h = window.innerHeight;
-    var w = window.innerWidth;
+    var h = 1000;
+    var w = window.innerWidth * h / window.innerHeight;
+
+    // w/h = iw/ih
+    //w = iw * h / ih
     
     canvas.width = w;
-    canvas.style.width = w + "px";
-    gameDiv.style.width = w + "px";
+    canvas.style.width = window.innerWidth + "px";
+    gameDiv.style.width = window.innerWidth + "px";
     canvas.height = h;
-    canvas.style.height = h + "px";
-    gameDiv.style.height = h + "px";
+    canvas.style.height = window.innerHeight + "px";
+    gameDiv.style.height = window.innerHeight + "px";
 }// updateFullScreen()
 
 function updateSize() {
@@ -866,11 +998,18 @@ function updateSize() {
     var w = window.innerWidth;
 
     
-    if(viewType == "full") {
+    if(viewType == 1) {
         updateFullScreen();
         ctx.lineWidth = Math.floor(canvas.height / 250);
     }
     else {
+        canvas.width = 1000;
+        canvas.style.width = "1000 px";
+        gameDiv.style.width = "1000 px";
+        canvas.height = 1000;
+        canvas.style.height = "1000 px";
+        gameDiv.style.height = "1000 px";
+
         ctx.lineWidth = 4;
         if(w > h) {
             canvas.style.height = h + "px";
@@ -923,17 +1062,15 @@ function drawText() {
     ctx.font = fontSize + "px " + fontFamily;
     ctx.textBaseline = "hanging";
     ctx.textAlign = "left";
-    ctx.fillStyle = textColor;
+
+    ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Score: " + score, 10, 10);
+
+    ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
+
+    ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
-
-    if(showMousePos) {
-        ctx.fillText("Mouse: ("+ relMousePos.x + ", " + relMousePos.y + ")", 10, fontSize*3 + 60);
-        ctx.fillRect(relMousePos.x, relMousePos.y, 4, 4);
-    }
-
-    else if(paused) pausedScreen();
 }// drawText()
 
 function updateScreen() {
@@ -959,6 +1096,51 @@ function updateScreen() {
 
 /*----- Update End -----*/
 
+function toggleViewType() {
+    if(viewType + 1 >= viewTypes.length) {
+        viewType = 0;
+        return;
+    }
+    viewType++;
+}// toggleViewMode()
+
+function equipPalette(p) {
+    if(p >= palettes.length || p < 0) return;
+    
+    currentPalette = p;
+
+    for(let e of entities) {
+        if(e && e.type) switch(e.type) {
+            case "ship":
+                e.color = palettes[currentPalette].ship;
+                break;
+
+            case "asteroid":
+                e.color = palettes[currentPalette].asteroid;
+                break;
+            
+            case "laser":
+                e.color = palettes[currentPalette].laser;
+                break;
+        }
+    }
+
+    canvas.style.backgroundColor = palettes[currentPalette].background;
+}// equipPalette(p)
+
+function cyclePalette() {
+    if(currentPalette + 1 >= palettes.length) {
+        currentPalette = 0;
+    }
+    else currentPalette++;
+
+    equipPalette(currentPalette);
+}// cyclePalette()
+
+function settingsMenu() {
+    currentMenu = Menus.settings();
+}// openSettings()
+
 function newGame() {
     updateInterval = clearInterval(updateInterval);
     gameStatus = "game";
@@ -981,6 +1163,9 @@ function newGame() {
     
     newAsteroid(canvas.width/2, canvas.height/2, 0, 0, 3);
 
+    ship.dir = Math.atan((canvas.height/2 - ship.y) / (canvas.width/2 - ship.x)) * 180/Math.PI + 180;
+
+
     // start update interval
     updateInterval = setInterval(updateScreen, 1000/60);
 }// newGame()
@@ -990,13 +1175,49 @@ function newGame() {
 // menus
 var Menus = {
     main : function() {
-        return new Menu("ASTEROIDS", ["START"], [newGame]);
+        return new Menu("ASTEROIDS", ["start", "settings"], [newGame, settingsMenu], "main");
     },
     over : function() {
-        return new Menu("GAME OVER", ["retry", "menu"], [newGame, mainMenu])
+        return new Menu("GAME OVER", ["retry", "menu"], [newGame, mainMenu], "main")
     },
     paused : function() {
-        return new Menu("PAUSED", ["continue", "retry", "menu"], [() => {gameStatus = "game"; currentMenu = undefined; paused = false;}, newGame, mainMenu]);
+        return new Menu("PAUSED", ["continue", "retry", "settings", "menu"], [
+            () => {
+                gameStatus = "game"; 
+                currentMenu = undefined; 
+                paused = false;
+            }, 
+            newGame, 
+            () => {
+                currentMenu = Menus.settings(Menus.paused);
+            }, 
+            () => {
+                killPlayer(); 
+                mainMenu();
+            }
+        ], 
+        "options");
+    },
+    settings : function(returnMenu) {
+        if(!returnMenu) returnMenu = Menus.main;
+
+        function returnFunc() {
+            currentMenu = returnMenu();
+        }// returnFunc
+
+        let temp = new Menu("Settings", ["toggle view mode (" + viewTypes[viewType] + ")", "palette: " + palettes[currentPalette].name, "back"], [
+            () => {
+                toggleViewType();
+                temp.options[0] = "toggle view mode (" + viewTypes[viewType] + ")";
+            }, 
+            () => {
+                cyclePalette();
+                temp.options[1] = "palette: " + palettes[currentPalette].name;
+            }, returnFunc], "options");
+
+        temp.optionsSize = 1;
+        
+        return temp;
     }
 };
 
