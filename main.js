@@ -18,25 +18,36 @@ var arrowDownPressed = false;
 var arrowLeftPressed = false;
 var arrowRightPressed = false;
 
+var relMousePos;
+
+var gameStatus = "menu";
+var currentMenu;
+var menuSize = 0;
+
 var currentDifficulty = 1;
 var shotsFired = 0;
 
 var paused = false;
 var gameOver = false;
 
+var viewTypes = ["square", "full"];
+var isFullscreen = false;
+
 /*----- Game Settings -----*/
 
-var viewType = "square";
+var viewType = 1;
 var pointSize = 10;
 var turnSpeed = 5;
 var acceleration = 0.2;
 var trippyMode = false;
 var showVelocity = false;
+var showMousePos = false;
+var showStats = true;
 var laserSight = false;
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
 var fontFamily = "Munro";
-var fontSize = 50;
+var fontSize = canvas.height * 1 / 20;
 var textColor = "#fff";
 var noClip = false;
 
@@ -45,22 +56,85 @@ var laserSpeed = 20;
 var asteroidSpeed = 2;
 var velocityLimit = 30;
 
+var currentPalette;
+
 /*----- Game Settings End -----*/
+
+const palettes = [
+    {
+        name : "default",
+        ship : "#fff",
+        asteroid : "#999",
+        laser : "#f00",
+        title : "#fff",
+        text : "#fff",
+        background : "#000"
+    },
+
+    {
+        name : "classic",
+        ship : "#fff",
+        asteroid : "#fff",
+        laser : "#fff",
+        title : "#fff",
+        text : "#fff",
+        background : "#000"
+    },
+
+    {
+        name : "blueberry",
+        ship : "#09f",
+        asteroid : "#05f",
+        laser : "#0f9",
+        title : "#fff",
+        text : "#0ff",
+        background : "#024"
+    },
+
+    {
+        name : "wooden",
+        ship : "#f90",
+        asteroid : "#f50",
+        laser : "#f55",
+        title : "#f33",
+        text : "#ff0",
+        background : "#420"
+    },
+
+    {
+        name : "hackerman",
+        ship : "#0f0",
+        asteroid : "#f00",
+        laser : "#fff",
+        title : "#0f0",
+        text : "#fff",
+        background : "#000"
+    },
+    
+    {
+        name : "inverted",
+        ship : "#000",
+        asteroid : "#000",
+        laser : "#0ff",
+        title : "#000",
+        text : "#000",
+        background : "#fff"
+    }
+]
+currentPalette = 0;
 
 function pause() {
     if(paused == true) {
+        currentMenu = undefined;
         paused = false;
-        updateInterval = setInterval(updateScreen, 1000/60);
     }
     else {
         paused = true;
-        clearInterval(updateInterval);
-        ctx.fillText("Paused", canvas.width - 180, 30);
-        ctx.stroke();
+        currentMenu = Menus.paused();
     }
 }
 
-/*----- Classes -----*/
+/* --------------------------------- Classes -------------------------------- */
 
 class PointValue {
     constructor(x, y) {
@@ -79,6 +153,8 @@ class PointValue {
         return new PolarPoint(r, dir);
     }// getPolar()
 }// class PointValue
+
+relMousePos = new PointValue(0, 0)
 
 class PolarPoint {
     constructor(r, dir) {
@@ -130,7 +206,7 @@ class Vector {
         return new Vector(dirTotal, magTotal);
     }// add(otherVector)
 
-    fromRect(x, y) {
+    static fromRect(x, y) {
         let d;
         let m = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 
@@ -198,6 +274,7 @@ class Entity {
     constructor(shape, color, type, maxVelocity) {
         if(maxVelocity > velocityLimit) maxVelocity = velocityLimit;
         this.maxVelocity = maxVelocity;
+
         this.x = canvas.width/2;
         this.y = canvas.height/2;
         this.dir = 0;
@@ -206,8 +283,8 @@ class Entity {
         this.type = type;
         this.rollOverDist = 30;
 
-        this.index = entities.length;
-        entities[this.index] = this;
+        this.id = entities.length;
+        entities[this.id] = this;
 
         this.shape = shape;
     }// constructor()
@@ -367,7 +444,7 @@ class Entity {
 
     checkBoxColision() {
         for(let i = 0; i < entities.length; i++) {
-            if(entities[i] != null && i != this.index) {
+            if(entities[i] != null && i != this.id) {
                 var objectA = this.getBoundingBox();
                 var objectB = entities[i].getBoundingBox();
 
@@ -427,7 +504,7 @@ class Entity {
 
     checkLineColision() {
         for(let i = 0; i < entities.length; i++) {
-            if(entities[i] != null && i != this.index) {
+            if(entities[i] != null && i != this.id) {
                 if(this.isTouching(entities[i])) return entities[i];
             }
         }
@@ -436,7 +513,116 @@ class Entity {
     }// checkLineColision()
 }// Entity
 
-/*----- Classes End -----*/
+class Menu {
+    constructor(title, options, actions, type) {
+        if(type) this.type = type;
+        else this.type = "main";
+
+        this.title = title;
+        this.options = options;
+        this.actions = actions;
+        this.selection = 0;
+
+        this.titleSize = 4;
+        this.optionsSize = 2.5;
+    }// constructor
+    
+    next() {
+        if(this.selection >= this.options.length - 1) this.selection = 0;
+        else this.selection++;
+    }// next()
+
+    last() {
+        if(this.selection <= 0) this.selection = this.options.length - 1;
+        else this.selection--;
+
+    }// last()
+
+    select() {
+        if(this.actions[this.selection]) {
+            this.actions[this.selection]();
+        }
+    }// select()
+
+    drawMain() {
+        // shade background
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.lineWidth = 1;
+        // Draw title
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+
+        ctx.font = (fontSize * this.titleSize) + "px " + fontFamily;
+        ctx.fillStyle = palettes[currentPalette].title;
+
+        ctx.fillText(this.title, canvas.width / 2, canvas.height / 4, canvas.width);
+
+        ctx.font = (fontSize * this.optionsSize) + "px " + fontFamily;
+        // draw buttons
+        for(let o in this.options) {
+            if(this.selection == parseInt(o)) {
+                ctx.fillStyle = palettes[currentPalette].title;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); 
+            } else {
+                /*ctx.fillStyle = palettes[currentPalette].background;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); */
+                ctx.strokeStyle = palettes[currentPalette].text;
+                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize));
+            }
+        }
+
+        ctx.lineWidth = 4;
+    }// drawMain()
+
+    drawOptions() {
+        // shade background
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.lineWidth = 1;
+        // Draw title
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+
+        ctx.font = (fontSize * this.titleSize) + "px " + fontFamily;
+        ctx.fillStyle = palettes[currentPalette].title;
+
+        ctx.fillText(this.title, canvas.width / 2, canvas.height / 8, canvas.width);
+
+        ctx.font = (fontSize * this.optionsSize) + "px " + fontFamily;
+        // draw buttons
+        for(let o in this.options) {
+            if(this.selection == parseInt(o)) {
+                ctx.fillStyle = palettes[currentPalette].title;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize)); 
+            } else {
+                /*ctx.fillStyle = palettes[currentPalette].background;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize)); */
+                ctx.strokeStyle = palettes[currentPalette].text;
+                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize));
+            }
+        }
+
+        ctx.lineWidth = 4;
+    }// drawOptions()
+
+    draw() {
+        switch(this.type) {
+            case "options":
+                this.drawOptions();
+                break;
+
+            case "main":
+            default:
+                this.drawMain();
+                break;
+        }
+    }// draw();
+}// class Menu
+
+/* ------------------------------- Classes End ------------------------------ */
 /*----- Other Things -----*/
 
 var shipPoints = [
@@ -455,7 +641,7 @@ var laserPoints = [
 /*----- Other Things End -----*/
 
 function createShip() {
-    ship = new Entity(new Shape(shipPoints), "#fff", "ship", shipSpeed);
+    ship = new Entity(new Shape(shipPoints), palettes[currentPalette].ship, "ship", shipSpeed);
     ship.x = canvas.width * 0.75;
     ship.y = canvas.height * 0.25;
     ship.dir = 135;
@@ -498,7 +684,7 @@ function createShip() {
 
 function shoot() {
     //console.log("shoot"); // for debugging
-    var laser = new Entity(new Shape(laserPoints), "#f00", "laser", laserSpeed);
+    var laser = new Entity(new Shape(laserPoints), palettes[currentPalette].laser, "laser", laserSpeed);
 
     laser.updatePosition = function() {
         this.x += this.speedVector.x;
@@ -507,7 +693,7 @@ function shoot() {
         
         // off screen delete
         if(this.x < -100  ||  this.x > canvas.width + 100  ||  this.y < -100  || this.y > canvas.height + 100) {
-            entities[laser.index] = null;
+            entities[laser.id] = null;
         }
     }
 
@@ -552,12 +738,17 @@ function newAsteroid(x, y, dir, speed, size) {
         dif = 10;
         rd = 30;
     }
+    else {
+        min = 10;
+        dif = 5;
+        rd = 15;
+    }
 
     for(let i = 0; i < 18; i++) {
         asteroidPoints[i] = new PolarPoint(Math.random() * dif + min, i * 20);
     }
 
-    var asteroid = new Entity(new Shape(asteroidPoints), "#fff", "asteroid", asteroidSpeed);
+    var asteroid = new Entity(new Shape(asteroidPoints), palettes[currentPalette].asteroid, "asteroid", asteroidSpeed);
     asteroid.x = x;
     asteroid.y = y;
     asteroid.dir = dir;
@@ -595,28 +786,61 @@ document.addEventListener("keydown", function(event) {
     switch(event.key) {
         case "ArrowUp":
         case "w":
-            arrowUpPressed = true;
+            if(!currentMenu)
+                arrowUpPressed = true;
+            else
+                currentMenu.last();
             break;
+
         case "ArrowDown":
         case "s":
-            arrowDownPressed = true;
+            if(!currentMenu)
+                arrowDownPressed = true;
+            else
+                currentMenu.next();
             break;
+
         case "ArrowLeft":
         case "a":
             arrowLeftPressed = true;
             break;
+
         case "ArrowRight":
         case "d":
             arrowRightPressed = true;
             break;
+
+        case "Enter":
         case " ":
-            shoot();
+            if(!currentMenu)
+                shoot();
+            else
+                currentMenu.select();
             break;
+        
+        case "Escape":
         case "p":
-            pause();
+            if(gameStatus == "game")
+                pause();
+
+            if(transitionInterval) {
+                transitionInterval = clearInterval(transitionInterval);
+                trippyMode = false;
+                newGame();
+            }
+            if(!updateInterval) updateInterval = setInterval(updateScreen, 1000/60);
             break;
+
         case "r":
             newGame();
+            break;
+
+        case "f":
+            openFullscreen();
+            break;
+        
+        default:
+            //console.log("Unbound key: \'" + event.key + "\'"); // for debugging
             break;
     }
 });// keydown
@@ -642,34 +866,57 @@ document.addEventListener("keyup", function(event) {
     }
 });// keyup
 
+canvas.addEventListener("mousemove", (event) => {
+    relMousePos.x = (event.clientX - event.target.offsetLeft) * (canvas.width / parseInt(canvas.style.width));
+    relMousePos.y = (event.clientY - event.target.offsetTop) * (canvas.height / parseInt(canvas.style.height));
+});
+
 /*----- I/O End -----*/
 /*----- Update -----*/
 
-function gameOverScreen() {
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = (fontSize * 2) + "px " + fontFamily;
-    ctx.fillText("GAME OVER", canvas.width/2, canvas.height/4);
-    ctx.font = fontSize + "px " + fontFamily;
-    ctx.fillText("press R to retry", canvas.width/2, canvas.height/4 + fontSize + 5);
-}// gameOverScreen()
-
 function gameEnd() {
-    gameOver = true;    
+    if(ship) {
+        entities[ship.id] = null;
+        ship = null;
+    }
+
+    arrowUpPressed = false;
+    arrowDownPressed = false;
+    arrowLeftPressed = false;
+    arrowRightPressed = false;
+
+    gameOver = true;
+    currentMenu = Menus.over();
+    gameStatus = "menu";
 }// gameEnd()
 
+function killPlayer() {
+    if(!ship) {
+        gameEnd();
+        return;
+    }
+
+    newAsteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
+    newAsteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
+    newAsteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
+
+    gameEnd();
+}// killPlayer()
+
 function updateMovement() {
-    if(arrowUpPressed) {
-        ship.forward(acceleration);
-    }
-    if(arrowDownPressed) {
-        ship.forward(0-acceleration);
-    }
-    if(arrowLeftPressed) {
-        ship.turnLeft();
-    }
-    if(arrowRightPressed) {
-        ship.turnRight()
+    if(ship) {
+        if(arrowUpPressed) {
+            ship.forward(acceleration);
+        }
+        if(arrowDownPressed) {
+            ship.forward(0-acceleration);
+        }
+        if(arrowLeftPressed) {
+            ship.turnLeft();
+        }
+        if(arrowRightPressed) {
+            ship.turnRight()
+        }
     }
 
     //ship.updatePosition();
@@ -702,10 +949,8 @@ function asteroidColision(asteroid) {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
             if(entities[i].type == "ship" && asteroid.isTouching(entities[i])) {
-                console.log("game over");
                 if(noClip == false) {
-                    entities[i] = null;
-                    gameEnd();
+                    killPlayer();
                 }
                 return;
             }
@@ -723,7 +968,7 @@ function asteroidColision(asteroid) {
                     newAsteroid(asteroid.x, asteroid.y, Math.random() * 360, asteroidSpeed, 2);
                 }
 
-                entities[asteroid.index] = null;
+                entities[asteroid.id] = null;
             }
         }
     }
@@ -738,15 +983,18 @@ function updateColision() {
 }// updateColision()
 
 function updateFullScreen() {
-    var h = window.innerHeight;
-    var w = window.innerWidth;
+    var h = 1000;
+    var w = window.innerWidth * h / window.innerHeight;
+
+    // w/h = iw/ih
+    //w = iw * h / ih
     
     canvas.width = w;
-    canvas.style.width = w + "px";
-    gameDiv.style.width = w + "px";
+    canvas.style.width = window.innerWidth + "px";
+    gameDiv.style.width = window.innerWidth + "px";
     canvas.height = h;
-    canvas.style.height = h + "px";
-    gameDiv.style.height = h + "px";
+    canvas.style.height = window.innerHeight + "px";
+    gameDiv.style.height = window.innerHeight + "px";
 }// updateFullScreen()
 
 function updateSize() {
@@ -754,11 +1002,18 @@ function updateSize() {
     var w = window.innerWidth;
 
     
-    if(viewType == "full") {
+    if(viewType == 1) {
         updateFullScreen();
         ctx.lineWidth = Math.floor(canvas.height / 250);
     }
     else {
+        canvas.width = 1000;
+        canvas.style.width = "1000 px";
+        gameDiv.style.width = "1000 px";
+        canvas.height = 1000;
+        canvas.style.height = "1000 px";
+        gameDiv.style.height = "1000 px";
+
         ctx.lineWidth = 4;
         if(w > h) {
             canvas.style.height = h + "px";
@@ -806,39 +1061,125 @@ function drawEntities() {
     }
 }// drawEntities()
 
-function drawText() {
+function drawStats() {
     fontSize = canvas.height / 20;
     ctx.font = fontSize + "px " + fontFamily;
     ctx.textBaseline = "hanging";
     ctx.textAlign = "left";
-    ctx.fillStyle = textColor;
+
+    ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Score: " + score, 10, 10);
+
+    ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
+
+    ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
-    
-    if(gameOver) gameOverScreen();
-    else if(paused) pausedScreen();
-}// drawText()
+}// drawStats()
 
 function updateScreen() {
-    updateSize();
-
-    if(!trippyMode)
+    if(!trippyMode) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        updateSize();
+        fontSize = canvas.height * 1 / 20;
+    }
 
-    updateMovement();
-    updateColision();
 
-    updateAsteroids();
+    if(!paused) {
+        updateMovement();
+        updateColision();
+
+        updateAsteroids();
+    }
     
     drawEntities();
-    drawText();
+
+    if(currentMenu) currentMenu.draw();
+    else if(showStats) drawStats();
 }// updateScreen()
 
 /*----- Update End -----*/
 
+function toggleViewType() {
+    if(viewType + 1 >= viewTypes.length) {
+        viewType = 0;
+        return;
+    }
+    viewType++;
+}// toggleViewMode()
+
+function equipPalette(p) {
+    if(p >= palettes.length || p < 0) return;
+    
+    currentPalette = p;
+
+    for(let e of entities) {
+        if(e && e.type) switch(e.type) {
+            case "ship":
+                e.color = palettes[currentPalette].ship;
+                break;
+
+            case "asteroid":
+                e.color = palettes[currentPalette].asteroid;
+                break;
+            
+            case "laser":
+                e.color = palettes[currentPalette].laser;
+                break;
+        }
+    }
+
+    canvas.style.backgroundColor = palettes[currentPalette].background;
+}// equipPalette(p)
+
+function cyclePalette() {
+    if(currentPalette + 1 >= palettes.length) {
+        currentPalette = 0;
+    }
+    else currentPalette++;
+
+    equipPalette(currentPalette);
+}// cyclePalette()
+
+function settingsMenu() {
+    currentMenu = Menus.settings();
+}// openSettings()
+
+function openFullscreen() {
+    isFullscreen = true;
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+        document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
+        document.documentElement.msRequestFullscreen();
+    }
+}// openFullscreen()
+  
+/* Close fullscreen */
+function closeFullscreen() {
+    isFullscreen = false;
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) { /* Safari */
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { /* IE11 */
+        document.msExitFullscreen();
+    }
+}// closeFullscreen()
+
+function toggleFullscreen() {
+    if(isFullscreen)
+        closeFullscreen();
+    else
+        openFullscreen();
+}// toggleFullscreen()
+
 function newGame() {
     updateInterval = clearInterval(updateInterval);
+    gameStatus = "game";
+    currentMenu = undefined;
     paused = false;
     gameOver = false;
     entities = [];
@@ -857,21 +1198,202 @@ function newGame() {
     
     newAsteroid(canvas.width/2, canvas.height/2, 0, 0, 3);
 
+    ship.dir = Math.atan((canvas.height/2 - ship.y) / (canvas.width/2 - ship.x)) * 180/Math.PI + 180;
+
+
     // start update interval
     updateInterval = setInterval(updateScreen, 1000/60);
-}// startGame()
+}// newGame()
+
+function gameTransition() {
+    gameStatus = "game";
+    currentMenu = undefined;
+    paused = false;
+    gameOver = false;
+    entities = [];
+    score = 0;
+    shotsFired = 0;
+
+    arrowUpPressed = false;
+    arrowDownPressed = false;
+    arrowLeftPressed = false;
+    arrowRightPressed = false;
+
+    ship = null;
+
+    createShip();
+    currentDifficulty = 1;
+    
+    newAsteroid(canvas.width/2, canvas.height/2, 0, 0, 3);
+
+    ship.dir = Math.atan((canvas.height/2 - ship.y) / (canvas.width/2 - ship.x)) * 180/Math.PI + 180;
+    updateScreen();
+}// gameTransition()
+
+var transitionInterval;
+
+function transitionAnimation(callback) {
+    updateInterval = clearInterval(updateInterval);
+    currentMenu = undefined;
+
+    let i = 0;
+    let end = 150;
+    let stars = [];
+    let calledBack = false;
+
+    transitionInterval = setInterval(() => {
+        for(let j = 0; j < 100; j++) {
+            let next = new Entity(new Shape([
+                new PointValue(-2, -2).getPolar(),
+                new PointValue(2, -2).getPolar(),
+                new PointValue(2, 2).getPolar(),
+                new PointValue(-2, 2).getPolar()
+            ]), palettes[currentPalette].text, "star", asteroidSpeed);
+
+            next.x = Math.random() * canvas.width;
+            next.y = Math.random() * canvas.height;
+
+            entities[next.id] = null;
+
+            next.speedVector = Vector.fromRect(next.x - canvas.width/2, next.y - canvas.height/2);
+            
+            next.updatePosition = function() {
+                if(this.speedVector.mag > this.maxVelocity) {
+                    this.speedVector.mag = this.maxVelocity;
+                }
+                else if(this.speedVector.mag < 0-this.maxVelocity) {
+                    this.speedVector.mag = 0 - this.maxVelocity;
+                }
+        
+                this.x += this.speedVector.x;
+                this.y += this.speedVector.y;
+
+                if(
+                    this.x < 0-this.rollOverDist || 
+                    this.x > canvas.width + this.rollOverDist || 
+                    this.y < 0-this.rollOverDist || 
+                    this.y > canvas.height + this.rollOverDist) {
+                }
+            }
+
+            stars[stars.length] = next;
+        }
+
+        for(let e of entities) if(e){
+            e.draw();
+            e.updatePosition();
+        }
+
+        for(let s of stars) if(s){
+            for(let l = 0; l < 2; l++) {
+                s.draw();
+                s.updatePosition();
+            }
+        }
+
+        if(i > end / 4) {
+            ctx.fillStyle = "rgba(0, 0, 0, " + (i - end/4)/(3 * end/4) + ")";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if(callback && !calledBack) {
+                calledBack = true;
+                callback();
+            }
+        }
+
+        trippyMode = true;
+        updateScreen();
+
+        if(i >= end) { 
+            transitionInterval = clearInterval(transitionInterval);
+            updateInterval = setInterval(updateScreen, 1000/60);
+            trippyMode = false;
+
+            //if(callback) callback();
+        }
+        i++;
+    }, 1);
+}// transitionAnimation()
+
+/* ------------------------------- Menu start ------------------------------- */
+
+// menus
+var Menus = {
+    main : function() {
+        return new Menu("ASTEROIDS", ["start", "settings"], [newGame, settingsMenu], "main");
+    },
+    over : function() {
+        return new Menu("GAME OVER", ["retry", "menu"], [newGame, mainMenu], "main")
+    },
+    paused : function() {
+        return new Menu("PAUSED", ["continue", "retry", "settings", "menu"], [
+            () => {
+                gameStatus = "game"; 
+                currentMenu = undefined; 
+                paused = false;
+            }, 
+            newGame, 
+            () => {
+                currentMenu = Menus.settings(Menus.paused);
+            }, 
+            () => {
+                killPlayer(); 
+                mainMenu();
+            }
+        ], 
+        "options");
+    },
+    settings : function(returnMenu) {
+        if(!returnMenu) returnMenu = Menus.main;
+
+        function returnFunc() {
+            currentMenu = returnMenu();
+        }// returnFunc
+
+        let temp = new Menu("Settings", ["toggle view mode (" + viewTypes[viewType] + ")", "palette: " + palettes[currentPalette].name, "back"], [
+            () => {
+                toggleViewType();
+                temp.options[0] = "toggle view mode (" + viewTypes[viewType] + ")";
+            }, 
+            () => {
+                cyclePalette();
+                temp.options[1] = "palette: " + palettes[currentPalette].name;
+            }, returnFunc], "options");
+
+        temp.optionsSize = 1;
+        
+        return temp;
+    }
+};
+
+// logic
+function mainMenu() {
+    paused = false;
+    gameEnd();
+    gameStatus = "menu";
+    currentMenu = Menus.main();
+}// mainMenu()
+
+/* -------------------------------- Menu end -------------------------------- */
 
 // inits
 function init() {
-    ctx.font = fontSize + "px " + fontFamily;
-    newGame();
+    for(let i = 0; i < 3; i++) {
+        spawnAsteroid();
+    }
+
+    updateInterval = setInterval(updateScreen, 50/3);
+    mainMenu();
 }// init()
 
 init();
 
 /*
 todo:
+    - Make astroids and ship more distinguishable
+    - Add color customization
     - add a menu
         - add a how to play
             - add control changing
+
+    - make ship explode into asteroids apon losing
 */

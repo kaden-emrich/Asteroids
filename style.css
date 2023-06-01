@@ -3,6 +3,7 @@ body {
     padding: 0;
     font-family: "Munro";
     overflow: hidden;
+    background-color: #555;
 }
 
 @font-face {
