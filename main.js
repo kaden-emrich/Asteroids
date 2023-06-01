@@ -31,6 +31,7 @@ var paused = false;
 var gameOver = false;
 
 var viewTypes = ["square", "full"];
+var isFullscreen = false;
 
 /*----- Game Settings -----*/
 
@@ -41,6 +42,7 @@ var acceleration = 0.2;
 var trippyMode = false;
 var showVelocity = false;
 var showMousePos = false;
+var showStats = true;
 var laserSight = false;
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
@@ -90,6 +92,16 @@ const palettes = [
     },
 
     {
+        name : "wooden",
+        ship : "#f90",
+        asteroid : "#f50",
+        laser : "#f55",
+        title : "#f33",
+        text : "#ff0",
+        background : "#420"
+    },
+
+    {
         name : "hackerman",
         ship : "#0f0",
         asteroid : "#f00",
@@ -113,14 +125,12 @@ currentPalette = 0;
 
 function pause() {
     if(paused == true) {
-        gameStatus = "game";
         currentMenu = undefined;
         paused = false;
     }
     else {
         paused = true;
         currentMenu = Menus.paused();
-        gameStatus = "menu";
     }
 }
 
@@ -196,7 +206,7 @@ class Vector {
         return new Vector(dirTotal, magTotal);
     }// add(otherVector)
 
-    fromRect(x, y) {
+    static fromRect(x, y) {
         let d;
         let m = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 
@@ -776,29 +786,18 @@ document.addEventListener("keydown", function(event) {
     switch(event.key) {
         case "ArrowUp":
         case "w":
-            switch(gameStatus) {
-                case "game":
-                    arrowUpPressed = true;
-                    break;
-
-                case "menu":
-                    currentMenu.last();
-                    break;
-            }
-            
+            if(!currentMenu)
+                arrowUpPressed = true;
+            else
+                currentMenu.last();
             break;
 
         case "ArrowDown":
         case "s":
-            switch(gameStatus) {
-                case "game":
-                    arrowDownPressed = true;
-                    break;
-
-                case "menu":
-                    currentMenu.next();
-                    break;
-            }
+            if(!currentMenu)
+                arrowDownPressed = true;
+            else
+                currentMenu.next();
             break;
 
         case "ArrowLeft":
@@ -813,25 +812,31 @@ document.addEventListener("keydown", function(event) {
 
         case "Enter":
         case " ":
-            switch(gameStatus) {
-                case "game":
-                    shoot();
-                    break;
-                
-                case "menu":
-                    currentMenu.select();
-                    break;
-
-            }
+            if(!currentMenu)
+                shoot();
+            else
+                currentMenu.select();
             break;
         
         case "Escape":
         case "p":
-            pause();
+            if(gameStatus == "game")
+                pause();
+
+            if(transitionInterval) {
+                transitionInterval = clearInterval(transitionInterval);
+                trippyMode = false;
+                newGame();
+            }
+            if(!updateInterval) updateInterval = setInterval(updateScreen, 1000/60);
             break;
 
         case "r":
             newGame();
+            break;
+
+        case "f":
+            openFullscreen();
             break;
         
         default:
@@ -944,7 +949,6 @@ function asteroidColision(asteroid) {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
             if(entities[i].type == "ship" && asteroid.isTouching(entities[i])) {
-                console.log("game over");
                 if(noClip == false) {
                     killPlayer();
                 }
@@ -1057,7 +1061,7 @@ function drawEntities() {
     }
 }// drawEntities()
 
-function drawText() {
+function drawStats() {
     fontSize = canvas.height / 20;
     ctx.font = fontSize + "px " + fontFamily;
     ctx.textBaseline = "hanging";
@@ -1071,14 +1075,15 @@ function drawText() {
 
     ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
-}// drawText()
+}// drawStats()
 
 function updateScreen() {
-    updateSize();
-    fontSize = canvas.height * 1 / 20;
-
-    if(!trippyMode)
+    if(!trippyMode) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        updateSize();
+        fontSize = canvas.height * 1 / 20;
+    }
 
 
     if(!paused) {
@@ -1091,7 +1096,7 @@ function updateScreen() {
     drawEntities();
 
     if(currentMenu) currentMenu.draw();
-    else drawText();
+    else if(showStats) drawStats();
 }// updateScreen()
 
 /*----- Update End -----*/
@@ -1141,6 +1146,36 @@ function settingsMenu() {
     currentMenu = Menus.settings();
 }// openSettings()
 
+function openFullscreen() {
+    isFullscreen = true;
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+        document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
+        document.documentElement.msRequestFullscreen();
+    }
+}// openFullscreen()
+  
+/* Close fullscreen */
+function closeFullscreen() {
+    isFullscreen = false;
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) { /* Safari */
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { /* IE11 */
+        document.msExitFullscreen();
+    }
+}// closeFullscreen()
+
+function toggleFullscreen() {
+    if(isFullscreen)
+        closeFullscreen();
+    else
+        openFullscreen();
+}// toggleFullscreen()
+
 function newGame() {
     updateInterval = clearInterval(updateInterval);
     gameStatus = "game";
@@ -1169,6 +1204,115 @@ function newGame() {
     // start update interval
     updateInterval = setInterval(updateScreen, 1000/60);
 }// newGame()
+
+function gameTransition() {
+    gameStatus = "game";
+    currentMenu = undefined;
+    paused = false;
+    gameOver = false;
+    entities = [];
+    score = 0;
+    shotsFired = 0;
+
+    arrowUpPressed = false;
+    arrowDownPressed = false;
+    arrowLeftPressed = false;
+    arrowRightPressed = false;
+
+    ship = null;
+
+    createShip();
+    currentDifficulty = 1;
+    
+    newAsteroid(canvas.width/2, canvas.height/2, 0, 0, 3);
+
+    ship.dir = Math.atan((canvas.height/2 - ship.y) / (canvas.width/2 - ship.x)) * 180/Math.PI + 180;
+    updateScreen();
+}// gameTransition()
+
+var transitionInterval;
+
+function transitionAnimation(callback) {
+    updateInterval = clearInterval(updateInterval);
+    currentMenu = undefined;
+
+    let i = 0;
+    let end = 150;
+    let stars = [];
+    let calledBack = false;
+
+    transitionInterval = setInterval(() => {
+        for(let j = 0; j < 100; j++) {
+            let next = new Entity(new Shape([
+                new PointValue(-2, -2).getPolar(),
+                new PointValue(2, -2).getPolar(),
+                new PointValue(2, 2).getPolar(),
+                new PointValue(-2, 2).getPolar()
+            ]), palettes[currentPalette].text, "star", asteroidSpeed);
+
+            next.x = Math.random() * canvas.width;
+            next.y = Math.random() * canvas.height;
+
+            entities[next.id] = null;
+
+            next.speedVector = Vector.fromRect(next.x - canvas.width/2, next.y - canvas.height/2);
+            
+            next.updatePosition = function() {
+                if(this.speedVector.mag > this.maxVelocity) {
+                    this.speedVector.mag = this.maxVelocity;
+                }
+                else if(this.speedVector.mag < 0-this.maxVelocity) {
+                    this.speedVector.mag = 0 - this.maxVelocity;
+                }
+        
+                this.x += this.speedVector.x;
+                this.y += this.speedVector.y;
+
+                if(
+                    this.x < 0-this.rollOverDist || 
+                    this.x > canvas.width + this.rollOverDist || 
+                    this.y < 0-this.rollOverDist || 
+                    this.y > canvas.height + this.rollOverDist) {
+                }
+            }
+
+            stars[stars.length] = next;
+        }
+
+        for(let e of entities) if(e){
+            e.draw();
+            e.updatePosition();
+        }
+
+        for(let s of stars) if(s){
+            for(let l = 0; l < 2; l++) {
+                s.draw();
+                s.updatePosition();
+            }
+        }
+
+        if(i > end / 4) {
+            ctx.fillStyle = "rgba(0, 0, 0, " + (i - end/4)/(3 * end/4) + ")";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if(callback && !calledBack) {
+                calledBack = true;
+                callback();
+            }
+        }
+
+        trippyMode = true;
+        updateScreen();
+
+        if(i >= end) { 
+            transitionInterval = clearInterval(transitionInterval);
+            updateInterval = setInterval(updateScreen, 1000/60);
+            trippyMode = false;
+
+            //if(callback) callback();
+        }
+        i++;
+    }, 1);
+}// transitionAnimation()
 
 /* ------------------------------- Menu start ------------------------------- */
 
