@@ -59,6 +59,7 @@ var asteroidSpeed = 2;
 var velocityLimit = 30;
 
 var currentPalette;
+var shipSkin;
 
 /*----- Game Settings End -----*/
 
@@ -148,10 +149,19 @@ class PointValue {
 
     getPolar() {
         var r = Math.sqrt((this.x*this.x) + (this.y*this.y));
-        if(this.x > 0)
-            var dir = Math.atan(this.y / this.x) * (180 / Math.PI);
+        var dir;
+        if(this.x == 0) {
+            if(this.y > 0) {
+                dir = 90;
+            }
+            else {
+                dir = -90;
+            }
+        }
+        else if(this.x > 0)
+            dir = Math.atan(this.y / this.x) * (180 / Math.PI);
         else {
-            var dir = Math.atan(this.y / this.x) * (180 / Math.PI) + 180;
+            dir = Math.atan(this.y / this.x) * (180 / Math.PI) + 180;
         }
 
         return new PolarPoint(r, dir);
@@ -635,6 +645,13 @@ var shipPoints = [
     new PointValue(-10, -15).getPolar()
 ];
 
+var classicShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
 var laserPoints = [
     new PointValue(0, 0).getPolar(),
     new PointValue(-30, 0).getPolar(),
@@ -645,7 +662,7 @@ var laserPoints = [
 /*----- Other Things End -----*/
 
 function createShip() {
-    ship = new Entity(new Shape(shipPoints), palettes[currentPalette].ship, "ship", shipSpeed);
+    ship = new Entity(new Shape(shipSkin), palettes[currentPalette].ship, "ship", shipSpeed);
     ship.x = canvas.width * 0.75;
     ship.y = canvas.height * 0.25;
     ship.dir = 135;
@@ -1414,6 +1431,7 @@ var gameControlScheme = [
 
 // inits
 function init() {
+    shipSkin = classicShipPoints;
     for(let i = 0; i < 3; i++) {
         spawnAsteroid();
     }
