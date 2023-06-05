@@ -36,7 +36,7 @@ class Menu {
         ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2  * canvas.height/parseInt(canvas.style.height);
         // Draw title
         ctx.textBaseline = "middle";
         ctx.textAlign = "center";

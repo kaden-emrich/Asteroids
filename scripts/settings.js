@@ -31,6 +31,8 @@ var currentController;
 var currentDifficulty = 1;
 var shotsFired = 0;
 
+var currentAlert = null;
+
 var paused = false;
 var gameOver = false;
 

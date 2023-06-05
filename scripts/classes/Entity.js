@@ -239,4 +239,8 @@ class Entity {
 
         return null;
     }// checkLineColision()
+
+    kill() {
+        entities[this.id] = null;
+    }// kill()
 }// class Entity

@@ -181,12 +181,14 @@ function updateAsteroids() {
         }
     }
 
-    if(numAsteroids == 0) {
+    if(numAsteroids == 0 && !currentAlert) {
         currentDifficulty++;
 
-        for(let i = 0; i < currentDifficulty; i++) {
-            spawnAsteroid();
-        }
+        newAlert("NEW WAVE", 20, 120, () => {
+            for(let i = 0; i < currentDifficulty; i++) {
+                spawnAsteroid();
+            }
+        });
     }
 }// updateAsteroids()
 
@@ -218,6 +220,40 @@ function drawStats() {
     ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
 }// drawStats()
 
+var alertInterval = 0;
+var alertLength = 0;
+var alertTimer = 0;
+var alertCallback;
+
+function newAlert(text, interval, length, callback) {
+    currentAlert = text;
+    alertInterval = interval;
+    alertTimer = 0;
+    alertLength = length;
+    alertCallback = callback;
+}// newAlert(text)
+
+function updateAlert() {
+    if(!currentAlert) return;
+
+    if(alertTimer > alertLength) {
+        alertCallback();
+        currentAlert = null;
+        return;
+    }
+
+    alertTimer ++;
+
+    if(alertTimer % (2 * alertInterval) < alertInterval) return;
+    
+
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center"
+    ctx.font = (fontSize * 4) + "px " + fontFamily;
+
+    ctx.fillText(currentAlert, (canvas.width / 2), (canvas.height / 2));
+}// updateAlert()
+
 function updateScreen() {
     if(!trippyMode) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -238,6 +274,8 @@ function updateScreen() {
 
     if(currentMenu) currentMenu.draw();
     else if(showStats) drawStats();
+
+    updateAlert();
 }// updateScreen()
 
 /*----- Update End -----*/
