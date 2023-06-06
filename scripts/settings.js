@@ -109,6 +109,16 @@ const palettes = [
     },
 
     {
+        name : "Kaden's theme",
+        ship : "#a2d729",
+        asteroid : "#bc4e4e",
+        laser : "#3c91e6",
+        title : "#1b998b",
+        text : "#3c91e6",
+        background : "#123456"
+    },
+
+    {
         name : "hackerman",
         ship : "#0f0",
         asteroid : "#f00",

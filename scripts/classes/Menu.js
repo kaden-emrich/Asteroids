@@ -63,6 +63,44 @@ class Menu {
         ctx.lineWidth = 4;
     }// drawMain()
 
+    drawGameOver() {
+        // shade background
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.lineWidth = 2  * canvas.height/parseInt(canvas.style.height);
+        // Draw title
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+
+        ctx.font = (fontSize * this.titleSize) + "px " + fontFamily;
+        ctx.fillStyle = palettes[currentPalette].title;
+
+        ctx.fillText(this.title, canvas.width / 2, canvas.height / 6, canvas.width);
+
+        ctx.font = (fontSize * this.optionsSize / 2) + "px " + fontFamily;
+
+        //"Wave: " + currentDifficulty
+        ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 4 + (fontSize * this.optionsSize / 2), canvas.width);
+        ctx.fillText("Wave: " + currentDifficulty, canvas.width / 2, canvas.height / 4 + (fontSize * this.optionsSize), canvas.width);
+
+        ctx.font = (fontSize * this.optionsSize) + "px " + fontFamily;
+        // draw buttons
+        for(let o in this.options) {
+            if(this.selection == parseInt(o)) {
+                ctx.fillStyle = palettes[currentPalette].title;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); 
+            } else {
+                /*ctx.fillStyle = palettes[currentPalette].background;
+                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); */
+                ctx.strokeStyle = palettes[currentPalette].text;
+                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize));
+            }
+        }
+
+        ctx.lineWidth = 4;
+    }// drawGameOver()
+
     drawOptions() {
         // shade background
         ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
@@ -99,6 +137,10 @@ class Menu {
         switch(this.type) {
             case "options":
                 this.drawOptions();
+                break;
+
+            case "gameOver":
+                this.drawGameOver();
                 break;
 
             case "main":

@@ -243,4 +243,6 @@ class Entity {
     kill() {
         entities[this.id] = null;
     }// kill()
+
+    
 }// class Entity

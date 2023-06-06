@@ -2,7 +2,7 @@
 
 class Ship extends Entity {
     constructor() {
-        super(new Shape(shipSkin), palettes[currentPalette].ship, "ship", shipSpeed);
+        super(shipSkins[shipSkin].shape, palettes[currentPalette].ship, "ship", shipSpeed);
 
         this.x = canvas.width * 0.75;
         this.y = canvas.height * 0.25;

@@ -1,18 +1,5 @@
 // Kaden Emrich
 
-function pause() {
-    if(paused == true) {
-        currentMenu = undefined;
-        currentController = new KeyController(gameControlScheme);
-        paused = false;
-    }
-    else {
-        paused = true;
-        currentController = new KeyController(menuControlScheme);
-        currentMenu = Menus.paused();
-    }
-}// pause()
-
 var shipPoints = [
     new PointValue(30, 0).getPolar(),
     new PointValue(-10, 15).getPolar(),
@@ -26,12 +13,93 @@ var classicShipPoints = [
     new PointValue(-10, -15).getPolar()
 ];
 
+var arrowShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(0, 15).getPolar(),
+    new PointValue(0, 10).getPolar(),
+    new PointValue(-10, 10).getPolar(),
+    new PointValue(-10, -10).getPolar(),
+    new PointValue(0, -10).getPolar(),
+    new PointValue(0, -15).getPolar()
+];
+
+var coolShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-10, 10).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-10, -10).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
+var brickShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(25, 15).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-10, -15).getPolar(),
+    new PointValue(25, -15).getPolar()
+];
+
+var breadShipPoints = [
+    new PointValue(28, 0).getPolar(),
+    new PointValue(30, 5).getPolar(),
+    new PointValue(30, 15).getPolar(),
+    new PointValue(20, 15).getPolar(),
+    new PointValue(15, 10).getPolar(),
+    new PointValue(-5, 12).getPolar(),
+    new PointValue(-5, -12).getPolar(),
+    new PointValue(15, -10).getPolar(),
+    new PointValue(20, -15).getPolar(),
+    new PointValue(30, -15).getPolar(),
+    new PointValue(30, -5).getPolar()
+];
+
+var shipSkins = [
+    {
+        name : "classic",
+        shape : new Shape(classicShipPoints)
+    },
+
+    {
+        name : "basic",
+        shape : new Shape(shipPoints)
+    },
+
+    {
+        name : "arrow",
+        shape : new Shape(arrowShipPoints)
+    },
+
+    {
+        name : "cool",
+        shape : new Shape(coolShipPoints)
+    },
+
+    {
+        name : "a brick",
+        shape : new Shape(brickShipPoints)
+    }
+];
+
 var laserPoints = [
     new PointValue(0, 0).getPolar(),
     new PointValue(-30, 0).getPolar(),
     new PointValue(-30, -1).getPolar(),
     new PointValue(0, -1).getPolar()
 ];
+
+function pause() {
+    if(paused == true) {
+        currentMenu = undefined;
+        currentController = new KeyController(gameControlScheme);
+        paused = false;
+    }
+    else {
+        paused = true;
+        currentController = new KeyController(menuControlScheme);
+        currentMenu = Menus.paused();
+    }
+}// pause()
 
 function shoot() {
     if(ship) ship.shoot();
@@ -275,6 +343,7 @@ function updateScreen() {
     if(currentMenu) currentMenu.draw();
     else if(showStats) drawStats();
 
+    
     updateAlert();
 }// updateScreen()
 
@@ -287,6 +356,24 @@ function toggleViewType() {
     }
     viewType++;
 }// toggleViewMode()
+
+function equipShipSkin(s) {
+    if(!ship) return;
+    if(s >= shipSkins.length || s < 0) return;
+
+    shipSkin = s;
+
+    ship.shape = shipSkins[s].shape;
+}// equipShipSkin(s)
+
+function cycleShipSkin() {
+    if(shipSkin + 1 >= shipSkins.length) {
+        shipSkin = 0;
+    }
+    else shipSkin++;
+
+    equipShipSkin(shipSkin);
+}// cycleShipSkin()
 
 function equipPalette(p) {
     if(p >= palettes.length || p < 0) return;
@@ -392,7 +479,7 @@ var Menus = {
         return new Menu("ASTEROIDS", ["start", "settings", "credit"], [newGame, settingsMenu, () => {currentMenu = Menus.credit();}], "main");
     },
     over : function() {
-        return new Menu("GAME OVER", ["retry", "menu"], [newGame, mainMenu], "main")
+        return new Menu("GAME OVER", ["retry", "menu"], [newGame, mainMenu], "gameOver")
     },
     paused : function() {
         return new Menu("PAUSED", ["continue", "retry", "settings", "menu"], [
@@ -420,7 +507,7 @@ var Menus = {
             currentMenu = returnMenu();
         }// returnFunc
 
-        let temp = new Menu("Settings", ["toggle view mode (" + viewTypes[viewType] + ")", "palette: " + palettes[currentPalette].name, "back"], [
+        let temp = new Menu("Settings", ["toggle view mode (" + viewTypes[viewType] + ")", "palette: " + palettes[currentPalette].name, "ship skin: " + shipSkins[shipSkin].name, "back"], [
             () => {
                 toggleViewType();
                 temp.options[0] = "toggle view mode (" + viewTypes[viewType] + ")";
@@ -428,6 +515,10 @@ var Menus = {
             () => {
                 cyclePalette();
                 temp.options[1] = "palette: " + palettes[currentPalette].name;
+            }, 
+            () => {
+                cycleShipSkin();
+                temp.options[2] = "ship skin: " + shipSkins[shipSkin].name;
             }, returnFunc], "options");
 
         temp.optionsSize = 1;
@@ -474,7 +565,7 @@ var gameControlScheme = [
 
 // inits
 function init() {
-    shipSkin = classicShipPoints;
+    shipSkin = 0;
     for(let i = 0; i < 3; i++) {
         spawnAsteroid();
     }
