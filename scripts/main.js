@@ -537,6 +537,13 @@ function mainMenu() {
     gameEnd();
     gameStatus = "menu";
     currentMenu = Menus.main();
+
+    // var test0 = document.createElement("p");
+    // test0.innerText= "Asteroids Game";
+    // gameDiv.append(test0);
+    // test0.setAttribute("class", "titleText");
+    // test0.remove(); // removes the above
+    // ^ this code works and can be used to redesign menus and other game text
 }// mainMenu()
 
 /* -------------------------------- Menu end -------------------------------- */
