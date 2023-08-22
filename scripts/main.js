@@ -90,14 +90,16 @@ var laserPoints = [
 
 function pause() {
     if(paused == true) {
-        currentMenu = undefined;
+        currentMenu.hide();
         currentController = new KeyController(gameControlScheme);
         paused = false;
+        currentMenu = undefined;
     }
     else {
         paused = true;
         currentController = new KeyController(menuControlScheme);
         currentMenu = Menus.paused();
+        currentMenu.draw();
     }
 }// pause()
 
@@ -141,6 +143,7 @@ function gameEnd() {
 
     gameOver = true;
     currentMenu = Menus.over();
+    currentMenu.draw();
     currentController = new KeyController(menuControlScheme);
     gameStatus = "menu";
 }// gameEnd()
@@ -158,24 +161,24 @@ function killPlayer() {
     gameEnd();
 }// killPlayer()
 
-function updateMovement() {
-    if(ship) {
-        if(arrowUpPressed) {
-            ship.forward(acceleration);
-        }
-        if(arrowDownPressed) {
-            ship.forward(0-acceleration);
-        }
-        if(arrowLeftPressed) {
-            ship.turnLeft();
-        }
-        if(arrowRightPressed) {
-            ship.turnRight()
-        }
+function updateCharacterMovement() {
+    if(!ship) return;
+
+    if(arrowUpPressed) {
+        ship.forward(acceleration);
     }
+    if(arrowDownPressed) {
+        ship.forward(0-acceleration);
+    }
+    if(arrowLeftPressed) {
+        ship.turnLeft();
+    }
+    if(arrowRightPressed) {
+        ship.turnRight();
+    }
+}// updateCharacterMovement()
 
-    //ship.updatePosition();
-
+function updateMovement() {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
             entities[i].updatePosition();
@@ -201,9 +204,16 @@ function updateFullScreen() {
     canvas.width = w;
     canvas.style.width = window.innerWidth + "px";
     gameDiv.style.width = window.innerWidth + "px";
+
     canvas.height = h;
     canvas.style.height = window.innerHeight + "px";
     gameDiv.style.height = window.innerHeight + "px";
+
+    if(currentMenu) {
+        menuDiv.style.width = window.innerWidth + "px";
+        menuDiv.style.height = window.innerHeight + "px";
+    }
+    
 }// updateFullScreen()
 
 function updateSize() {
@@ -325,13 +335,14 @@ function updateAlert() {
 function updateScreen() {
     if(!trippyMode) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        updateSize();
-        fontSize = canvas.height * 1 / 20;
     }
+
+    fontSize = canvas.height * 1 / 20;
+    updateSize();
 
 
     if(!paused) {
+        //updateCharacterMovement();
         updateMovement();
         updateColision();
 
@@ -340,8 +351,8 @@ function updateScreen() {
     
     drawEntities();
 
-    if(currentMenu) currentMenu.draw();
-    else if(showStats) drawStats();
+    //if(currentMenu) currentMenu.draw();
+    if(!currentMenu) drawStats();
 
     
     updateAlert();
@@ -410,6 +421,7 @@ function cyclePalette() {
 
 function settingsMenu() {
     currentMenu = Menus.settings();
+    currentMenu.draw();
 }// openSettings()
 
 function openFullscreen() {
@@ -446,6 +458,7 @@ function newGame() {
     currentController = new KeyController(gameControlScheme);
     updateInterval = clearInterval(updateInterval);
     gameStatus = "game";
+    currentMenu.hide();
     currentMenu = undefined;
     paused = false;
     gameOver = false;
@@ -476,15 +489,16 @@ function newGame() {
 // menus
 var Menus = {
     main : function() {
-        return new Menu("ASTEROIDS", ["start", "settings", "credit"], [newGame, settingsMenu, () => {currentMenu = Menus.credit();}], "main");
+        return new Menu("asteroids", ["start", "settings", "credit"], [newGame, settingsMenu, () => {currentMenu = Menus.credit(); currentMenu.draw();}], "main");
     },
     over : function() {
-        return new Menu("GAME OVER", ["retry", "menu"], [newGame, mainMenu], "gameOver")
+        return new Menu("game over", ["retry", "menu"], [newGame, mainMenu], "gameOver")
     },
     paused : function() {
-        return new Menu("PAUSED", ["continue", "retry", "settings", "menu"], [
+        return new Menu("paused", ["continue", "retry", "settings", "menu"], [
             () => {
                 gameStatus = "game"; 
+                currentMenu.hide();
                 currentMenu = undefined; 
                 currentController = new KeyController(gameControlScheme);
                 paused = false;
@@ -492,6 +506,7 @@ var Menus = {
             newGame, 
             () => {
                 currentMenu = Menus.settings(Menus.paused);
+                currentMenu.draw();
             }, 
             () => {
                 killPlayer(); 
@@ -505,20 +520,19 @@ var Menus = {
 
         function returnFunc() {
             currentMenu = returnMenu();
+            currentMenu.draw();
         }// returnFunc
 
-        let temp = new Menu("Settings", ["toggle view mode (" + viewTypes[viewType] + ")", "palette: " + palettes[currentPalette].name, "ship skin: " + shipSkins[shipSkin].name, "back"], [
-            () => {
-                toggleViewType();
-                temp.options[0] = "toggle view mode (" + viewTypes[viewType] + ")";
-            }, 
+        let temp = new Menu("settings", ["palette: " + palettes[currentPalette].name, "ship skin: " + shipSkins[shipSkin].name, "back"], [
             () => {
                 cyclePalette();
-                temp.options[1] = "palette: " + palettes[currentPalette].name;
+                temp.options[0] = "palette: " + palettes[currentPalette].name;
+                currentMenu.draw();
             }, 
             () => {
                 cycleShipSkin();
-                temp.options[2] = "ship skin: " + shipSkins[shipSkin].name;
+                temp.options[1] = "ship skin: " + shipSkins[shipSkin].name;
+                currentMenu.draw();
             }, returnFunc], "options");
 
         temp.optionsSize = 1;
@@ -527,7 +541,9 @@ var Menus = {
     },
 
     credit : function() {
-        return new Menu("KADEN EMRICH", ["menu"], [mainMenu], "main");
+        return new Menu("kaden emrich", ["go to website", "menu"], [() => {
+            window.open('https://kaden.kemri.ch', '_blank');
+        }, mainMenu], "main");
     }
 };
 
@@ -537,6 +553,14 @@ function mainMenu() {
     gameEnd();
     gameStatus = "menu";
     currentMenu = Menus.main();
+    currentMenu.draw();
+
+    // var test0 = document.createElement("p");
+    // test0.innerText= "Asteroids Game";
+    // gameDiv.append(test0);
+    // test0.setAttribute("class", "titleText");
+    // test0.remove(); // removes the above
+    // ^ this code works and can be used to redesign menus and other game text
 }// mainMenu()
 
 /* -------------------------------- Menu end -------------------------------- */
@@ -544,20 +568,81 @@ function mainMenu() {
 /* ---------------------------- controllers start --------------------------- */
 
 var menuControlScheme = [
-    new KeyHandler(["ArrowUp", "w", "W"], () => {currentMenu.last();}),
-    new KeyHandler(["ArrowDown", "s", "S"], () => {currentMenu.next();}),
-    new KeyHandler(["Enter", " "], () => {currentMenu.select();}),
-    new KeyHandler(["Ecape", "p"], () => {if(gameStatus == "game") pause();})
+    // new KeyHandler(["ArrowUp", "w", "W"], () => {currentMenu.last();}),
+    // new KeyHandler(["ArrowDown", "s", "S"], () => {currentMenu.next();}),
+    // new KeyHandler(["Enter", " "], () => {currentMenu.select();}),
+    new KeyHandler(["Escape", "p"], () => {if(gameStatus == "game") pause();})
 ];
 
+var fInterval;
+var bInterval;
+var lInterval;
+var rInterval;
+
 var gameControlScheme = [
-    new KeyHandler(["ArrowUp", "w", "W"], () => {arrowUpPressed = true;}, () => {arrowUpPressed = false;}),
-    new KeyHandler(["ArrowDown", "s", "S"], () => {arrowDownPressed = true;}, () => {arrowDownPressed = false;}),
-    new KeyHandler(["ArrowLeft", "a", "A"], () => {arrowLeftPressed = true;}, () => {arrowLeftPressed = false;}),
-    new KeyHandler(["ArrowRight", "d", "D"], () => {arrowRightPressed = true;}, () => {arrowRightPressed = false;}),
+    new KeyHandler(["ArrowUp", "w", "W"], 
+    () => {
+        arrowUpPressed = true;
+        if(fInterval) return;
+        ship.forward(acceleration);
+        fInterval = setInterval(() => {ship.forward(acceleration);}, 1000/60);
+        //ship.forward(acceleration);
+        
+    }, 
+    () => {
+        arrowUpPressed = false;
+        clearInterval(fInterval);
+        fInterval = undefined;
+    }),
+
+    new KeyHandler(["ArrowDown", "s", "S"], 
+    () => {
+        arrowDownPressed = true;
+        if(bInterval) return;
+        ship.forward(0-acceleration);
+        bInterval = setInterval(() => {ship.forward(0-acceleration);}, 1000/60);
+        //ship.forward(0-acceleration);
+    }, 
+    () => {
+        arrowDownPressed = false;
+        clearInterval(bInterval);
+        bInterval = undefined;
+    }),
+    
+    new KeyHandler(["ArrowLeft", "a", "A"], 
+    () => {
+        arrowLeftPressed = true;
+        if(lInterval) return;
+        ship.turnLeft();
+        lInterval = setInterval(() => {ship.turnLeft();}, 1000/60);
+        //ship.turnLeft();
+    }, 
+    () => {
+        arrowLeftPressed = false;
+        clearInterval(lInterval);
+        lInterval = undefined;
+    }),
+    
+    new KeyHandler(["ArrowRight", "d", "D"], 
+    () => {
+        arrowRightPressed = true;
+        if(rInterval) return;
+        ship.turnRight();
+        rInterval = setInterval(() => {ship.turnRight();}, 1000/60);
+        //ship.turnRight();
+    }, 
+    () => {
+        arrowRightPressed = false;
+        clearInterval(rInterval);
+        rInterval = undefined;
+    }),
+    
     new KeyHandler(["Enter", " "], shoot),
+    
     new KeyHandler(["Escape", "p", "P"], pause),
+    
     new KeyHandler(["r", "R"], newGame),
+    
     new KeyHandler(["f", "F"], openFullscreen)
 ];
 
@@ -570,7 +655,7 @@ function init() {
         spawnAsteroid();
     }
 
-    updateInterval = setInterval(updateScreen, 50/3);
+    updateInterval = setInterval(updateScreen, 1000/60);
     mainMenu();
     currentController = new KeyController(menuControlScheme);
 }// init()
