@@ -2,7 +2,9 @@
 
 var canvas = document.getElementById("game");
 var ctx = canvas.getContext("2d");
-var gameDiv = document.getElementById("gameDiv");
+var gameDiv = document.getElementById("gameDiv");   
+
+var menuDiv = document.getElementById("menuDiv");
 
 ctx.strokeStyle = "#fff";
 ctx.fillStyle = "#fff";

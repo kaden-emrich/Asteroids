@@ -27,6 +27,7 @@ class KeyController {
 }// class KeyController
 
 document.addEventListener("keydown", (event) => {
+    if(!currentController) return;
     for(let h of currentController.handlers) {
         for(let k in h.keys) {
             if(event.key == h.keys[k]) {
@@ -39,6 +40,7 @@ document.addEventListener("keydown", (event) => {
 }); // keydown
 
 document.addEventListener("keyup", (event) => {
+    if(!currentController) return;
     for(let h of currentController.handlers) {
         for(let k in h.keys) {
             if(event.key == h.keys[k]) {
@@ -49,3 +51,7 @@ document.addEventListener("keyup", (event) => {
         }
     }
 }); // keyup
+
+function updateKeys() {
+
+}// updateKeys();

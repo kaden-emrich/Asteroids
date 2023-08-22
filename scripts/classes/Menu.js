@@ -1,5 +1,15 @@
 // Kaden Emrich 
 
+var menuTitle = document.getElementById("menuTitle");
+var menuButtons = [
+    document.getElementById("menuButton1"),
+    document.getElementById("menuButton2"),
+    document.getElementById("menuButton3"),
+    document.getElementById("menuButton4")
+];
+
+var maxOptions = 4;
+
 class Menu {
     constructor(title, options, actions, type) {
         if(type) this.type = type;
@@ -31,122 +41,37 @@ class Menu {
         }
     }// select()
 
-    drawMain() {
-        // shade background
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    show() {
+        menuDiv.style = "display: block;";
+    }// show()
 
-        ctx.lineWidth = 2  * canvas.height/parseInt(canvas.style.height);
-        // Draw title
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-
-        ctx.font = (fontSize * this.titleSize) + "px " + fontFamily;
-        ctx.fillStyle = palettes[currentPalette].title;
-
-        ctx.fillText(this.title, canvas.width / 2, canvas.height / 4, canvas.width);
-
-        ctx.font = (fontSize * this.optionsSize) + "px " + fontFamily;
-        // draw buttons
-        for(let o in this.options) {
-            if(this.selection == parseInt(o)) {
-                ctx.fillStyle = palettes[currentPalette].title;
-                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); 
-            } else {
-                /*ctx.fillStyle = palettes[currentPalette].background;
-                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); */
-                ctx.strokeStyle = palettes[currentPalette].text;
-                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize));
-            }
-        }
-
-        ctx.lineWidth = 4;
-    }// drawMain()
-
-    drawGameOver() {
-        // shade background
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.lineWidth = 2  * canvas.height/parseInt(canvas.style.height);
-        // Draw title
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-
-        ctx.font = (fontSize * this.titleSize) + "px " + fontFamily;
-        ctx.fillStyle = palettes[currentPalette].title;
-
-        ctx.fillText(this.title, canvas.width / 2, canvas.height / 6, canvas.width);
-
-        ctx.font = (fontSize * this.optionsSize / 2) + "px " + fontFamily;
-
-        //"Wave: " + currentDifficulty
-        ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 4 + (fontSize * this.optionsSize / 2), canvas.width);
-        ctx.fillText("Wave: " + currentDifficulty, canvas.width / 2, canvas.height / 4 + (fontSize * this.optionsSize), canvas.width);
-
-        ctx.font = (fontSize * this.optionsSize) + "px " + fontFamily;
-        // draw buttons
-        for(let o in this.options) {
-            if(this.selection == parseInt(o)) {
-                ctx.fillStyle = palettes[currentPalette].title;
-                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); 
-            } else {
-                /*ctx.fillStyle = palettes[currentPalette].background;
-                ctx.fillText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize)); */
-                ctx.strokeStyle = palettes[currentPalette].text;
-                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height / 2 + o * (fontSize * this.optionsSize));
-            }
-        }
-
-        ctx.lineWidth = 4;
-    }// drawGameOver()
-
-    drawOptions() {
-        // shade background
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.lineWidth = 1;
-        // Draw title
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-
-        ctx.font = (fontSize * this.titleSize) + "px " + fontFamily;
-        ctx.fillStyle = palettes[currentPalette].title;
-
-        ctx.fillText(this.title, canvas.width / 2, canvas.height / 8, canvas.width);
-
-        ctx.font = (fontSize * this.optionsSize) + "px " + fontFamily;
-        // draw buttons
-        for(let o in this.options) {
-            if(this.selection == parseInt(o)) {
-                ctx.fillStyle = palettes[currentPalette].title;
-                ctx.fillText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize)); 
-            } else {
-                /*ctx.fillStyle = palettes[currentPalette].background;
-                ctx.fillText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize)); */
-                ctx.strokeStyle = palettes[currentPalette].text;
-                ctx.strokeText(this.options[o], canvas.width / 2, canvas.height * 3 / 8 + o * (fontSize * this.optionsSize));
-            }
-        }
-
-        ctx.lineWidth = 4;
-    }// drawOptions()
+    hide() {
+        menuDiv.style = "display: none;";
+    }// hide()
 
     draw() {
-        switch(this.type) {
-            case "options":
-                this.drawOptions();
-                break;
+        this.hide;
 
-            case "gameOver":
-                this.drawGameOver();
-                break;
+        menuTitle.innerText = this.title;
+        menuTitle.style.color = palettes[currentPalette].title;
 
-            case "main":
-            default:
-                this.drawMain();
-                break;
+        var numOptions = this.options.length;
+        if(this.options.length > 4) {
+            numOptions = 4;
         }
+
+        for(let i = 0; i < 4; i++) {
+            if(i < numOptions) {
+                menuButtons[i].style = "display: block;";
+                menuButtons[i].style.color = palettes[currentPalette].text;
+                menuButtons[i].innerText = this.options[i];
+                menuButtons[i].onclick = this.actions[i];
+            }
+            else {
+                menuButtons[i].style = "display: none;";
+            }
+        }
+
+        this.show();
     }// draw();
 }// class Menu
