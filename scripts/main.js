@@ -1,102 +1,70 @@
 // Kaden Emrich
 
-var shipPoints = [
-    new PointValue(30, 0).getPolar(),
-    new PointValue(-10, 15).getPolar(),
-    new PointValue(-10, -15).getPolar()
-];
+var gameTime = 0;
+var gameTimeInterval;
+var spawnTimeCounter = 0;
+var spawnTime = 100;
+var minAsteroids = 1;
 
-var classicShipPoints = [
-    new PointValue(30, 0).getPolar(),
-    new PointValue(-10, 15).getPolar(),
-    new PointValue(0, 0).getPolar(),
-    new PointValue(-10, -15).getPolar()
-];
+var showExtraStats = false;
 
-var arrowShipPoints = [
-    new PointValue(30, 0).getPolar(),
-    new PointValue(0, 15).getPolar(),
-    new PointValue(0, 10).getPolar(),
-    new PointValue(-10, 10).getPolar(),
-    new PointValue(-10, -10).getPolar(),
-    new PointValue(0, -10).getPolar(),
-    new PointValue(0, -15).getPolar()
-];
+var fInterval; // For the game controll Scheme
+var bInterval;
+var lInterval;
+var rInterval;
 
-var coolShipPoints = [
-    new PointValue(30, 0).getPolar(),
-    new PointValue(-10, 15).getPolar(),
-    new PointValue(-10, 10).getPolar(),
-    new PointValue(0, 0).getPolar(),
-    new PointValue(-10, -10).getPolar(),
-    new PointValue(-10, -15).getPolar()
-];
+function startGameTime() {
+    gameTimeInterval = setInterval(() => {
+        gameTime += 0.1;
 
-var brickShipPoints = [
-    new PointValue(30, 0).getPolar(),
-    new PointValue(25, 15).getPolar(),
-    new PointValue(-10, 15).getPolar(),
-    new PointValue(-10, -15).getPolar(),
-    new PointValue(25, -15).getPolar()
-];
+        // if(spawnTimeCounter >= spawnTime) {
+        //     spawnTimeCounter = 0;
+        //     spawnAsteroid();
+        // }
+        // else {
+        //     spawnTimeCounter++;
+        // }
+    }, 100);
+}// startGameTime()
 
-var breadShipPoints = [
-    new PointValue(28, 0).getPolar(),
-    new PointValue(30, 5).getPolar(),
-    new PointValue(30, 15).getPolar(),
-    new PointValue(20, 15).getPolar(),
-    new PointValue(15, 10).getPolar(),
-    new PointValue(-5, 12).getPolar(),
-    new PointValue(-5, -12).getPolar(),
-    new PointValue(15, -10).getPolar(),
-    new PointValue(20, -15).getPolar(),
-    new PointValue(30, -15).getPolar(),
-    new PointValue(30, -5).getPolar()
-];
+function pauseGameTime() {
+    clearInterval(gameTimeInterval);
+    gameTimeInterval = undefined;
+}// pauseGameTime()
 
-var shipSkins = [
-    {
-        name : "classic",
-        shape : new Shape(classicShipPoints)
-    },
+function resetGameTime() {
+    spawnTimeCounter = 0;
+    gameTime = 0;
+    clearInterval(gameTimeInterval);
+    gameTimeInterval = undefined;
+    //console.log(gameTimeInterval);
+}// resetGameTime()
 
-    {
-        name : "basic",
-        shape : new Shape(shipPoints)
-    },
+function resetControlIntervals() {
+    clearInterval(fInterval);
+    clearInterval(bInterval);
+    clearInterval(lInterval);
+    clearInterval(rInterval);
 
-    {
-        name : "arrow",
-        shape : new Shape(arrowShipPoints)
-    },
-
-    {
-        name : "cool",
-        shape : new Shape(coolShipPoints)
-    },
-
-    {
-        name : "a brick",
-        shape : new Shape(brickShipPoints)
-    }
-];
-
-var laserPoints = [
-    new PointValue(0, 0).getPolar(),
-    new PointValue(-30, 0).getPolar(),
-    new PointValue(-30, -1).getPolar(),
-    new PointValue(0, -1).getPolar()
-];
+    fInterval = undefined;
+    bInterval = undefined;
+    lInterval = undefined;
+    rInterval = undefined;
+}// resetControlIntervals()
 
 function pause() {
     if(paused == true) {
         currentMenu.hide();
+        resetControlIntervals();
         currentController = new KeyController(gameControlScheme);
         paused = false;
         currentMenu = undefined;
+        startGameTime();
     }
     else {
         paused = true;
+        pauseGameTime();
+        resetControlIntervals();
         currentController = new KeyController(menuControlScheme);
         currentMenu = Menus.paused();
         currentMenu.draw();
@@ -104,6 +72,7 @@ function pause() {
 }// pause()
 
 function shoot() {
+    //console.log("shoot");
     if(ship) ship.shoot();
 }// shoot()
 
@@ -131,6 +100,9 @@ function spawnAsteroid() {
 /*----- Update -----*/
 
 function gameEnd() {
+    var finalGameTime = gameTime;
+    resetGameTime();
+    resetControlIntervals
     if(ship) {
         entities[ship.id] = null;
         ship = null;
@@ -250,7 +222,7 @@ function updateSize() {
     gameDiv.style.margin = "auto";
 }// updateSize()
 
-function updateAsteroids() {
+function getNumAsteroids() {
     var numAsteroids = 0;
     
     for(let e of entities) {
@@ -259,14 +231,26 @@ function updateAsteroids() {
         }
     }
 
-    if(numAsteroids == 0 && !currentAlert) {
-        currentDifficulty++;
+    return numAsteroids;
+}// getNumAsteroids()
 
-        newAlert("NEW WAVE", 20, 120, () => {
-            for(let i = 0; i < currentDifficulty; i++) {
-                spawnAsteroid();
-            }
-        });
+function updateAsteroids() {
+
+    // if(numAsteroids == 0 && !currentAlert) {
+    //     currentDifficulty++;
+
+    //     newAlert("NEW WAVE", 20, 120, () => {
+    //         for(let i = 0; i < currentDifficulty; i++) {
+    //             spawnAsteroid();
+    //         }
+    //     });
+    // }
+
+    if(getNumAsteroids() < minAsteroids) {
+        while(getNumAsteroids() <= minAsteroids) {
+            spawnAsteroid();
+        }
+        minAsteroids++;
     }
 }// updateAsteroids()
 
@@ -291,11 +275,19 @@ function drawStats() {
     ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Score: " + score, 10, 10);
 
-    ctx.fillStyle = palettes[currentPalette].text;
-    ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
+    // ctx.fillStyle = palettes[currentPalette].text;
+    // ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
 
     ctx.fillStyle = palettes[currentPalette].text;
-    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize*2 + 30);
+    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize + 20);
+
+    if(showExtraStats) {
+        ctx.fillStyle = palettes[currentPalette].text;
+        ctx.fillText("# Asteroids: " + getNumAsteroids(), 10, fontSize*2 + 30);
+
+        ctx.fillStyle = palettes[currentPalette].text;
+        ctx.fillText("Time " + gameTime.toFixed(1), 10, fontSize*3 + 40);
+    }
 }// drawStats()
 
 var alertInterval = 0;
@@ -455,6 +447,10 @@ function toggleFullscreen() {
 }// toggleFullscreen()
 
 function newGame() {
+    resetGameTime();
+    minAsteroids = 1;
+    resetControlIntervals();
+
     currentController = new KeyController(gameControlScheme);
     updateInterval = clearInterval(updateInterval);
     gameStatus = "game";
@@ -482,6 +478,7 @@ function newGame() {
 
     // start update interval
     updateInterval = setInterval(updateScreen, 1000/60);
+    startGameTime();
 }// newGame()
 
 /* ------------------------------- Menu start ------------------------------- */
@@ -497,11 +494,7 @@ var Menus = {
     paused : function() {
         return new Menu("paused", ["continue", "retry", "settings", "menu"], [
             () => {
-                gameStatus = "game"; 
-                currentMenu.hide();
-                currentMenu = undefined; 
-                currentController = new KeyController(gameControlScheme);
-                paused = false;
+                pause();
             }, 
             newGame, 
             () => {
@@ -523,7 +516,7 @@ var Menus = {
             currentMenu.draw();
         }// returnFunc
 
-        let temp = new Menu("settings", ["palette: " + palettes[currentPalette].name, "ship skin: " + shipSkins[shipSkin].name, "back"], [
+        let temp = new Menu("settings", ["palette: " + palettes[currentPalette].name, "ship skin: " + shipSkins[shipSkin].name, "more", "back"], [
             () => {
                 cyclePalette();
                 temp.options[0] = "palette: " + palettes[currentPalette].name;
@@ -533,6 +526,10 @@ var Menus = {
                 cycleShipSkin();
                 temp.options[1] = "ship skin: " + shipSkins[shipSkin].name;
                 currentMenu.draw();
+            },
+            () => {
+                currentMenu = Menus.settings1(returnMenu);
+                currentMenu.draw();
             }, returnFunc], "options");
 
         temp.optionsSize = 1;
@@ -540,15 +537,44 @@ var Menus = {
         return temp;
     },
 
+    settings1 : function(returnMenu) {
+
+        if(!returnMenu) returnMenu = Menus.main;
+
+        function returnFunc() {
+            currentMenu = Menus.settings(returnMenu);
+            currentMenu.draw();
+        }// returnFunc()
+
+        let temp = new Menu("more settings", ["extra stats: " + showExtraStats, "back"], [
+            () => {
+                if(showExtraStats) {
+                    showExtraStats = false;
+                }
+                else {
+                    showExtraStats = true;
+                }
+
+                temp.options[0] = "show extra stats " + showExtraStats;
+                currentMenu.draw();
+            },
+
+            returnFunc
+        ], "options")
+
+        return temp;
+    },
+
     credit : function() {
         return new Menu("kaden emrich", ["go to website", "menu"], [() => {
             window.open('https://kaden.kemri.ch', '_blank');
         }, mainMenu], "main");
-    }
+    } 
 };
 
 // logic
 function mainMenu() {
+    resetControlIntervals();
     paused = false;
     gameEnd();
     gameStatus = "menu";
@@ -573,11 +599,6 @@ var menuControlScheme = [
     // new KeyHandler(["Enter", " "], () => {currentMenu.select();}),
     new KeyHandler(["Escape", "p"], () => {if(gameStatus == "game") pause();})
 ];
-
-var fInterval;
-var bInterval;
-var lInterval;
-var rInterval;
 
 var gameControlScheme = [
     new KeyHandler(["ArrowUp", "w", "W"], 
@@ -641,7 +662,10 @@ var gameControlScheme = [
     
     new KeyHandler(["Escape", "p", "P"], pause),
     
-    new KeyHandler(["r", "R"], newGame),
+    new KeyHandler(["r", "R"], () => {
+        gameEnd();
+        newGame();
+    }),
     
     new KeyHandler(["f", "F"], openFullscreen)
 ];
@@ -666,5 +690,4 @@ init();
 todo:
     - add a how to play
     - add control schemes
-    - make ship, asteroid, and laser classes as children of entity
 */

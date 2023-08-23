@@ -1,5 +1,12 @@
 // Kaden Emrich
 
+var laserPoints = [
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-30, 0).getPolar(),
+    new PointValue(-30, -1).getPolar(),
+    new PointValue(0, -1).getPolar()
+];
+
 class Laser extends Entity {
     constructor(ship) {
         super(new Shape(laserPoints), palettes[currentPalette].laser, "laser", laserSpeed);

@@ -49,3 +49,84 @@ class Ship extends Entity {
         new Laser(this);
     }// shoot()
 }// class Ship
+
+var shipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
+var classicShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
+var arrowShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(0, 15).getPolar(),
+    new PointValue(0, 10).getPolar(),
+    new PointValue(-10, 10).getPolar(),
+    new PointValue(-10, -10).getPolar(),
+    new PointValue(0, -10).getPolar(),
+    new PointValue(0, -15).getPolar()
+];
+
+var coolShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-10, 10).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-10, -10).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
+var brickShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(25, 15).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-10, -15).getPolar(),
+    new PointValue(25, -15).getPolar()
+];
+
+var breadShipPoints = [
+    new PointValue(28, 0).getPolar(),
+    new PointValue(30, 5).getPolar(),
+    new PointValue(30, 15).getPolar(),
+    new PointValue(20, 15).getPolar(),
+    new PointValue(15, 10).getPolar(),
+    new PointValue(-5, 12).getPolar(),
+    new PointValue(-5, -12).getPolar(),
+    new PointValue(15, -10).getPolar(),
+    new PointValue(20, -15).getPolar(),
+    new PointValue(30, -15).getPolar(),
+    new PointValue(30, -5).getPolar()
+];
+
+var shipSkins = [
+    {
+        name : "classic",
+        shape : new Shape(classicShipPoints)
+    },
+
+    {
+        name : "basic",
+        shape : new Shape(shipPoints)
+    },
+
+    {
+        name : "arrow",
+        shape : new Shape(arrowShipPoints)
+    },
+
+    {
+        name : "cool",
+        shape : new Shape(coolShipPoints)
+    },
+
+    {
+        name : "a brick",
+        shape : new Shape(brickShipPoints)
+    }
+];
