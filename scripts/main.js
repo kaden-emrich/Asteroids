@@ -88,15 +88,34 @@ var laserPoints = [
     new PointValue(0, -1).getPolar()
 ];
 
+var fInterval; // For the game controll Scheme
+var bInterval;
+var lInterval;
+var rInterval;
+
+function resetControlIntervals() {
+    clearInterval(fInterval);
+    clearInterval(bInterval);
+    clearInterval(lInterval);
+    clearInterval(rInterval);
+
+    fInterval = undefined;
+    bInterval = undefined;
+    lInterval = undefined;
+    rInterval = undefined;
+}// resetControlIntervals()
+
 function pause() {
     if(paused == true) {
         currentMenu.hide();
+        resetControlIntervals();
         currentController = new KeyController(gameControlScheme);
         paused = false;
         currentMenu = undefined;
     }
     else {
         paused = true;
+        resetControlIntervals();
         currentController = new KeyController(menuControlScheme);
         currentMenu = Menus.paused();
         currentMenu.draw();
@@ -131,6 +150,7 @@ function spawnAsteroid() {
 /*----- Update -----*/
 
 function gameEnd() {
+    resetControlIntervals();
     if(ship) {
         entities[ship.id] = null;
         ship = null;
@@ -455,6 +475,8 @@ function toggleFullscreen() {
 }// toggleFullscreen()
 
 function newGame() {
+    resetControlIntervals();
+
     currentController = new KeyController(gameControlScheme);
     updateInterval = clearInterval(updateInterval);
     gameStatus = "game";
@@ -500,6 +522,7 @@ var Menus = {
                 gameStatus = "game"; 
                 currentMenu.hide();
                 currentMenu = undefined; 
+                resetControlIntervals();
                 currentController = new KeyController(gameControlScheme);
                 paused = false;
             }, 
@@ -549,6 +572,7 @@ var Menus = {
 
 // logic
 function mainMenu() {
+    resetControlIntervals();
     paused = false;
     gameEnd();
     gameStatus = "menu";
@@ -573,11 +597,6 @@ var menuControlScheme = [
     // new KeyHandler(["Enter", " "], () => {currentMenu.select();}),
     new KeyHandler(["Escape", "p"], () => {if(gameStatus == "game") pause();})
 ];
-
-var fInterval;
-var bInterval;
-var lInterval;
-var rInterval;
 
 var gameControlScheme = [
     new KeyHandler(["ArrowUp", "w", "W"], 
@@ -666,5 +685,4 @@ init();
 todo:
     - add a how to play
     - add control schemes
-    - make ship, asteroid, and laser classes as children of entity
 */
