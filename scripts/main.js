@@ -6,6 +6,7 @@ var spawnTimeCounter = 0;
 var spawnTime = 100;
 var minAsteroids = 1;
 
+var showStats = true;
 var showExtraStats = false;
 
 var fInterval; // For the game controll Scheme
@@ -267,6 +268,8 @@ function drawEntities() {
 }// drawEntities()
 
 function drawStats() {
+    if(!showStats) return;
+
     fontSize = canvas.height / 20;
     ctx.font = fontSize + "px " + fontFamily;
     ctx.textBaseline = "hanging";
@@ -546,7 +549,18 @@ var Menus = {
             currentMenu.draw();
         }// returnFunc()
 
-        let temp = new Menu("more settings", ["extra stats: " + showExtraStats, "back"], [
+        let temp = new Menu("more settings", ["show stats: " + showStats, "extra stats: " + showExtraStats, "back"], [
+            () => {
+                if(showStats) {
+                    showStats = false;
+                }
+                else {
+                    showStats = true;
+                }
+
+                temp.options[0] = "show stats: " + showStats;
+                currentMenu.draw();
+            },
             () => {
                 if(showExtraStats) {
                     showExtraStats = false;
@@ -555,7 +569,7 @@ var Menus = {
                     showExtraStats = true;
                 }
 
-                temp.options[0] = "show extra stats " + showExtraStats;
+                temp.options[1] = "show extra stats " + showExtraStats;
                 currentMenu.draw();
             },
 
