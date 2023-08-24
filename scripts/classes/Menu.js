@@ -11,6 +11,76 @@ var menuButtons = [
 
 var maxOptions = 4;
 
+var menuTypes = [
+    "main"
+];
+
+class MenuOption {
+    constructor(name, action) {
+        this.name = name;
+        this.action = action;
+    }// constructor
+}// class MenuOption
+
+class Menu {
+    constructor(title, subtitle, options, type) {
+        this.title = title;
+        this.subtitle = subtitle;
+        this.options = options;
+        
+        let isRealType = false;
+        for(let i = 0; i < menuTypes; i++) {
+            if(type == menuTypes[i]) 
+                isRealType = true;
+        }
+        if(isRealType) this.type = type;
+        else this.type = menuTypes[0];
+    }// constructor
+
+    show() {
+        menuDiv.style = "display: block;";
+    }// show()
+
+    hide() {
+        menuDiv.style = "display: none;";
+    }// hide()
+
+    draw() {
+        this.hide;
+        //menuDiv.style.opacity = "0";
+
+        menuTitle.innerText = this.title;
+        menuTitle.style.color = palettes[currentPalette].title;
+
+        menuSubtitle.innerText = this.subtitle;
+        menuSubtitle.style.color = palettes[currentPalette].text;
+
+        var numOptions = this.options.length;
+        if(this.options.length > 4)
+            numOptions = 4;
+
+        for(let i = 0; i < 4; i++) {
+            if(i < numOptions) {
+                menuButtons[i].style = "display: block;";
+                menuButtons[i].style.color = palettes[currentPalette].text;
+                menuButtons[i].innerText = this.options[i].name;
+                menuButtons[i].onclick = this.options[i].action;
+            }
+            else {
+                menuButtons[i].style = "display: none;";
+            }
+        }
+
+        this.show();
+        
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }// draw()
+}// class Menu
+
+
+
+/*
 class Menu {
     constructor(title, subtitle, options, actions, type) {
         if(type) this.type = type;
@@ -79,6 +149,10 @@ class Menu {
         }
 
         this.show();
+        
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         //setTimeout(() => {menuDiv.style.opacity = "1";}, 10); // an attempt to fix the jitter when switching between menus
     }// draw();
 }// class Menu
+*/

@@ -129,6 +129,8 @@ class Shape {
     draw(x, y, dir, color) {
         ctx.fillStyle = color;
         ctx.strokeStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 10;
 
         ctx.beginPath();
 

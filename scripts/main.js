@@ -311,6 +311,7 @@ function drawEntities() {
 
 function drawStats() {
     if(!showStats) return;
+    ctx.shadowBlur = 10;
 
     fontSize = canvas.height / 20;
     ctx.font = fontSize + "px " + fontFamily;
@@ -318,12 +319,19 @@ function drawStats() {
     ctx.textAlign = "left";
 
     ctx.fillStyle = palettes[currentPalette].text;
+    ctx.shadowColor = palettes[currentPalette].text;
+        
     ctx.fillText("score: " + score, 10, 10);
 
     ctx.textAlign = "center";
     ctx.fillStyle = palettes[currentPalette].text;
-    ctx.fillText(gameTime.toFixed(1), canvas.width/2, 0);
+    fontSize = canvas.height / 15;
+    ctx.font = fontSize + "px " + fontFamily;
+    ctx.fillText(gameTime.toFixed(1), canvas.width/2, 10);
+
     ctx.textAlign = "left";
+    fontSize = canvas.height / 20;
+    ctx.font = fontSize + "px " + fontFamily;
 
     // ctx.fillStyle = palettes[currentPalette].text;
     // ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
@@ -395,6 +403,11 @@ function updateScreen() {
 
     //if(currentMenu) currentMenu.draw();
     if(!currentMenu) drawStats();
+    else {
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
 
     
     updateAlert();
@@ -434,9 +447,14 @@ function equipPalette(p) {
     currentPalette = p;
 
     menuTitle.style.color = palettes[currentPalette].title;
+    menuTitle.style.textShadow = palettes[currentPalette].title + " 0 0 0.8vh";
+
     menuSubtitle.style.color = palettes[currentPalette].text;
+    menuSubtitle.style.textShadow = palettes[currentPalette].text + " 0 0 0.8vh";
+
     for(let i = 0; i < 4; i++) {
         menuButtons[i].style.color = palettes[currentPalette].text;
+        menuButtons[i].style.textShadow = palettes[currentPalette].text + " 0 0 0.7vh"
     }
 
 
@@ -539,110 +557,6 @@ function newGame() {
 }// newGame()
 
 /* ------------------------------- Menu start ------------------------------- */
-
-// menus
-var Menus = {
-    main : function() {
-        return new Menu("asteroids", "a game by kaden", ["start", "settings", "credit"], [newGame, settingsMenu, () => {currentMenu = Menus.credit(); currentMenu.draw();}], "main");
-    },
-    over : function() {
-        return new Menu("game over", lastGameResult, ["retry", "menu"], [newGame, mainMenu], "gameOver")
-    },
-    paused : function() {
-        return new Menu("paused", null, ["continue", "retry", "settings", "menu"], [
-            () => {
-                pause();
-            }, 
-            newGame, 
-            () => {
-                currentMenu = Menus.settings(Menus.paused);
-                currentMenu.draw();
-            }, 
-            () => {
-                killPlayer(); 
-                mainMenu();
-            }
-        ], 
-        "options");
-    },
-    settings : function(returnMenu) {
-        if(!returnMenu) returnMenu = Menus.main;
-
-        function returnFunc() {
-            currentMenu = returnMenu();
-            currentMenu.draw();
-        }// returnFunc
-
-        let temp = new Menu("settings", null, ["palette: " + palettes[currentPalette].name, "ship skin: " + shipSkins[shipSkin].name, "more", "back"], [
-            () => {
-                cyclePalette();
-                temp.options[0] = "palette: " + palettes[currentPalette].name;
-                menuButtons[0].innerText = temp.options[0];
-                //currentMenu.draw();
-            }, 
-            () => {
-                cycleShipSkin();
-                temp.options[1] = "ship skin: " + shipSkins[shipSkin].name;
-                menuButtons[1].innerText = temp.options[1];
-                //currentMenu.draw();
-            },
-            () => {
-                currentMenu = Menus.settings1(returnMenu);
-                currentMenu.draw();
-            }, returnFunc], "options");
-
-        temp.optionsSize = 1;
-        
-        return temp;
-    },
-
-    settings1 : function(returnMenu) {
-
-        if(!returnMenu) returnMenu = Menus.main;
-
-        function returnFunc() {
-            currentMenu = Menus.settings(returnMenu);
-            currentMenu.draw();
-        }// returnFunc()
-
-        let temp = new Menu("more settings", null, ["show stats: " + showStats, "extra stats: " + showExtraStats, "back"], [
-            () => {
-                if(showStats) {
-                    showStats = false;
-                }
-                else {
-                    showStats = true;
-                }
-
-                temp.options[0] = "show stats: " + showStats;
-                menuButtons[0].innerText = temp.options[0];
-            },
-            () => {
-                if(showExtraStats) {
-                    showExtraStats = false;
-                    //showVelocity = false;
-                }
-                else {
-                    showExtraStats = true;
-                    //showVelocity = true;
-                }
-
-                temp.options[1] = "extra stats: " + showExtraStats;
-                menuButtons[1].innerText = temp.options[1];
-            },
-
-            returnFunc
-        ], "options")
-
-        return temp;
-    },
-
-    credit : function() {
-        return new Menu("credit", "by: kaden emrich\nadditional help: stack overflow", ["go to website", "menu"], [() => {
-            window.open('https://kaden.kemri.ch', '_blank');
-        }, mainMenu], "main");
-    } 
-};
 
 // logic
 function mainMenu() {
@@ -747,6 +661,121 @@ var gameControlScheme = [
 ];
 
 /* ----------------------------- controllers end ---------------------------- */
+
+// menus
+var Menus = {
+    main : function() {
+        return new Menu("asteroids", "a game by kaden", [
+            new MenuOption("start", newGame), 
+            new MenuOption("settings", settingsMenu), 
+            new MenuOption("credit", () => {
+                currentMenu = Menus.credit(); 
+                currentMenu.draw();
+            })
+        ], "main");
+    },
+    over : function() {
+        return new Menu("game over", lastGameResult, [
+            new MenuOption("retry", newGame), 
+            new MenuOption("menu", mainMenu)
+        ], "main");
+    },
+    paused : function() {
+        return new Menu("paused", null, [
+            new MenuOption("continue", () => {
+                pause();
+            }),
+            new MenuOption("retry", newGame), 
+            new MenuOption("settings", () => {
+                currentMenu = Menus.settings(Menus.paused);
+                currentMenu.draw();
+            }), 
+            new MenuOption("menu", () => {
+                killPlayer(); 
+                mainMenu();
+            })
+        ], "main");
+    },
+    settings : function(returnMenu) {
+        if(!returnMenu) returnMenu = Menus.main;
+
+        function returnFunc() {
+            currentMenu = returnMenu();
+            currentMenu.draw();
+        }// returnFunc
+
+        let temp = new Menu("settings", null, [
+            new MenuOption("palette: " + palettes[currentPalette].name, () => {
+                cyclePalette();
+                temp.options[0].name = "palette: " + palettes[currentPalette].name;
+                menuButtons[0].innerText = temp.options[0].name;
+                //currentMenu.draw();
+            }), 
+            new MenuOption("ship skin: " + shipSkins[shipSkin].name, () => {
+                cycleShipSkin();
+                temp.options[1].name = "ship skin: " + shipSkins[shipSkin].name;
+                menuButtons[1].innerText = temp.options[1].name;
+                //currentMenu.draw();
+            }),
+            new MenuOption("more", () => {
+                currentMenu = Menus.settings1(returnMenu);
+                currentMenu.draw();
+            }), 
+            new MenuOption("back", returnFunc)
+        ], "options");
+
+        return temp;
+    },
+
+    settings1 : function(returnMenu) {
+
+        if(!returnMenu) returnMenu = Menus.main;
+
+        function returnFunc() {
+            currentMenu = Menus.settings(returnMenu);
+            currentMenu.draw();
+        }// returnFunc()
+
+        let temp = new Menu("more settings", null, [
+            new MenuOption("show stats: " + showStats, () => {
+                if(showStats) {
+                    showStats = false;
+                }
+                else {
+                    showStats = true;
+                }
+
+                temp.options[0].name = "show stats: " + showStats;
+                menuButtons[0].innerText = temp.options[0].name;
+            }), 
+            new MenuOption("extra stats: " + showExtraStats, () => {
+                if(showExtraStats) {
+                    showExtraStats = false;
+                    //showVelocity = false;
+                }
+                else {
+                    showExtraStats = true;
+                    //showVelocity = true;
+                }
+
+                temp.options[1].name = "extra stats: " + showExtraStats;
+                menuButtons[1].innerText = temp.options[1].name;
+            }), 
+            new MenuOption("back", returnFunc)
+        ], "main")
+
+        return temp;
+    },
+
+    credit : function() {
+        return new Menu("credit", "by: kaden emrich\nadditional help: stack overflow", [
+            new MenuOption("go to website", () => {
+                window.open('https://kaden.kemri.ch', '_blank');
+            }), 
+            new MenuOption("menu", mainMenu)
+        ], "main");
+    } 
+};
 
 // inits
 function init() {

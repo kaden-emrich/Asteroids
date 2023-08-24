@@ -56,7 +56,7 @@ var shipPoints = [
     new PointValue(-10, -15).getPolar()
 ];
 
-var classicShipPoints = [
+var coolShipPoints = [
     new PointValue(30, 0).getPolar(),
     new PointValue(-10, 15).getPolar(),
     new PointValue(0, 0).getPolar(),
@@ -73,7 +73,7 @@ var arrowShipPoints = [
     new PointValue(0, -15).getPolar()
 ];
 
-var coolShipPoints = [
+var classicShipPoints = [
     new PointValue(30, 0).getPolar(),
     new PointValue(-10, 15).getPolar(),
     new PointValue(-10, 10).getPolar(),
@@ -106,6 +106,11 @@ var breadShipPoints = [
 
 var shipSkins = [
     {
+        name : "default",
+        shape : new Shape(coolShipPoints)
+    },
+
+    {
         name : "classic",
         shape : new Shape(classicShipPoints)
     },
@@ -118,11 +123,6 @@ var shipSkins = [
     {
         name : "arrow",
         shape : new Shape(arrowShipPoints)
-    },
-
-    {
-        name : "cool",
-        shape : new Shape(coolShipPoints)
     },
 
     {
