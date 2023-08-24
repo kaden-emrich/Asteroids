@@ -141,4 +141,38 @@ class Shape {
 
         ctx.stroke();
     }// draw()
+
+    // drawWrap(x, y, dir, color) {
+    //     ctx.fillStyle = color;
+    //     ctx.strokeStyle = color;
+
+    //     ctx.beginPath();
+
+    //     var dxPos = x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180));
+    //     var dyPos = y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180));
+
+    //     if(dxPos > canvas.width) dxPos -= canvas.width;
+    //     else if(dxPos < 0) dxPos += canvas.width;
+
+    //     if(dyPos > canvas.height) dyPos -= canvas.height;
+    //     else if(dyPos < 0) dyPos += canvas.height;
+
+    //     ctx.moveTo(dxPos, dyPos);
+    //     for(let i = 1; i < this.points.length; i++) {
+    //         var dxPos = x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180));
+    //         var dyPos = y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180));
+
+    //         ctx.lineTo(dxPos, dyPos);
+
+    //         if(dxPos > canvas.width) this.drawWrap(x - canvas.width, y, dir, color);
+    //         else if(dxPos < 0) this.drawWrap(x + canvas.width, y, dir, color);
+
+    //         if(dyPos > canvas.height) this.drawWrap(x, y - canvas.height, dir, color);
+    //         else if(dyPos < 0) this.drawWrap(x, y + canvas.height, y, dir, color);
+    //     }
+
+    //     ctx.closePath();
+
+    //     ctx.stroke();
+    // }// draw()
 }// class Shape

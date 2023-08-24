@@ -141,6 +141,39 @@ class Entity {
         }
     }// draw()*/
 
+    drawWrap() {
+        this.shape.draw(this.x, this.y, this.dir, this.color);
+
+        var bb = this.getBoundingBox();
+
+        if(bb[0].x < 0) {
+            this.shape.draw(this.x + canvas.width, this.y, this.dir, this.color);
+        }
+        if(bb[0].y < 0) {
+            this.shape.draw(this.x, this.y + canvas.height, this.dir, this.color);
+        }
+        if(bb[2].x > canvas.width) {
+            this.shape.draw(this.x - canvas.width, this.y, this.dir, this.color);
+        }
+        if(bb[2].y > canvas.height) {
+            this.shape.draw(this.x, this.y - canvas.height, this.dir, this.color);
+        }
+
+        if(showVelocity) {
+            ctx.strokeStyle = "#00f";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x + this.speedVector.x*10, this.y);
+            ctx.stroke();
+    
+            ctx.strokeStyle = "#f00";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x, this.y + this.speedVector.y*20);
+            ctx.stroke();
+        }
+    }
+
     drawBoundingBox() {
         var bBox = this.getBoundingBox();
 
