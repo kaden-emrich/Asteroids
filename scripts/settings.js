@@ -76,10 +76,10 @@ var shipSkin;
 const palettes = [
     {
         name : "default",
-        ship : "#fff",
-        asteroid : "#999",
-        laser : "#f00",
-        title : "#fff",
+        ship : "#0f0",
+        asteroid : "#f00",
+        laser : "#fff",
+        title : "#0f0",
         text : "#fff",
         background : "#000"
     },
@@ -87,8 +87,8 @@ const palettes = [
     {
         name : "classic",
         ship : "#fff",
-        asteroid : "#fff",
-        laser : "#fff",
+        asteroid : "#999",
+        laser : "#f00",
         title : "#fff",
         text : "#fff",
         background : "#000"
@@ -105,7 +105,7 @@ const palettes = [
     },
 
     {
-        name : "wooden",
+        name : "untitled theme",
         ship : "#f90",
         asteroid : "#f50",
         laser : "#f55",
@@ -115,23 +115,13 @@ const palettes = [
     },
 
     {
-        name : "Kaden's theme",
+        name : "blue",
         ship : "#a2d729",
         asteroid : "#bc4e4e",
         laser : "#3c91e6",
         title : "#1b998b",
         text : "#3c91e6",
         background : "#123456"
-    },
-
-    {
-        name : "hackerman",
-        ship : "#0f0",
-        asteroid : "#f00",
-        laser : "#fff",
-        title : "#0f0",
-        text : "#fff",
-        background : "#000"
     },
     
     {
