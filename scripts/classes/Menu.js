@@ -33,8 +33,11 @@ class Menu {
             if(type == menuTypes[i]) 
                 isRealType = true;
         }
+
         if(isRealType) this.type = type;
         else this.type = menuTypes[0];
+
+        this.draw();
     }// constructor
 
     show() {
@@ -46,7 +49,7 @@ class Menu {
     }// hide()
 
     draw() {
-        this.hide;
+        //this.hide;
         //menuDiv.style.opacity = "0";
 
         menuTitle.innerText = this.title;
@@ -75,10 +78,9 @@ class Menu {
         
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        //menuDiv.style.opacity = "1";
     }// draw()
 }// class Menu
-
-
 
 /*
 class Menu {

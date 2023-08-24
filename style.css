@@ -3,7 +3,7 @@ body {
     padding: 0;
     font-family: "Munro";
     overflow: hidden;
-    background-color: #555;
+    background-color: #000;
     cursor: unset;
 }
 
@@ -33,8 +33,8 @@ body {
     padding: 0;
     font-size: 20vh;
     text-align: center;
-    color: #fff;
-    text-shadow: #fff 0 0 0.8vh;
+    color: #0f0;
+    text-shadow: #0f0 0 0 0.8vh;
 }
 #menuDiv #menuSubtitle {
     position: relative;
@@ -43,7 +43,7 @@ body {
     padding: 0;
     font-size: 5vh;
     text-align: center;
-    color: #ffffff;
+    color: #fff;
     text-shadow: #fff 0 0 0.7vh;
 }
 #menuDiv #buttonDiv {
@@ -63,7 +63,7 @@ body {
     align-self: center;
     font-family: "Munro";
     font-size: 10vh;
-    color: #ffffff;
+    color: #fff;
     border-width: .4vh;
     border-style: solid;
     border-color: #aaa #444 #222 #888;

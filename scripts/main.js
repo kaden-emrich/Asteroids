@@ -488,7 +488,7 @@ function cyclePalette() {
 
 function settingsMenu() {
     currentMenu = Menus.settings();
-    currentMenu.draw();
+    //currentMenu.draw();
 }// openSettings()
 
 function openFullscreen() {
@@ -688,7 +688,7 @@ var Menus = {
             new MenuOption("retry", newGame), 
             new MenuOption("settings", () => {
                 currentMenu = Menus.settings(Menus.paused);
-                currentMenu.draw();
+                //currentMenu.draw();
             }), 
             new MenuOption("menu", () => {
                 killPlayer(); 
@@ -701,7 +701,7 @@ var Menus = {
 
         function returnFunc() {
             currentMenu = returnMenu();
-            currentMenu.draw();
+            //currentMenu.draw();
         }// returnFunc
 
         let temp = new Menu("settings", null, [
@@ -719,7 +719,7 @@ var Menus = {
             }),
             new MenuOption("more", () => {
                 currentMenu = Menus.settings1(returnMenu);
-                currentMenu.draw();
+                //currentMenu.draw();
             }), 
             new MenuOption("back", returnFunc)
         ], "options");
@@ -733,7 +733,7 @@ var Menus = {
 
         function returnFunc() {
             currentMenu = Menus.settings(returnMenu);
-            currentMenu.draw();
+            //currentMenu.draw();
         }// returnFunc()
 
         let temp = new Menu("more settings", null, [
@@ -785,8 +785,8 @@ function init() {
     }
 
     updateInterval = setInterval(updateScreen, 1000/60);
-    mainMenu();
     currentController = new KeyController(menuControlScheme);
+    mainMenu();
 }// init()
 
 init();
