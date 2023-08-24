@@ -61,6 +61,8 @@ var fontSize = canvas.height * 1 / 20;
 var textColor = "#fff";
 var noClip = false;
 
+var hideCursorOnKeyboardInput = true;
+
 var shipSpeed = 10;
 var laserSpeed = 20;
 var asteroidSpeed = 2;
