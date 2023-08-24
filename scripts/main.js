@@ -768,7 +768,7 @@ var Menus = {
     },
 
     credit : function() {
-        return new Menu("credit", "by: kaden emrich\nadditional help: stack overflow", [
+        return new Menu("credit", "created by: kaden emrich\nadditional help: stack overflow", [
             new MenuOption("go to website", () => {
                 window.open('https://kaden.kemri.ch', '_blank');
             }), 

@@ -27,6 +27,7 @@ class KeyController {
 }// class KeyController
 
 document.addEventListener("keydown", (event) => {
+    document.body.style.cursor = "none";
     if(!currentController) return;
     for(let h of currentController.handlers) {
         for(let k in h.keys) {
@@ -51,6 +52,17 @@ document.addEventListener("keyup", (event) => {
         }
     }
 }); // keyup
+
+document.addEventListener("mousemove", () => {
+    document.body.style.cursor = "unset";
+});// mouse move
+document.addEventListener("mousedown", () => {
+    document.body.style.cursor = "unset";
+});// mouse down
+// document.addEventListener("mouseup", () => {
+//     document.body.style.cursor = "unset";
+// });// mouse up
+
 
 function updateKeys() {
 
