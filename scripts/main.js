@@ -318,7 +318,7 @@ function drawStats() {
     ctx.textAlign = "left";
 
     ctx.fillStyle = palettes[currentPalette].text;
-    ctx.fillText("Score: " + score, 10, 10);
+    ctx.fillText("score: " + score, 10, 10);
 
     ctx.textAlign = "center";
     ctx.fillStyle = palettes[currentPalette].text;
@@ -329,11 +329,14 @@ function drawStats() {
     // ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
 
     ctx.fillStyle = palettes[currentPalette].text;
-    ctx.fillText("Accuracy: " + calcAccuracy() + "%", 10, fontSize + 20);
+    ctx.fillText("accuracy: " + calcAccuracy() + "%", 10, fontSize + 20);
 
     if(showExtraStats) {
         ctx.fillStyle = palettes[currentPalette].text;
-        ctx.fillText("# Asteroids: " + getNumAsteroids(), 10, fontSize*2 + 30);
+        ctx.fillText("asteroids: " + getNumAsteroids(), 10, fontSize*2 + 30);
+
+        ctx.fillStyle = palettes[currentPalette].text;
+        ctx.fillText("difficulty: " + minAsteroids, 10, fontSize*3 + 40);
     }
 }// drawStats()
 
