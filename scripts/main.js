@@ -4,7 +4,9 @@ var gameTime = 0;
 var gameTimeInterval;
 var spawnTimeCounter = 0;
 var spawnTime = 100;
+
 var minAsteroids = 1;
+var asteroidSpawnBuffer = true;
 
 var showStats = true;
 var showExtraStats = false;
@@ -103,7 +105,7 @@ function spawnAsteroid() {
 function gameEnd() {
     var finalGameTime = gameTime;
     resetGameTime();
-    resetControlIntervals
+    resetControlIntervals();
     if(ship) {
         entities[ship.id] = null;
         ship = null;
@@ -237,6 +239,29 @@ function getNumAsteroids() {
 
 function updateAsteroids() {
 
+    let numAsteroids = getNumAsteroids();
+
+    if(minAsteroids == 0 && numAsteroids > 1) {
+        minAsteroids = 1;
+    }
+
+    if(numAsteroids > minAsteroids) {
+        asteroidSpawnBuffer = false;
+    }
+
+    if(numAsteroids == minAsteroids && asteroidSpawnBuffer == false) {
+        minAsteroids++;
+    }
+    else if(numAsteroids < minAsteroids) {
+        spawnAsteroid();
+    }
+
+    if(numAsteroids < minAsteroids && asteroidSpawnBuffer == false) {
+        spawnAsteroid();
+        asteroidSpawnBuffer = true;
+    }
+
+
     // if(numAsteroids == 0 && !currentAlert) {
     //     currentDifficulty++;
 
@@ -247,12 +272,18 @@ function updateAsteroids() {
     //     });
     // }
 
-    if(getNumAsteroids() < minAsteroids) {
-        while(getNumAsteroids() <= minAsteroids) {
-            spawnAsteroid();
-        }
-        minAsteroids++;
-    }
+    // if(minAsteroids == 0 && getNumAsteroids() > 1) { 
+    //     // console.log("atest"); // for debugging
+    //     minAsteroids = 1;
+    // } // this ensures that another asteroid will not spawn until the player shoots the first one
+
+    // if(getNumAsteroids() < minAsteroids) {
+    //     spawnAsteroid();
+    // }
+
+    // if(getNumAsteroids() == minAsteroids) {
+    //     minAsteroids++;
+    // }
 }// updateAsteroids()
 
 function drawEntities() {
@@ -451,7 +482,7 @@ function toggleFullscreen() {
 
 function newGame() {
     resetGameTime();
-    minAsteroids = 1;
+    minAsteroids = 0;
     resetControlIntervals();
 
     currentController = new KeyController(gameControlScheme);
@@ -617,6 +648,7 @@ var menuControlScheme = [
 var gameControlScheme = [
     new KeyHandler(["ArrowUp", "w", "W"], 
     () => {
+        if(!ship) return;
         arrowUpPressed = true;
         if(fInterval) return;
         ship.forward(acceleration);
@@ -632,6 +664,7 @@ var gameControlScheme = [
 
     new KeyHandler(["ArrowDown", "s", "S"], 
     () => {
+        if(!ship) return;
         arrowDownPressed = true;
         if(bInterval) return;
         ship.forward(0-acceleration);
@@ -646,6 +679,7 @@ var gameControlScheme = [
     
     new KeyHandler(["ArrowLeft", "a", "A"], 
     () => {
+        if(!ship) return;
         arrowLeftPressed = true;
         if(lInterval) return;
         ship.turnLeft();
@@ -660,6 +694,7 @@ var gameControlScheme = [
     
     new KeyHandler(["ArrowRight", "d", "D"], 
     () => {
+        if(!ship) return;
         arrowRightPressed = true;
         if(rInterval) return;
         ship.turnRight();
@@ -704,4 +739,5 @@ init();
 todo:
     - add a how to play
     - add control schemes
+    - remove off-screen buffer and make it wrap seemlessly
 */
