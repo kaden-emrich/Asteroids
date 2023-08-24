@@ -1,6 +1,7 @@
 // Kaden Emrich 
 
 var menuTitle = document.getElementById("menuTitle");
+var menuSubtitle = document.getElementById("menuSubtitle")
 var menuButtons = [
     document.getElementById("menuButton1"),
     document.getElementById("menuButton2"),
@@ -11,11 +12,12 @@ var menuButtons = [
 var maxOptions = 4;
 
 class Menu {
-    constructor(title, options, actions, type) {
+    constructor(title, subtitle, options, actions, type) {
         if(type) this.type = type;
         else this.type = "main";
 
         this.title = title;
+        this.subtitle = subtitle;
         this.options = options;
         this.actions = actions;
         this.selection = 0;
@@ -51,9 +53,13 @@ class Menu {
 
     draw() {
         this.hide;
+        //menuDiv.style.opacity = "0";
 
         menuTitle.innerText = this.title;
         menuTitle.style.color = palettes[currentPalette].title;
+
+        menuSubtitle.innerText = this.subtitle;
+        menuSubtitle.style.color = palettes[currentPalette].text;
 
         var numOptions = this.options.length;
         if(this.options.length > 4) {
@@ -73,5 +79,6 @@ class Menu {
         }
 
         this.show();
+        //setTimeout(() => {menuDiv.style.opacity = "1";}, 10); // an attempt to fix the jitter when switching between menus
     }// draw();
 }// class Menu

@@ -4,7 +4,11 @@ var gameTime = 0;
 var gameTimeInterval;
 var spawnTimeCounter = 0;
 var spawnTime = 100;
+
+var lastGameResult = "";
+
 var minAsteroids = 1;
+var asteroidSpawnBuffer = true;
 
 var showStats = true;
 var showExtraStats = false;
@@ -13,6 +17,12 @@ var fInterval; // For the game controll Scheme
 var bInterval;
 var lInterval;
 var rInterval;
+
+function calcAccuracy() {
+    let acc = Math.floor(score / shotsFired);
+    if(!acc) return 0;
+    else return acc;
+}
 
 function startGameTime() {
     gameTimeInterval = setInterval(() => {
@@ -102,8 +112,9 @@ function spawnAsteroid() {
 
 function gameEnd() {
     var finalGameTime = gameTime;
+    lastGameResult = "score: " + score + "\naccuracy: " + calcAccuracy() + "%\n time: " + finalGameTime.toFixed(1) + "s";
     resetGameTime();
-    resetControlIntervals
+    resetControlIntervals();
     if(ship) {
         entities[ship.id] = null;
         ship = null;
@@ -119,6 +130,8 @@ function gameEnd() {
     currentMenu.draw();
     currentController = new KeyController(menuControlScheme);
     gameStatus = "menu";
+
+    
 }// gameEnd()
 
 function killPlayer() {
@@ -237,6 +250,29 @@ function getNumAsteroids() {
 
 function updateAsteroids() {
 
+    let numAsteroids = getNumAsteroids();
+
+    if(minAsteroids == 0 && numAsteroids > 1) {
+        minAsteroids = 1;
+    }
+
+    if(numAsteroids > minAsteroids) {
+        asteroidSpawnBuffer = false;
+    }
+
+    if(numAsteroids == minAsteroids && asteroidSpawnBuffer == false) {
+        minAsteroids++;
+    }
+    else if(numAsteroids < minAsteroids) {
+        spawnAsteroid();
+    }
+
+    if(numAsteroids < minAsteroids && asteroidSpawnBuffer == false) {
+        spawnAsteroid();
+        asteroidSpawnBuffer = true;
+    }
+
+
     // if(numAsteroids == 0 && !currentAlert) {
     //     currentDifficulty++;
 
@@ -247,12 +283,18 @@ function updateAsteroids() {
     //     });
     // }
 
-    if(getNumAsteroids() < minAsteroids) {
-        while(getNumAsteroids() <= minAsteroids) {
-            spawnAsteroid();
-        }
-        minAsteroids++;
-    }
+    // if(minAsteroids == 0 && getNumAsteroids() > 1) { 
+    //     // console.log("atest"); // for debugging
+    //     minAsteroids = 1;
+    // } // this ensures that another asteroid will not spawn until the player shoots the first one
+
+    // if(getNumAsteroids() < minAsteroids) {
+    //     spawnAsteroid();
+    // }
+
+    // if(getNumAsteroids() == minAsteroids) {
+    //     minAsteroids++;
+    // }
 }// updateAsteroids()
 
 function drawEntities() {
@@ -278,18 +320,20 @@ function drawStats() {
     ctx.fillStyle = palettes[currentPalette].text;
     ctx.fillText("Score: " + score, 10, 10);
 
+    ctx.textAlign = "center";
+    ctx.fillStyle = palettes[currentPalette].text;
+    ctx.fillText(gameTime.toFixed(1), canvas.width/2, 0);
+    ctx.textAlign = "left";
+
     // ctx.fillStyle = palettes[currentPalette].text;
     // ctx.fillText("Wave: " + currentDifficulty, 10, fontSize + 20);
 
     ctx.fillStyle = palettes[currentPalette].text;
-    ctx.fillText("Accuracy: " + Math.floor(score / shotsFired) + "%", 10, fontSize + 20);
+    ctx.fillText("Accuracy: " + calcAccuracy() + "%", 10, fontSize + 20);
 
     if(showExtraStats) {
         ctx.fillStyle = palettes[currentPalette].text;
         ctx.fillText("# Asteroids: " + getNumAsteroids(), 10, fontSize*2 + 30);
-
-        ctx.fillStyle = palettes[currentPalette].text;
-        ctx.fillText("Time " + gameTime.toFixed(1), 10, fontSize*3 + 40);
     }
 }// drawStats()
 
@@ -386,6 +430,13 @@ function equipPalette(p) {
     
     currentPalette = p;
 
+    menuTitle.style.color = palettes[currentPalette].title;
+    menuSubtitle.style.color = palettes[currentPalette].text;
+    for(let i = 0; i < 4; i++) {
+        menuButtons[i].style.color = palettes[currentPalette].text;
+    }
+
+
     for(let e of entities) {
         if(e && e.type) switch(e.type) {
             case "ship":
@@ -451,7 +502,7 @@ function toggleFullscreen() {
 
 function newGame() {
     resetGameTime();
-    minAsteroids = 1;
+    minAsteroids = 0;
     resetControlIntervals();
 
     currentController = new KeyController(gameControlScheme);
@@ -489,13 +540,13 @@ function newGame() {
 // menus
 var Menus = {
     main : function() {
-        return new Menu("asteroids", ["start", "settings", "credit"], [newGame, settingsMenu, () => {currentMenu = Menus.credit(); currentMenu.draw();}], "main");
+        return new Menu("asteroids", "a game by kaden", ["start", "settings", "credit"], [newGame, settingsMenu, () => {currentMenu = Menus.credit(); currentMenu.draw();}], "main");
     },
     over : function() {
-        return new Menu("game over", ["retry", "menu"], [newGame, mainMenu], "gameOver")
+        return new Menu("game over", lastGameResult, ["retry", "menu"], [newGame, mainMenu], "gameOver")
     },
     paused : function() {
-        return new Menu("paused", ["continue", "retry", "settings", "menu"], [
+        return new Menu("paused", null, ["continue", "retry", "settings", "menu"], [
             () => {
                 pause();
             }, 
@@ -519,16 +570,18 @@ var Menus = {
             currentMenu.draw();
         }// returnFunc
 
-        let temp = new Menu("settings", ["palette: " + palettes[currentPalette].name, "ship skin: " + shipSkins[shipSkin].name, "more", "back"], [
+        let temp = new Menu("settings", null, ["palette: " + palettes[currentPalette].name, "ship skin: " + shipSkins[shipSkin].name, "more", "back"], [
             () => {
                 cyclePalette();
                 temp.options[0] = "palette: " + palettes[currentPalette].name;
-                currentMenu.draw();
+                menuButtons[0].innerText = temp.options[0];
+                //currentMenu.draw();
             }, 
             () => {
                 cycleShipSkin();
                 temp.options[1] = "ship skin: " + shipSkins[shipSkin].name;
-                currentMenu.draw();
+                menuButtons[1].innerText = temp.options[1];
+                //currentMenu.draw();
             },
             () => {
                 currentMenu = Menus.settings1(returnMenu);
@@ -549,7 +602,7 @@ var Menus = {
             currentMenu.draw();
         }// returnFunc()
 
-        let temp = new Menu("more settings", ["show stats: " + showStats, "extra stats: " + showExtraStats, "back"], [
+        let temp = new Menu("more settings", null, ["show stats: " + showStats, "extra stats: " + showExtraStats, "back"], [
             () => {
                 if(showStats) {
                     showStats = false;
@@ -559,18 +612,20 @@ var Menus = {
                 }
 
                 temp.options[0] = "show stats: " + showStats;
-                currentMenu.draw();
+                menuButtons[0].innerText = temp.options[0];
             },
             () => {
                 if(showExtraStats) {
                     showExtraStats = false;
+                    //showVelocity = false;
                 }
                 else {
                     showExtraStats = true;
+                    //showVelocity = true;
                 }
 
-                temp.options[1] = "show extra stats " + showExtraStats;
-                currentMenu.draw();
+                temp.options[1] = "extra stats: " + showExtraStats;
+                menuButtons[1].innerText = temp.options[1];
             },
 
             returnFunc
@@ -580,7 +635,7 @@ var Menus = {
     },
 
     credit : function() {
-        return new Menu("kaden emrich", ["go to website", "menu"], [() => {
+        return new Menu("credit", "by: kaden emrich\nadditional help: stack overflow", ["go to website", "menu"], [() => {
             window.open('https://kaden.kemri.ch', '_blank');
         }, mainMenu], "main");
     } 
@@ -617,6 +672,7 @@ var menuControlScheme = [
 var gameControlScheme = [
     new KeyHandler(["ArrowUp", "w", "W"], 
     () => {
+        if(!ship) return;
         arrowUpPressed = true;
         if(fInterval) return;
         ship.forward(acceleration);
@@ -632,6 +688,7 @@ var gameControlScheme = [
 
     new KeyHandler(["ArrowDown", "s", "S"], 
     () => {
+        if(!ship) return;
         arrowDownPressed = true;
         if(bInterval) return;
         ship.forward(0-acceleration);
@@ -646,6 +703,7 @@ var gameControlScheme = [
     
     new KeyHandler(["ArrowLeft", "a", "A"], 
     () => {
+        if(!ship) return;
         arrowLeftPressed = true;
         if(lInterval) return;
         ship.turnLeft();
@@ -660,6 +718,7 @@ var gameControlScheme = [
     
     new KeyHandler(["ArrowRight", "d", "D"], 
     () => {
+        if(!ship) return;
         arrowRightPressed = true;
         if(rInterval) return;
         ship.turnRight();
@@ -704,4 +763,5 @@ init();
 todo:
     - add a how to play
     - add control schemes
+    - remove off-screen buffer and make it wrap seemlessly
 */

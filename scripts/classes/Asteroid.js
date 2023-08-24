@@ -76,6 +76,10 @@ class Asteroid extends Entity {
         }
     }// updateColision()
 
+    // draw() {
+    //     super.drawWrap();
+    // }// draw()
+
     update() {
 
     }// update
