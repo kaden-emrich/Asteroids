@@ -795,5 +795,5 @@ init();
 todo:
     - add a how to play
     - add control schemes
-    - remove off-screen buffer and make it wrap seemlessly
+    - optimize for better framerate when there are a lot of asteroids
 */
