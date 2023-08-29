@@ -11,7 +11,19 @@ class Entity {
         this.type = type;
         this.rollOverDist = 30;
 
-        this.id = entities.length;
+        this.id = -1;
+
+        for(let e in entities) {
+            if(entities[e] == null) {
+                this.id = e;
+                break;
+            }
+        }
+        
+        if(this.id == -1) {
+            this.id = entities.length;
+        }
+        
         entities[this.id] = this;
 
         this.shape = shape;

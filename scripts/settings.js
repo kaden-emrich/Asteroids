@@ -53,6 +53,7 @@ var trippyMode = false;
 var showVelocity = false;
 var showMousePos = false;
 var showStats = true;
+var showTime = true;
 var laserSight = false;
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";

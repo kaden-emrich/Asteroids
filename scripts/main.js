@@ -323,11 +323,13 @@ function drawStats() {
         
     ctx.fillText("score: " + score, 10, 10);
 
-    ctx.textAlign = "center";
-    ctx.fillStyle = palettes[currentPalette].text;
-    fontSize = canvas.height / 15;
-    ctx.font = fontSize + "px " + fontFamily;
-    ctx.fillText(gameTime.toFixed(1), canvas.width/2, 10);
+    if(showTime) {
+        ctx.textAlign = "center";
+        ctx.fillStyle = palettes[currentPalette].text;
+        fontSize = canvas.height / 15;
+        ctx.font = fontSize + "px " + fontFamily;
+        ctx.fillText(gameTime.toFixed(1), canvas.width/2, 10);
+    }
 
     ctx.textAlign = "left";
     fontSize = canvas.height / 20;
@@ -705,29 +707,51 @@ var Menus = {
         }// returnFunc
 
         let temp = new Menu("settings", null, [
-            new MenuOption("palette: " + palettes[currentPalette].name, () => {
-                cyclePalette();
-                temp.options[0].name = "palette: " + palettes[currentPalette].name;
-                menuButtons[0].innerText = temp.options[0].name;
-                //currentMenu.draw();
-            }), 
-            new MenuOption("ship skin: " + shipSkins[shipSkin].name, () => {
-                cycleShipSkin();
-                temp.options[1].name = "ship skin: " + shipSkins[shipSkin].name;
-                menuButtons[1].innerText = temp.options[1].name;
-                //currentMenu.draw();
+            new MenuOption("customization", () => {
+                currentMenu = Menus.customizationSettings(returnMenu);
             }),
-            new MenuOption("more", () => {
-                currentMenu = Menus.settings1(returnMenu);
+
+            new MenuOption("stats / ui", () => {
+                currentMenu = Menus.statsSettings(returnMenu);
                 //currentMenu.draw();
             }), 
+
             new MenuOption("back", returnFunc)
         ], "options");
 
         return temp;
     },
 
-    settings1 : function(returnMenu) {
+    customizationSettings : function(returnMenu) {
+        if(!returnMenu) returnMenu = Menus.main;
+
+        function returnFunc() {
+            currentMenu = Menus.settings(returnMenu);
+            //currentMenu.draw();
+        }// returnFunc
+
+        let temp = new Menu("customization", null, [
+            new MenuOption("palette: " + palettes[currentPalette].name, () => {
+                cyclePalette();
+                temp.options[0].name = "palette: " + palettes[currentPalette].name;
+                menuButtons[0].innerText = temp.options[0].name;
+                //currentMenu.draw();
+            }), 
+
+            new MenuOption("ship skin: " + shipSkins[shipSkin].name, () => {
+                cycleShipSkin();
+                temp.options[1].name = "ship skin: " + shipSkins[shipSkin].name;
+                menuButtons[1].innerText = temp.options[1].name;
+                //currentMenu.draw();
+            }),
+
+            new MenuOption("back", returnFunc)
+        ], "options");
+
+        return temp;
+    },
+
+    statsSettings : function(returnMenu) {
 
         if(!returnMenu) returnMenu = Menus.main;
 
@@ -748,6 +772,19 @@ var Menus = {
                 temp.options[0].name = "show stats: " + showStats;
                 menuButtons[0].innerText = temp.options[0].name;
             }), 
+            
+            new MenuOption("show time: " + showTime, () => {
+                if(showTime) {
+                    showTime = false;
+                }
+                else {
+                    showTime = true;
+                }
+
+                temp.options[1].name = "show time: " + showTime;
+                menuButtons[1].innerText = temp.options[1].name;
+            }),
+
             new MenuOption("extra stats: " + showExtraStats, () => {
                 if(showExtraStats) {
                     showExtraStats = false;
@@ -758,9 +795,10 @@ var Menus = {
                     //showVelocity = true;
                 }
 
-                temp.options[1].name = "extra stats: " + showExtraStats;
-                menuButtons[1].innerText = temp.options[1].name;
+                temp.options[2].name = "extra stats: " + showExtraStats;
+                menuButtons[2].innerText = temp.options[2].name;
             }), 
+
             new MenuOption("back", returnFunc)
         ], "main")
 
@@ -795,5 +833,5 @@ init();
 todo:
     - add a how to play
     - add control schemes
-    - remove off-screen buffer and make it wrap seemlessly
+    - optimize for better framerate when there are a lot of asteroids
 */
