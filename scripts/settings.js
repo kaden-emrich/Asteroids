@@ -56,6 +56,8 @@ var showStats = true;
 var showTime = true;
 var laserSight = false;
 
+var shootCooldownMS = 300;
+
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
 

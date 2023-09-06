@@ -5,6 +5,8 @@ var gameTimeInterval;
 var spawnTimeCounter = 0;
 var spawnTime = 100;
 
+var canShoot = true;
+
 var lastGameResult = "";
 
 var minAsteroids = 1;
@@ -83,8 +85,14 @@ function pause() {
 }// pause()
 
 function shoot() {
-    //console.log("shoot");
-    if(ship) ship.shoot();
+    if(!ship) return;
+    if(!canShoot) return;
+
+    ship.shoot();
+    canShoot = false;
+    setTimeout(() => {
+        canShoot = true;
+    }, shootCooldownMS);
 }// shoot()
 
 function spawnAsteroid() {
@@ -527,6 +535,8 @@ function newGame() {
     resetGameTime();
     minAsteroids = 0;
     resetControlIntervals();
+
+    canShoot = true;
 
     currentController = new KeyController(gameControlScheme);
     updateInterval = clearInterval(updateInterval);
