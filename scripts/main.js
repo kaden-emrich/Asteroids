@@ -159,10 +159,10 @@ function updateCharacterMovement() {
     if(!ship) return;
 
     if(arrowUpPressed) {
-        ship.forward(acceleration);
+        ship.forward(shipAcceleration);
     }
     if(arrowDownPressed) {
-        ship.forward(0-acceleration);
+        ship.forward(0-shipAcceleration);
     }
     if(arrowLeftPressed) {
         ship.turnLeft();
@@ -400,15 +400,6 @@ function updateScreen() {
     fontSize = canvas.height * 1 / 20;
     updateSize();
 
-
-    if(!paused) {
-        //updateCharacterMovement();
-        updateMovement();
-        updateColision();
-
-        updateAsteroids();
-    }
-    
     drawEntities();
 
     //if(currentMenu) currentMenu.draw();
@@ -422,6 +413,16 @@ function updateScreen() {
     
     updateAlert();
 }// updateScreen()
+
+function tick() {
+    if(!paused) {
+        //updateCharacterMovement();
+        updateMovement();
+        updateColision();
+
+        updateAsteroids();
+    }
+}// tick()
 
 /*----- Update End -----*/
 
@@ -539,7 +540,8 @@ function newGame() {
     canShoot = true;
 
     currentController = new KeyController(gameControlScheme);
-    updateInterval = clearInterval(updateInterval);
+    frameInterval = clearInterval(frameInterval);
+    tickInterval = clearInterval(tickInterval);
     gameStatus = "game";
     currentMenu.hide();
     currentMenu = undefined;
@@ -564,7 +566,8 @@ function newGame() {
 
 
     // start update interval
-    updateInterval = setInterval(updateScreen, 1000/60);
+    tickInterval = setInterval(tick, 1000/tickSpeed);
+    frameInterval = setInterval(updateScreen, 1000/framerate);
     startGameTime();
 }// newGame()
 
@@ -604,9 +607,9 @@ var gameControlScheme = [
         if(!ship) return;
         arrowUpPressed = true;
         if(fInterval) return;
-        ship.forward(acceleration);
-        fInterval = setInterval(() => {ship.forward(acceleration);}, 1000/60);
-        //ship.forward(acceleration);
+        ship.forward(shipAcceleration);
+        fInterval = setInterval(() => {ship.forward(shipAcceleration);}, 1000/tickSpeed);
+        //ship.forward(shipAcceleration);
         
     }, 
     () => {
@@ -620,9 +623,9 @@ var gameControlScheme = [
         if(!ship) return;
         arrowDownPressed = true;
         if(bInterval) return;
-        ship.forward(0-acceleration);
-        bInterval = setInterval(() => {ship.forward(0-acceleration);}, 1000/60);
-        //ship.forward(0-acceleration);
+        ship.forward(0-shipAcceleration);
+        bInterval = setInterval(() => {ship.forward(0-shipAcceleration);}, 1000/tickSpeed);
+        //ship.forward(0-shipAcceleration);
     }, 
     () => {
         arrowDownPressed = false;
@@ -636,7 +639,7 @@ var gameControlScheme = [
         arrowLeftPressed = true;
         if(lInterval) return;
         ship.turnLeft();
-        lInterval = setInterval(() => {ship.turnLeft();}, 1000/60);
+        lInterval = setInterval(() => {ship.turnLeft();}, 1000/tickSpeed);
         //ship.turnLeft();
     }, 
     () => {
@@ -651,7 +654,7 @@ var gameControlScheme = [
         arrowRightPressed = true;
         if(rInterval) return;
         ship.turnRight();
-        rInterval = setInterval(() => {ship.turnRight();}, 1000/60);
+        rInterval = setInterval(() => {ship.turnRight();}, 1000/tickSpeed);
         //ship.turnRight();
     }, 
     () => {
@@ -832,7 +835,8 @@ function init() {
         spawnAsteroid();
     }
 
-    updateInterval = setInterval(updateScreen, 1000/60);
+    tickInterval = setInterval(tick, 1000/tickSpeed);
+    frameInterval = setInterval(updateScreen, 1000/framerate);
     currentController = new KeyController(menuControlScheme);
     mainMenu();
 }// init()
@@ -842,6 +846,6 @@ init();
 /*
 todo:
     - add a how to play
-    - add control schemes
-    - optimize for better framerate when there are a lot of asteroids
+    - optimize for better framerate when there are a lot of asteroids (sorta finished)
+        > attempt to add a dynamic framerate system independant of internal update speed
 */
