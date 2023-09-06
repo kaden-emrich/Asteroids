@@ -116,6 +116,10 @@ class Line {
 
         else return false;
     }// intersects(line2)
+
+    getLength() {
+        return Math.sqrt(Math.pow(this.point1.x - this.point2.x, 2) + Math.pow(this.point1.y - this.point2.y, 2));
+    }// getLength()
 }// line
 
 class Shape {
@@ -125,6 +129,27 @@ class Shape {
             this.points[i] = points[i];
         }
     }// constructor(points)
+
+    getStandardPointDeviation() {
+        var totalPointDeviation = 0;
+        for(let p of this.points) {
+            totalPointDeviation += new Line(new PointValue(0, 0), p.getRect()).getLength();
+        }
+
+        return totalPointDeviation / this.points.length;
+    }// getStandardPointDeviation()
+
+    getMaxPointDeviation() {
+        var maxPointDeviation = 0;
+        for(let p of this.points) {
+            let dist = new Line(new PointValue(0, 0), p.getRect()).getLength();
+            if(dist > maxPointDeviation) {
+                maxPointDeviation = dist;
+            }
+        }
+
+        return maxPointDeviation;
+    }// getMaxPointDeviation()
 
     draw(x, y, dir, color) {
         ctx.fillStyle = color;

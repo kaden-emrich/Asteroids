@@ -55,8 +55,16 @@ var showMousePos = false;
 var showStats = true;
 var showTime = true;
 var laserSight = false;
+
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
+
+var showStandardDeviation = false;
+var standardDeviationColor = "#0f0";
+
+var showMaxDeviation = false;
+var maxDeviationColor = "#ff0";
+
 var fontFamily = "Munro";
 var fontSize = canvas.height * 1 / 20;
 var textColor = "#fff";

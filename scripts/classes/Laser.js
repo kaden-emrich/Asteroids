@@ -1,10 +1,10 @@
 // Kaden Emrich
 
 var laserPoints = [
-    new PointValue(0, 0).getPolar(),
-    new PointValue(-30, 0).getPolar(),
-    new PointValue(-30, -1).getPolar(),
-    new PointValue(0, -1).getPolar()
+    new PointValue(15, 0).getPolar(),
+    new PointValue(-15, 0).getPolar(),
+    new PointValue(-15, -1).getPolar(),
+    new PointValue(15, -1).getPolar()
 ];
 
 class Laser extends Entity {

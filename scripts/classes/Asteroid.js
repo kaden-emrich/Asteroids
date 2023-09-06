@@ -56,7 +56,7 @@ class Asteroid extends Entity {
                     }
                     return;
                 }
-                else if(entities[i].type == "laser" && this.boxIsTouching(entities[i])) {
+                else if(entities[i].type == "laser" && this.checkDistanceColision(entities[i])) {
                     entities[i] = null;
                     score += 100;
                     

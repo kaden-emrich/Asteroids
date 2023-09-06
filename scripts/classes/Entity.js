@@ -27,6 +27,9 @@ class Entity {
         entities[this.id] = this;
 
         this.shape = shape;
+
+        this.standardDeviation = this.shape.getStandardPointDeviation();
+        this.maxDeviation = this.shape.getMaxPointDeviation();
     }// constructor()
 
     getPolarPoints() {
@@ -151,6 +154,14 @@ class Entity {
             ctx.lineTo(this.x, this.y + this.speedVector.y*20);
             ctx.stroke();
         }
+
+        if(showStandardDeviation) {
+            this.drawStandardDeviation();
+        }
+
+        if(showMaxDeviation) {
+            this.drawMaxDeviation();
+        }
     }// draw()*/
 
     drawWrap() {
@@ -172,6 +183,8 @@ class Entity {
         }
 
         if(showVelocity) {
+            ctx.globalAlpha = 0.5;
+            ctx.shadowBlur = 0;
             ctx.strokeStyle = "#00f";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
@@ -183,13 +196,18 @@ class Entity {
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(this.x, this.y + this.speedVector.y*20);
             ctx.stroke();
+            ctx.globalAlpha = 1;
         }
     }
 
     drawBoundingBox() {
         var bBox = this.getBoundingBox();
 
+        ctx.globalAlpha = 0.5;
         ctx.strokeStyle = boundingBoxColor;
+        ctx.shadowStyle = boundingBoxColor;
+        ctx.shadowBlur = 0;
+        
         ctx.beginPath();
         ctx.moveTo(bBox[0].x, bBox[0].y);
         for(let i = 1; i < bBox.length; i++) {
@@ -197,7 +215,43 @@ class Entity {
         }
         ctx.closePath();
         ctx.stroke();
+        
+        ctx.globalAlpha = 1;
     }// drawBoundingBox()
+
+    drawStandardDeviation() {
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = standardDeviationColor;
+        ctx.shadowStyle = standardDeviationColor;
+        ctx.shadowBlur = 0;
+        
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.standardDeviation, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        ctx.globalAlpha = 1;
+    }// drawStandardDiviation()
+
+    drawMaxDeviation() {
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = maxDeviationColor;
+        ctx.shadowStyle = maxDeviationColor;
+        ctx.shadowBlur = 0;
+        
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.maxDeviation, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        ctx.globalAlpha = 1;
+    }// drawMaxDeviation()
+
+    checkDistanceColision(e2) {
+        var dist = new Line(new PointValue(this.x, this.y), new PointValue(e2.x, e2.y)).getLength();
+        if(dist <= this.maxDeviation + e2.maxDeviation) {
+            return true;
+        }
+        return false;
+    }// checkDistanceCollision()
 
     boxIsTouching(e2) {
         var objectA = this.getBoundingBox();
