@@ -54,6 +54,7 @@ class Laser extends Entity {
                 score += 100;
 
                 c.explode();
+                return;
             }
         }
     }// updateCollision()

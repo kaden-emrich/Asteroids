@@ -33,8 +33,8 @@ document.addEventListener("keydown", (event) => {
         for(let k in h.keys) {
             if(event.key == h.keys[k]) {
                 h.pressed[k] = true;
-                h.active = false;
                 if(h.pressAction) h.pressAction();
+                return;
             }
         }
     }
@@ -46,8 +46,8 @@ document.addEventListener("keyup", (event) => {
         for(let k in h.keys) {
             if(event.key == h.keys[k]) {
                 h.pressed[k] = false;
-
                 if(h.releaseAction) h.releaseAction();
+                return;
             }
         }
     }

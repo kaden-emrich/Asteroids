@@ -54,6 +54,7 @@ class Ship extends Entity {
                 killPlayer();
                 
                 c.explode();
+                continue;
             }
         }
     }// updateCollision()

@@ -121,19 +121,18 @@ class Entity {
 
         this.x += this.speedVector.x;
         this.y += this.speedVector.y;
-
         
         // off screen roll-over
         if(this.x < 0-this.rollOverDist) {
             this.x = canvas.width + this.rollOverDist;
         }
-        if(this.x > canvas.width + this.rollOverDist) {
+        else if(this.x > canvas.width + this.rollOverDist) {
             this.x = 0-this.rollOverDist;
         }
         if(this.y < 0-this.rollOverDist) {
             this.y = canvas.height + this.rollOverDist;
         }
-        if(this.y > canvas.height + this.rollOverDist) {
+        else if(this.y > canvas.height + this.rollOverDist) {
             this.y = 0-this.rollOverDist;
         }
     }// updatePosition()
