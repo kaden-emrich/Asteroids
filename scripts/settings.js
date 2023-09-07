@@ -1,5 +1,16 @@
 // Kaden Emrich
 
+const startTime = Date.now();
+
+function getElapsedTimems() {
+    return Date.now() - startTime;
+}
+
+var frameCheckIntervalms = 500;
+var droppedFrames = 0;
+
+var tickrateCheckIntervalms = 500;
+
 var canvas = document.getElementById("game");
 var ctx = canvas.getContext("2d");
 ctx.imageSmothingEnabled = false;
@@ -12,7 +23,8 @@ ctx.strokeStyle = "#fff";
 ctx.fillStyle = "#fff";
 ctx.lineWidth = 4;
 
-var updateInterval;
+var tickInterval;
+var frameInterval;
 
 var ship;
 var entities = [];
@@ -45,18 +57,30 @@ var isFullscreen = false;
 
 /*----- Game Settings -----*/
 
+var tickSpeed = 120;
+
 var viewType = 1;
 var pointSize = 10;
-var turnSpeed = 5;
-var acceleration = 0.2;
 var trippyMode = false;
 var showVelocity = false;
 var showMousePos = false;
 var showStats = true;
+var showExtraStats = false;
+var showNerdyStats = false;
 var showTime = true;
 var laserSight = false;
+
+var shootCooldownMS = 300;
+
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
+
+var showStandardDeviation = false;
+var standardDeviationColor = "#0f0";
+
+var showMaxDeviation = false;
+var maxDeviationColor = "#ff0";
+
 var fontFamily = "Munro";
 var fontSize = canvas.height * 1 / 20;
 var textColor = "#fff";
@@ -65,9 +89,11 @@ var noClip = false;
 var hideCursorOnKeyboardInput = true;
 
 var shipSpeed = 10;
-var laserSpeed = 20;
-var asteroidSpeed = 2;
+var laserSpeed = 10;
+var asteroidSpeed = 1;
 var velocityLimit = 30;
+var turnSpeed = 2.5;
+var shipAcceleration = 0.05;
 
 var currentPalette;
 var shipSkin;

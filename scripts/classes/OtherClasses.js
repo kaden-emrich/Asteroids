@@ -116,6 +116,10 @@ class Line {
 
         else return false;
     }// intersects(line2)
+
+    getLength() {
+        return Math.sqrt(Math.pow(this.point1.x - this.point2.x, 2) + Math.pow(this.point1.y - this.point2.y, 2));
+    }// getLength()
 }// line
 
 class Shape {
@@ -126,22 +130,44 @@ class Shape {
         }
     }// constructor(points)
 
-    draw(x, y, dir, color) {
+    getStandardPointDeviation() {
+        var totalPointDeviation = 0;
+        for(let p of this.points) {
+            totalPointDeviation += new Line(new PointValue(0, 0), p.getRect()).getLength();
+        }
+
+        return totalPointDeviation / this.points.length;
+    }// getStandardPointDeviation()
+
+    getMaxPointDeviation() {
+        var maxPointDeviation = 0;
+        for(let p of this.points) {
+            let dist = new Line(new PointValue(0, 0), p.getRect()).getLength();
+            if(dist > maxPointDeviation) {
+                maxPointDeviation = dist;
+            }
+        }
+
+        return maxPointDeviation;
+    }// getMaxPointDeviation()
+
+    async draw(x, y, dir, color) {
         ctx.fillStyle = color;
         ctx.strokeStyle = color;
         ctx.shadowColor = color;
         ctx.shadowBlur = 10;
 
-        ctx.beginPath();
+        await ctx.beginPath();
 
-        ctx.moveTo(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)), y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
+        await ctx.moveTo(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)), y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
         for(let i = 1; i < this.points.length; i++) {
-            ctx.lineTo(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)), y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
+            await ctx.lineTo(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)), y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
         }
 
-        ctx.closePath();
+        await ctx.closePath();
 
-        ctx.stroke();
+        await ctx.stroke();
+        return;
     }// draw()
 
     // drawWrap(x, y, dir, color) {

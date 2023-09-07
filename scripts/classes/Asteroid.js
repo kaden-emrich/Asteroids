@@ -43,38 +43,45 @@ class Asteroid extends Entity {
         this.forward(speed);
     }// constructor(x, y, dir, speed, size)
 
-    updateColision() {
-        var colision = this.checkBoxColision();
+    explode() {
+        if(this.size == 2) {
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
+        }
+        else if(this.size == 3) {
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
+        }
 
-        if(this == null || colision == null || colision.type == null) return;
+        entities[this.id] = null;
+    }// explode()
 
-        for(let i = 0; i < entities.length; i++) {
-            if(entities[i] != null) {
-                if(entities[i].type == "ship" && this.isTouching(entities[i])) {
-                    if(noClip == false) {
-                        killPlayer();
-                    }
-                    return;
+    updateCollision() {
+        let collisions = this.checkAllDistCollision();
+
+        if(this == null || collisions.length < 1) return;   
+
+        for(let c of collisions) {
+            if(c == null || c.type == "asteroid") {
+                continue;
+            }
+
+            if(c.type == "ship" && this.isTouching(c)) {
+                if(noClip == false) {
+                    killPlayer();
+                    this.explode();
                 }
-                else if(entities[i].type == "laser" && this.boxIsTouching(entities[i])) {
-                    entities[i] = null;
-                    score += 100;
-                    
-                    if(this.size == 2) {this
-                        new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
-                        new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
-                        new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
-                    }
-                    if(this.size == 3) {
-                        new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
-                        new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
-                    }
-
-                    entities[this.id] = null;
-                }
+                return;
+            }
+            else if(c.type == "laser" && this.checkDistanceCollision(c)) {
+                entities[c.id] = null;
+                score += 100;
+                
+                this.explode();
             }
         }
-    }// updateColision()
+    }// updateCollision()
 
     // draw() {
     //     super.drawWrap();

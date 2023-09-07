@@ -9,45 +9,54 @@ class Ship extends Entity {
         this.dir = 135;
     }// constructor
 
-    draw() {
+    async draw() {
         if(noClip) {
-            var colision = this.checkLineColision();
-            if(colision != null && colision.type == "asteroid") {
+            var collision = this.checkLineCollision();
+            if(collision != null && collision.type == "asteroid") {
                 this.color = "#f00";
             }
             else {
                 this.color = "#fff";
             }
         }
-        this.shape.draw(this.x, this.y, this.dir, this.color);
-        
-
-        if(showVelocity) {
-            ctx.strokeStyle = "#00f";
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x + this.speedVector.x*10, this.y);
-            ctx.stroke();
-
-            ctx.strokeStyle = "#f00";
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x, this.y + this.speedVector.y*20);
-            ctx.stroke();
-        }
+        await super.draw(this.x, this.y, this.dir, this.color);
 
         if(laserSight) {
+            ctx.globalAlpha = 0.5;
+            ctx.shadowBlur = 0;
             ctx.strokeStyle = "#0f0";
+
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(this.x + (canvas.width * 2) * Math.cos(this.dir * (Math.PI / 180)), this.y + (canvas.width * 2) * Math.sin(this.dir * (Math.PI / 180)));
             ctx.stroke();
+            
+            ctx.globalAlpha = 1;
         }
+        return;
     }// draw()
 
     shoot() {
         new Laser(this);
     }// shoot()
+
+    updateCollision() {
+        let collisions = this.checkAllDistCollision();
+
+        if(this == null || collisions.length < 1) return;   
+
+        for(let c of collisions) {
+            if(c == null) {
+                continue;
+            }
+
+            if(c.type == "asteroid" && !noClip && this.isTouching(c)) {
+                killPlayer();
+                
+                c.explode();
+            }
+        }
+    }// updateCollision()
 }// class Ship
 
 var shipPoints = [

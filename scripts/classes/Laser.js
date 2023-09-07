@@ -1,10 +1,10 @@
 // Kaden Emrich
 
 var laserPoints = [
-    new PointValue(0, 0).getPolar(),
-    new PointValue(-30, 0).getPolar(),
-    new PointValue(-30, -1).getPolar(),
-    new PointValue(0, -1).getPolar()
+    new PointValue(15, 0).getPolar(),
+    new PointValue(-15, 0).getPolar(),
+    new PointValue(-15, -1).getPolar(),
+    new PointValue(15, -1).getPolar()
 ];
 
 class Laser extends Entity {
@@ -38,4 +38,23 @@ class Laser extends Entity {
         }
         return bBox;
     }// getBoundingBox()
+
+    updateCollision() {
+        let collisions = this.checkAllDistCollision();
+
+        if(this == null || collisions.length < 1) return;   
+
+        for(let c of collisions) {
+            if(c == null) {
+                continue;
+            }
+
+            if(c.type == "asteroid" && this.checkDistanceCollision(c)) {
+                entities[this.id] = null;
+                score += 100;
+
+                c.explode();
+            }
+        }
+    }// updateCollision()
 }// class Laser

@@ -1,17 +1,25 @@
 // Kaden Emrich
 
+var gameStart = 0;
 var gameTime = 0;
 var gameTimeInterval;
-var spawnTimeCounter = 0;
 var spawnTime = 100;
+
+var canShoot = true;
+
+var frameFinished = true;
+var lastFrameCheck = 0;
+var framesSenseLastCheck = 0;
+var framesPerSecond = 0;
+
+var lastTickrateCheck = 0;
+var ticksSenseLastCheck = 0;
+var tps = 0;
 
 var lastGameResult = "";
 
 var minAsteroids = 1;
 var asteroidSpawnBuffer = true;
-
-var showStats = true;
-var showExtraStats = false;
 
 var fInterval; // For the game controll Scheme
 var bInterval;
@@ -22,21 +30,7 @@ function calcAccuracy() {
     let acc = Math.floor(score / shotsFired);
     if(!acc) return 0;
     else return acc;
-}
-
-function startGameTime() {
-    gameTimeInterval = setInterval(() => {
-        gameTime += 0.1;
-
-        // if(spawnTimeCounter >= spawnTime) {
-        //     spawnTimeCounter = 0;
-        //     spawnAsteroid();
-        // }
-        // else {
-        //     spawnTimeCounter++;
-        // }
-    }, 100);
-}// startGameTime()
+}// calcAccuracy()
 
 function pauseGameTime() {
     clearInterval(gameTimeInterval);
@@ -44,10 +38,8 @@ function pauseGameTime() {
 }// pauseGameTime()
 
 function resetGameTime() {
-    spawnTimeCounter = 0;
     gameTime = 0;
-    clearInterval(gameTimeInterval);
-    gameTimeInterval = undefined;
+    gameStart = getElapsedTimems();
     //console.log(gameTimeInterval);
 }// resetGameTime()
 
@@ -65,12 +57,12 @@ function resetControlIntervals() {
 
 function pause() {
     if(paused == true) {
+        gameStart = getElapsedTimems() - gameTime;
         currentMenu.hide();
         resetControlIntervals();
         currentController = new KeyController(gameControlScheme);
         paused = false;
         currentMenu = undefined;
-        startGameTime();
     }
     else {
         paused = true;
@@ -83,8 +75,14 @@ function pause() {
 }// pause()
 
 function shoot() {
-    //console.log("shoot");
-    if(ship) ship.shoot();
+    if(!ship) return;
+    if(!canShoot) return;
+
+    ship.shoot();
+    canShoot = false;
+    setTimeout(() => {
+        canShoot = true;
+    }, shootCooldownMS);
 }// shoot()
 
 function spawnAsteroid() {
@@ -111,7 +109,7 @@ function spawnAsteroid() {
 /*----- Update -----*/
 
 function gameEnd() {
-    var finalGameTime = gameTime;
+    var finalGameTime = gameTime / 1000;
     lastGameResult = "score: " + score + "\naccuracy: " + calcAccuracy() + "%\n time: " + finalGameTime.toFixed(1) + "s";
     resetGameTime();
     resetControlIntervals();
@@ -151,10 +149,10 @@ function updateCharacterMovement() {
     if(!ship) return;
 
     if(arrowUpPressed) {
-        ship.forward(acceleration);
+        ship.forward(shipAcceleration);
     }
     if(arrowDownPressed) {
-        ship.forward(0-acceleration);
+        ship.forward(0-shipAcceleration);
     }
     if(arrowLeftPressed) {
         ship.turnLeft();
@@ -172,13 +170,13 @@ function updateMovement() {
     }
 }// updateMovement()
 
-function updateColision() {
+function updateCollision() {
     for(let i = 0; i < entities.length; i++) {
-        if(entities[i] != null && entities[i].type == "asteroid") {
-            entities[i].updateColision();
+        if(entities[i] != null && (entities[i].type == "ship" || entities[i].type == "laser")) {
+            entities[i].updateCollision();
         }
     }
-}// updateColision()
+}// updateCollision()
 
 function updateFullScreen() {
     var h = 1000;
@@ -188,27 +186,27 @@ function updateFullScreen() {
     //w = iw * h / ih
     
     canvas.width = w;
-    canvas.style.width = window.innerWidth + "px";
-    gameDiv.style.width = window.innerWidth + "px";
+    // canvas.style.width = window.innerWidth + "px";
+    // gameDiv.style.width = window.innerWidth + "px";
 
     canvas.height = h;
-    canvas.style.height = window.innerHeight + "px";
-    gameDiv.style.height = window.innerHeight + "px";
+    // canvas.style.height = window.innerHeight + "px";
+    // gameDiv.style.height = window.innerHeight + "px";
 
-    if(currentMenu) {
-        menuDiv.style.width = window.innerWidth + "px";
-        menuDiv.style.height = window.innerHeight + "px";
-    }
-    
+    // if(currentMenu) {
+    //     menuDiv.style.width = window.innerWidth + "px";
+    //     menuDiv.style.height = window.innerHeight + "px";
+    // }
+    return;
 }// updateFullScreen()
 
-function updateSize() {
+async function updateSize() {
     var h = window.innerHeight;
     var w = window.innerWidth;
 
     
     if(viewType == 1) {
-        updateFullScreen();
+        await updateFullScreen();
         ctx.lineWidth = Math.floor(canvas.height / 250);
     }
     else {
@@ -233,7 +231,8 @@ function updateSize() {
             gameDiv.style.width = w + "px";
         }
     }
-    gameDiv.style.margin = "auto";
+    //gameDiv.style.margin = "auto";
+    return;
 }// updateSize()
 
 function getNumAsteroids() {
@@ -297,16 +296,17 @@ function updateAsteroids() {
     // }
 }// updateAsteroids()
 
-function drawEntities() {
+async function drawEntities() {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
-            entities[i].draw();
+            await entities[i].draw();
 
             if(showBoundingBoxes) {
                 entities[i].drawBoundingBox();
             }
         }
     }
+    return;
 }// drawEntities()
 
 function drawStats() {
@@ -328,7 +328,7 @@ function drawStats() {
         ctx.fillStyle = palettes[currentPalette].text;
         fontSize = canvas.height / 15;
         ctx.font = fontSize + "px " + fontFamily;
-        ctx.fillText(gameTime.toFixed(1), canvas.width/2, 10);
+        ctx.fillText((gameTime / 1000).toFixed(1), canvas.width/2, 10);
     }
 
     ctx.textAlign = "left";
@@ -342,11 +342,24 @@ function drawStats() {
     ctx.fillText("accuracy: " + calcAccuracy() + "%", 10, fontSize + 20);
 
     if(showExtraStats) {
+        
+
         ctx.fillStyle = palettes[currentPalette].text;
         ctx.fillText("asteroids: " + getNumAsteroids(), 10, fontSize*2 + 30);
 
         ctx.fillStyle = palettes[currentPalette].text;
         ctx.fillText("difficulty: " + minAsteroids, 10, fontSize*3 + 40);
+
+        if(showNerdyStats) {
+            ctx.fillStyle = palettes[currentPalette].text;
+            ctx.fillText("fps: " + framesPerSecond.toFixed(0), 10, fontSize*4 + 50);
+
+            ctx.fillStyle = palettes[currentPalette].text;
+            ctx.fillText("tps: " + tps.toFixed(0), 10, fontSize*5 + 60);
+
+            ctx.fillStyle = palettes[currentPalette].text;
+            ctx.fillText("Elapsed Time: " + (getElapsedTimems() / 1000).toFixed(3), 10, fontSize*6 + 70);
+        }
     }
 }// drawStats()
 
@@ -363,7 +376,7 @@ function newAlert(text, interval, length, callback) {
     alertCallback = callback;
 }// newAlert(text)
 
-function updateAlert() {
+async function updateAlert() {
     if(!currentAlert) return;
 
     if(alertTimer > alertLength) {
@@ -382,38 +395,105 @@ function updateAlert() {
     ctx.font = (fontSize * 4) + "px " + fontFamily;
 
     ctx.fillText(currentAlert, (canvas.width / 2), (canvas.height / 2));
+    return;
 }// updateAlert()
 
-function updateScreen() {
+// function updateScreen() {
+//     if(!trippyMode) {
+//         ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     }
+
+//     fontSize = canvas.height * 1 / 20;
+//     updateSize();
+
+//     drawEntities();
+
+//     updateAlert();
+
+//     //if(currentMenu) currentMenu.draw();
+//     if(!currentMenu) drawStats();
+//     else {
+//         ctx.shadowBlur = 0;
+//         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+//         ctx.fillRect(0, 0, canvas.width, canvas.height)
+//     }    
+// }// updateScreen()
+
+function checkFPS() {
+    let output = framesSenseLastCheck / ((getElapsedTimems() - lastFrameCheck) / 1000);
+    lastFrameCheck = getElapsedTimems();
+    framesSenseLastCheck = 0;
+    return output;
+}// checkFPS()
+
+function checkTickrate() {
+    let output = ticksSenseLastCheck / ((getElapsedTimems() - lastTickrateCheck) / 1000);
+    lastTickrateCheck = getElapsedTimems();
+    ticksSenseLastCheck = 0;
+    return output;
+}// checkTickrate()
+
+async function drawFrame() {
+    framesSenseLastCheck++;
+
+    frameFinished = false;
     if(!trippyMode) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        await ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    fontSize = canvas.height * 1 / 20;
-    updateSize();
+    fontSize = canvas.height * 1000 / 20;
+    await updateSize();
 
-
-    if(!paused) {
-        //updateCharacterMovement();
-        updateMovement();
-        updateColision();
-
-        updateAsteroids();
-    }
-    
-    drawEntities();
+    await drawEntities();
 
     //if(currentMenu) currentMenu.draw();
     if(!currentMenu) drawStats();
     else {
         ctx.shadowBlur = 0;
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        await ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
 
     
-    updateAlert();
-}// updateScreen()
+    await updateAlert();
+
+    frameFinished = true;
+    return;
+}// drawFrame()
+
+function tick() {
+    if(!paused) {
+        gameTime = (getElapsedTimems() - gameStart);
+        //updateCharacterMovement();
+        updateMovement();
+        updateCollision();
+
+        updateAsteroids();
+    }
+
+    if(getElapsedTimems() - lastTickrateCheck >= tickrateCheckIntervalms) {
+        tps = checkTickrate();
+        //console.log("tps: " + tps); // for debugging
+
+        // if(tps < tickSpeed) {
+        //     console.log("LOW TPS: " + tps); // for debugging
+        // }
+    }
+
+    if(getElapsedTimems() - lastFrameCheck >= frameCheckIntervalms) {
+        framesPerSecond = checkFPS();
+    }
+
+    if(frameFinished) {
+        drawFrame();
+    }
+    else {
+        console.log("frame dropped"); // fordebugging
+        droppedFrames++;
+    }
+
+    ticksSenseLastCheck++;
+}// tick()
 
 /*----- Update End -----*/
 
@@ -528,8 +608,11 @@ function newGame() {
     minAsteroids = 0;
     resetControlIntervals();
 
+    canShoot = true;
+
     currentController = new KeyController(gameControlScheme);
-    updateInterval = clearInterval(updateInterval);
+    frameInterval = clearInterval(frameInterval);
+    tickInterval = clearInterval(tickInterval);
     gameStatus = "game";
     currentMenu.hide();
     currentMenu = undefined;
@@ -554,8 +637,8 @@ function newGame() {
 
 
     // start update interval
-    updateInterval = setInterval(updateScreen, 1000/60);
-    startGameTime();
+    tickInterval = setInterval(tick, 1000/tickSpeed);
+    //frameInterval = setInterval(updateScreen, 1000/framerate);
 }// newGame()
 
 /* ------------------------------- Menu start ------------------------------- */
@@ -594,10 +677,9 @@ var gameControlScheme = [
         if(!ship) return;
         arrowUpPressed = true;
         if(fInterval) return;
-        ship.forward(acceleration);
-        fInterval = setInterval(() => {ship.forward(acceleration);}, 1000/60);
-        //ship.forward(acceleration);
-        
+        ship.forward(shipAcceleration);
+        fInterval = setInterval(() => {ship.forward(shipAcceleration);}, 1000/tickSpeed);
+        //ship.forward(shipAcceleration);
     }, 
     () => {
         arrowUpPressed = false;
@@ -610,9 +692,9 @@ var gameControlScheme = [
         if(!ship) return;
         arrowDownPressed = true;
         if(bInterval) return;
-        ship.forward(0-acceleration);
-        bInterval = setInterval(() => {ship.forward(0-acceleration);}, 1000/60);
-        //ship.forward(0-acceleration);
+        ship.forward(0-shipAcceleration);
+        bInterval = setInterval(() => {ship.forward(0-shipAcceleration);}, 1000/tickSpeed);
+        //ship.forward(0-shipAcceleration);
     }, 
     () => {
         arrowDownPressed = false;
@@ -626,7 +708,7 @@ var gameControlScheme = [
         arrowLeftPressed = true;
         if(lInterval) return;
         ship.turnLeft();
-        lInterval = setInterval(() => {ship.turnLeft();}, 1000/60);
+        lInterval = setInterval(() => {ship.turnLeft();}, 1000/tickSpeed);
         //ship.turnLeft();
     }, 
     () => {
@@ -641,7 +723,7 @@ var gameControlScheme = [
         arrowRightPressed = true;
         if(rInterval) return;
         ship.turnRight();
-        rInterval = setInterval(() => {ship.turnRight();}, 1000/60);
+        rInterval = setInterval(() => {ship.turnRight();}, 1000/tickSpeed);
         //ship.turnRight();
     }, 
     () => {
@@ -822,9 +904,21 @@ function init() {
         spawnAsteroid();
     }
 
-    updateInterval = setInterval(updateScreen, 1000/60);
+    tickInterval = setInterval(tick, 1000/tickSpeed);
+    //frameInterval = setInterval(updateScreen, 1000/framerate);
     currentController = new KeyController(menuControlScheme);
     mainMenu();
+
+    /*
+    getElapsedTimems() = 0;
+    setInterval(() => {
+        if(getElapsedTimems() >=  Number.MAX_SAFE_INTEGER - 10) { // I don't really need to worry about this as the max integer measured in MILISECONDS is equivalent to almost 300,000 years but if some one is willing to play my game for that long, I'm not gonna stop them. ¯\_(ツ)_/¯
+            getElapsedTimems() = 0;
+        } else {
+            getElapsedTimems() += 10;
+        }
+    }, 10);
+    */
 }// init()
 
 init();
@@ -832,6 +926,6 @@ init();
 /*
 todo:
     - add a how to play
-    - add control schemes
-    - optimize for better framerate when there are a lot of asteroids
+    - optimize for better framerate when there are a lot of asteroids (sorta finished)
+        > attempt to add a dynamic framerate system independant of internal update speed
 */
