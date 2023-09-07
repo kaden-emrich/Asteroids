@@ -57,7 +57,7 @@ var isFullscreen = false;
 
 /*----- Game Settings -----*/
 
-var tickSpeed = 120;
+var tickSpeed = 60;
 
 var viewType = 1;
 var pointSize = 10;
@@ -88,12 +88,12 @@ var noClip = false;
 
 var hideCursorOnKeyboardInput = true;
 
-var shipSpeed = 10;
-var laserSpeed = 10;
-var asteroidSpeed = 1;
+var shipSpeed = 20;
+var laserSpeed = 20;
+var asteroidSpeed = 2;
 var velocityLimit = 30;
-var turnSpeed = 2.5;
-var shipAcceleration = 0.05;
+var turnSpeed = 5;
+var shipAcceleration = 0.2;
 
 var currentPalette;
 var shipSkin;
