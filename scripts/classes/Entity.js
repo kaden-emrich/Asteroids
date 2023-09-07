@@ -256,13 +256,15 @@ class Entity {
     }// checkDistanceCollision()
 
     checkAllDistColision() {
+        let colisions = [];
+
         for(let i = 0; i < entities.length; i++) {
             if(entities[i] != null && i != this.id && this.checkDistanceColision(entities[i])) {
-                return entities[i];
+                colisions[colisions.length] = entities[i];
             }
         }
 
-        return null;
+        return colisions;
     }// checkAllDistColision()
 
     boxIsTouching(e2) {

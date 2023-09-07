@@ -398,26 +398,26 @@ async function updateAlert() {
     return;
 }// updateAlert()
 
-function updateScreen() {
-    if(!trippyMode) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+// function updateScreen() {
+//     if(!trippyMode) {
+//         ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     }
 
-    fontSize = canvas.height * 1 / 20;
-    updateSize();
+//     fontSize = canvas.height * 1 / 20;
+//     updateSize();
 
-    drawEntities();
+//     drawEntities();
 
-    updateAlert();
+//     updateAlert();
 
-    //if(currentMenu) currentMenu.draw();
-    if(!currentMenu) drawStats();
-    else {
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }    
-}// updateScreen()
+//     //if(currentMenu) currentMenu.draw();
+//     if(!currentMenu) drawStats();
+//     else {
+//         ctx.shadowBlur = 0;
+//         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+//         ctx.fillRect(0, 0, canvas.width, canvas.height)
+//     }    
+// }// updateScreen()
 
 function checkFPS() {
     let output = framesSenseLastCheck / ((getElapsedTimems() - lastFrameCheck) / 1000);
