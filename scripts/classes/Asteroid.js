@@ -43,12 +43,12 @@ class Asteroid extends Entity {
         this.forward(speed);
     }// constructor(x, y, dir, speed, size)
 
-    updateColision() {
-        let colisions = this.checkAllDistColision();
+    updateCollision() {
+        let collisions = this.checkAllDistCollision();
 
-        if(this == null || colisions.length < 1) return;   
+        if(this == null || collisions.length < 1) return;   
 
-        for(let c of colisions) {
+        for(let c of collisions) {
             if(c == null || c.type == "asteroid") {
                 continue;
             }
@@ -59,7 +59,7 @@ class Asteroid extends Entity {
                 }
                 return;
             }
-            else if(c.type == "laser" && this.checkDistanceColision(c)) {
+            else if(c.type == "laser" && this.checkDistanceCollision(c)) {
                 entities[c.id] = null;
                 score += 100;
                 
@@ -76,7 +76,7 @@ class Asteroid extends Entity {
                 entities[this.id] = null;
             }
         }
-    }// updateColision()
+    }// updateCollision()
 
     // draw() {
     //     super.drawWrap();

@@ -11,8 +11,8 @@ class Ship extends Entity {
 
     async draw() {
         if(noClip) {
-            var colision = this.checkLineColision();
-            if(colision != null && colision.type == "asteroid") {
+            var collision = this.checkLineCollision();
+            if(collision != null && collision.type == "asteroid") {
                 this.color = "#f00";
             }
             else {

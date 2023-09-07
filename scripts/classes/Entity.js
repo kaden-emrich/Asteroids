@@ -247,7 +247,7 @@ class Entity {
         ctx.globalAlpha = 1;
     }// drawMaxDeviation()
 
-    checkDistanceColision(e2) {
+    checkDistanceCollision(e2) {
         var dist = new Line(new PointValue(this.x, this.y), new PointValue(e2.x, e2.y)).getLength();
         if(dist <= this.maxDeviation + e2.maxDeviation) {
             return true;
@@ -255,17 +255,17 @@ class Entity {
         return false;
     }// checkDistanceCollision()
 
-    checkAllDistColision() {
-        let colisions = [];
+    checkAllDistCollision() {
+        let collisions = [];
 
         for(let i = 0; i < entities.length; i++) {
-            if(entities[i] != null && i != this.id && this.checkDistanceColision(entities[i])) {
-                colisions[colisions.length] = entities[i];
+            if(entities[i] != null && i != this.id && this.checkDistanceCollision(entities[i])) {
+                collisions[collisions.length] = entities[i];
             }
         }
 
-        return colisions;
-    }// checkAllDistColision()
+        return collisions;
+    }// checkAllDistCollision()
 
     boxIsTouching(e2) {
         var objectA = this.getBoundingBox();
@@ -283,7 +283,7 @@ class Entity {
         return false;
     }// boxIsTouching(e2)
 
-    checkBoxColision() {
+    checkBoxCollision() {
         for(let i = 0; i < entities.length; i++) {
             if(entities[i] != null && i != this.id) {
                 var objectA = this.getBoundingBox();
@@ -302,7 +302,7 @@ class Entity {
         }
 
         return null;
-    }// checkBoxColision()
+    }// checkBoxCollision()
 
     isTouching(e2) {
         // get bounding total bounding box
@@ -319,7 +319,7 @@ class Entity {
                 xMin = e2.getBoundingBox()[i].x;
         }
         
-        // do line colision
+        // do line collision
         var numIntersects = 0;
         for(let i = 0; i < this.getPoints().length; i++) {
             let tpoint = this.getPoints()[i];
@@ -343,7 +343,7 @@ class Entity {
         return false;
     }// isTouching(e2)
 
-    checkLineColision() {
+    checkLineCollision() {
         for(let i = 0; i < entities.length; i++) {
             if(entities[i] != null && i != this.id) {
                 if(this.isTouching(entities[i])) return entities[i];
@@ -351,7 +351,7 @@ class Entity {
         }
 
         return null;
-    }// checkLineColision()
+    }// checkLineCollision()
 
     kill() {
         entities[this.id] = null;

@@ -170,13 +170,13 @@ function updateMovement() {
     }
 }// updateMovement()
 
-function updateColision() {
+function updateCollision() {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null && entities[i].type == "asteroid") {
-            entities[i].updateColision();
+            entities[i].updateCollision();
         }
     }
-}// updateColision()
+}// updateCollision()
 
 function updateFullScreen() {
     var h = 1000;
@@ -466,7 +466,7 @@ function tick() {
         gameTime = (getElapsedTimems() - gameStart);
         //updateCharacterMovement();
         updateMovement();
-        updateColision();
+        updateCollision();
 
         updateAsteroids();
     }
