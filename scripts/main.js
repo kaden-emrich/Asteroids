@@ -1,18 +1,20 @@
 // Kaden Emrich
 
+var gameStart = 0;
 var gameTime = 0;
 var gameTimeInterval;
-var spawnTimeCounter = 0;
 var spawnTime = 100;
-
-var clock = 0;
 
 var canShoot = true;
 
 var frameFinished = true;
-var lastFrameTime = 0;
-var lastFrame = 0;
+var lastFrameCheck = 0;
+var framesSenseLastCheck = 0;
 var framesPerSecond = 0;
+
+var lastTickrateCheck = 0;
+var ticksSenseLastCheck = 0;
+var tps = 0;
 
 var lastGameResult = "";
 
@@ -28,21 +30,7 @@ function calcAccuracy() {
     let acc = Math.floor(score / shotsFired);
     if(!acc) return 0;
     else return acc;
-}
-
-function startGameTime() {
-    gameTimeInterval = setInterval(() => {
-        gameTime += 0.01;
-
-        // if(spawnTimeCounter >= spawnTime) {
-        //     spawnTimeCounter = 0;
-        //     spawnAsteroid();
-        // }
-        // else {
-        //     spawnTimeCounter++;
-        // }
-    }, 10);
-}// startGameTime()
+}// calcAccuracy()
 
 function pauseGameTime() {
     clearInterval(gameTimeInterval);
@@ -50,10 +38,8 @@ function pauseGameTime() {
 }// pauseGameTime()
 
 function resetGameTime() {
-    spawnTimeCounter = 0;
     gameTime = 0;
-    clearInterval(gameTimeInterval);
-    gameTimeInterval = undefined;
+    gameStart = getElapsedTimems();
     //console.log(gameTimeInterval);
 }// resetGameTime()
 
@@ -71,12 +57,12 @@ function resetControlIntervals() {
 
 function pause() {
     if(paused == true) {
+        gameStart = getElapsedTimems() - gameTime;
         currentMenu.hide();
         resetControlIntervals();
         currentController = new KeyController(gameControlScheme);
         paused = false;
         currentMenu = undefined;
-        startGameTime();
     }
     else {
         paused = true;
@@ -123,7 +109,7 @@ function spawnAsteroid() {
 /*----- Update -----*/
 
 function gameEnd() {
-    var finalGameTime = gameTime;
+    var finalGameTime = gameTime / 1000;
     lastGameResult = "score: " + score + "\naccuracy: " + calcAccuracy() + "%\n time: " + finalGameTime.toFixed(1) + "s";
     resetGameTime();
     resetControlIntervals();
@@ -342,7 +328,7 @@ function drawStats() {
         ctx.fillStyle = palettes[currentPalette].text;
         fontSize = canvas.height / 15;
         ctx.font = fontSize + "px " + fontFamily;
-        ctx.fillText(gameTime.toFixed(1), canvas.width/2, 10);
+        ctx.fillText((gameTime / 1000).toFixed(1), canvas.width/2, 10);
     }
 
     ctx.textAlign = "left";
@@ -356,17 +342,24 @@ function drawStats() {
     ctx.fillText("accuracy: " + calcAccuracy() + "%", 10, fontSize + 20);
 
     if(showExtraStats) {
-        ctx.fillStyle = palettes[currentPalette].text;
-        ctx.fillText("fps: " + framesPerSecond.toFixed(0), 10, fontSize*2 + 30);
+        
 
         ctx.fillStyle = palettes[currentPalette].text;
-        ctx.fillText("asteroids: " + getNumAsteroids(), 10, fontSize*3 + 40);
+        ctx.fillText("asteroids: " + getNumAsteroids(), 10, fontSize*2 + 30);
 
         ctx.fillStyle = palettes[currentPalette].text;
-        ctx.fillText("difficulty: " + minAsteroids, 10, fontSize*4 + 50);
+        ctx.fillText("difficulty: " + minAsteroids, 10, fontSize*3 + 40);
 
-        ctx.fillStyle = palettes[currentPalette].text;
-        ctx.fillText("clock: " + clock, 10, fontSize*5 + 60);
+        if(showNerdyStats) {
+            ctx.fillStyle = palettes[currentPalette].text;
+            ctx.fillText("fps: " + framesPerSecond.toFixed(0), 10, fontSize*4 + 50);
+
+            ctx.fillStyle = palettes[currentPalette].text;
+            ctx.fillText("tps: " + tps.toFixed(0), 10, fontSize*5 + 60);
+
+            ctx.fillStyle = palettes[currentPalette].text;
+            ctx.fillText("Elapsed Time: " + (getElapsedTimems() / 1000).toFixed(3), 10, fontSize*6 + 70);
+        }
     }
 }// drawStats()
 
@@ -426,14 +419,22 @@ function updateScreen() {
     }    
 }// updateScreen()
 
-async function drawFrame() {
-    // calculate fps
-    let frameTime = clock - lastFrame;
-    if(frameTime != 0) {
-        framesPerSecond = 1 / (frameTime / 1000);
-    }
+function checkFPS() {
+    let output = framesSenseLastCheck / ((getElapsedTimems() - lastFrameCheck) / 1000);
+    lastFrameCheck = getElapsedTimems();
+    framesSenseLastCheck = 0;
+    return output;
+}// checkFPS()
 
-    lastFrame = clock;
+function checkTickrate() {
+    let output = ticksSenseLastCheck / ((getElapsedTimems() - lastTickrateCheck) / 1000);
+    lastTickrateCheck = getElapsedTimems();
+    ticksSenseLastCheck = 0;
+    return output;
+}// checkTickrate()
+
+async function drawFrame() {
+    framesSenseLastCheck++;
 
     frameFinished = false;
     if(!trippyMode) {
@@ -462,6 +463,7 @@ async function drawFrame() {
 
 function tick() {
     if(!paused) {
+        gameTime = (getElapsedTimems() - gameStart);
         //updateCharacterMovement();
         updateMovement();
         updateColision();
@@ -469,9 +471,28 @@ function tick() {
         updateAsteroids();
     }
 
+    if(getElapsedTimems() - lastTickrateCheck >= tickrateCheckIntervalms) {
+        tps = checkTickrate();
+        //console.log("tps: " + tps); // for debugging
+
+        // if(tps < tickSpeed) {
+        //     console.log("LOW TPS: " + tps); // for debugging
+        // }
+    }
+
+    if(getElapsedTimems() - lastFrameCheck >= frameCheckIntervalms) {
+        framesPerSecond = checkFPS();
+    }
+
     if(frameFinished) {
         drawFrame();
     }
+    else {
+        console.log("frame dropped"); // fordebugging
+        droppedFrames++;
+    }
+
+    ticksSenseLastCheck++;
 }// tick()
 
 /*----- Update End -----*/
@@ -618,7 +639,6 @@ function newGame() {
     // start update interval
     tickInterval = setInterval(tick, 1000/tickSpeed);
     //frameInterval = setInterval(updateScreen, 1000/framerate);
-    startGameTime();
 }// newGame()
 
 /* ------------------------------- Menu start ------------------------------- */
@@ -884,20 +904,21 @@ function init() {
         spawnAsteroid();
     }
 
-    clock = 0;
-
-    setInterval(() => {
-        if(clock >=  Number.MAX_SAFE_INTEGER - 10) {
-            clock = 0;
-        } else {
-            clock += 10;
-        }
-    }, 10);
-
     tickInterval = setInterval(tick, 1000/tickSpeed);
     //frameInterval = setInterval(updateScreen, 1000/framerate);
     currentController = new KeyController(menuControlScheme);
     mainMenu();
+
+    /*
+    getElapsedTimems() = 0;
+    setInterval(() => {
+        if(getElapsedTimems() >=  Number.MAX_SAFE_INTEGER - 10) { // I don't really need to worry about this as the max integer measured in MILISECONDS is equivalent to almost 300,000 years but if some one is willing to play my game for that long, I'm not gonna stop them. ¯\_(ツ)_/¯
+            getElapsedTimems() = 0;
+        } else {
+            getElapsedTimems() += 10;
+        }
+    }, 10);
+    */
 }// init()
 
 init();

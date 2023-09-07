@@ -1,5 +1,16 @@
 // Kaden Emrich
 
+const startTime = Date.now();
+
+function getElapsedTimems() {
+    return Date.now() - startTime;
+}
+
+var frameCheckIntervalms = 500;
+var droppedFrames = 0;
+
+var tickrateCheckIntervalms = 500;
+
 var canvas = document.getElementById("game");
 var ctx = canvas.getContext("2d");
 ctx.imageSmothingEnabled = false;
@@ -47,7 +58,6 @@ var isFullscreen = false;
 /*----- Game Settings -----*/
 
 var tickSpeed = 120;
-var framerate = 60;
 
 var viewType = 1;
 var pointSize = 10;
@@ -55,7 +65,8 @@ var trippyMode = false;
 var showVelocity = false;
 var showMousePos = false;
 var showStats = true;
-var showExtraStats = true;
+var showExtraStats = false;
+var showNerdyStats = false;
 var showTime = true;
 var laserSight = false;
 
