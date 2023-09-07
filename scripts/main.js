@@ -172,7 +172,7 @@ function updateMovement() {
 
 function updateCollision() {
     for(let i = 0; i < entities.length; i++) {
-        if(entities[i] != null && entities[i].type == "asteroid") {
+        if(entities[i] != null && (entities[i].type == "ship" || entities[i].type == "laser")) {
             entities[i].updateCollision();
         }
     }

@@ -38,4 +38,23 @@ class Laser extends Entity {
         }
         return bBox;
     }// getBoundingBox()
+
+    updateCollision() {
+        let collisions = this.checkAllDistCollision();
+
+        if(this == null || collisions.length < 1) return;   
+
+        for(let c of collisions) {
+            if(c == null) {
+                continue;
+            }
+
+            if(c.type == "asteroid" && this.checkDistanceCollision(c)) {
+                entities[this.id] = null;
+                score += 100;
+
+                c.explode();
+            }
+        }
+    }// updateCollision()
 }// class Laser

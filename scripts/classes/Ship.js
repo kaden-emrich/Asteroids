@@ -39,6 +39,24 @@ class Ship extends Entity {
     shoot() {
         new Laser(this);
     }// shoot()
+
+    updateCollision() {
+        let collisions = this.checkAllDistCollision();
+
+        if(this == null || collisions.length < 1) return;   
+
+        for(let c of collisions) {
+            if(c == null) {
+                continue;
+            }
+
+            if(c.type == "asteroid" && !noClip && this.isTouching(c)) {
+                killPlayer();
+                
+                c.explode();
+            }
+        }
+    }// updateCollision()
 }// class Ship
 
 var shipPoints = [

@@ -43,6 +43,20 @@ class Asteroid extends Entity {
         this.forward(speed);
     }// constructor(x, y, dir, speed, size)
 
+    explode() {
+        if(this.size == 2) {
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
+        }
+        else if(this.size == 3) {
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
+        }
+
+        entities[this.id] = null;
+    }// explode()
+
     updateCollision() {
         let collisions = this.checkAllDistCollision();
 
@@ -56,6 +70,7 @@ class Asteroid extends Entity {
             if(c.type == "ship" && this.isTouching(c)) {
                 if(noClip == false) {
                     killPlayer();
+                    this.explode();
                 }
                 return;
             }
@@ -63,17 +78,7 @@ class Asteroid extends Entity {
                 entities[c.id] = null;
                 score += 100;
                 
-                if(this.size == 2) {this
-                    new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
-                    new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
-                    new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
-                }
-                if(this.size == 3) {
-                    new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
-                    new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
-                }
-
-                entities[this.id] = null;
+                this.explode();
             }
         }
     }// updateCollision()
