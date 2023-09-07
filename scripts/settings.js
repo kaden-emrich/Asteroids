@@ -47,7 +47,7 @@ var isFullscreen = false;
 /*----- Game Settings -----*/
 
 var tickSpeed = 120;
-var framerate = 70;
+var framerate = 60;
 
 var viewType = 1;
 var pointSize = 10;
@@ -55,6 +55,7 @@ var trippyMode = false;
 var showVelocity = false;
 var showMousePos = false;
 var showStats = true;
+var showExtraStats = true;
 var showTime = true;
 var laserSight = false;
 

@@ -7,13 +7,14 @@ var spawnTime = 100;
 
 var canShoot = true;
 
+var frameFinished = true;
+var lastFrame = 0;
+var framesPerSecond = 0;
+
 var lastGameResult = "";
 
 var minAsteroids = 1;
 var asteroidSpawnBuffer = true;
-
-var showStats = true;
-var showExtraStats = false;
 
 var fInterval; // For the game controll Scheme
 var bInterval;
@@ -351,10 +352,13 @@ function drawStats() {
 
     if(showExtraStats) {
         ctx.fillStyle = palettes[currentPalette].text;
-        ctx.fillText("asteroids: " + getNumAsteroids(), 10, fontSize*2 + 30);
+        ctx.fillText("fps: " + framesPerSecond.toFixed(0), 10, fontSize*2 + 30);
 
         ctx.fillStyle = palettes[currentPalette].text;
-        ctx.fillText("difficulty: " + minAsteroids, 10, fontSize*3 + 40);
+        ctx.fillText("asteroids: " + getNumAsteroids(), 10, fontSize*3 + 40);
+
+        ctx.fillStyle = palettes[currentPalette].text;
+        ctx.fillText("difficulty: " + minAsteroids, 10, fontSize*4 + 50);
     }
 }// drawStats()
 
@@ -413,13 +417,48 @@ function updateScreen() {
     }    
 }// updateScreen()
 
+function drawFrame() {
+    // calculate fps
+    let frameTime = lastFrame;
+    lastFrame = 0;
+    framesPerSecond = 1 / (frameTime / 1000);
+
+    frameFinished = false;
+    if(!trippyMode) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    fontSize = canvas.height * 1000 / 20;
+    updateSize();
+
+    drawEntities();
+
+    //if(currentMenu) currentMenu.draw();
+    if(!currentMenu) drawStats();
+    else {
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+
+    
+    updateAlert();
+
+    frameFinished = true;
+}// drawFrame()
+
 function tick() {
+    lastFrame += 1000/tickSpeed;
     if(!paused) {
         //updateCharacterMovement();
         updateMovement();
         updateColision();
 
         updateAsteroids();
+    }
+
+    if(frameFinished) {
+        drawFrame();
     }
 }// tick()
 
@@ -566,7 +605,7 @@ function newGame() {
 
     // start update interval
     tickInterval = setInterval(tick, 1000/tickSpeed);
-    frameInterval = setInterval(updateScreen, 1000/framerate);
+    //frameInterval = setInterval(updateScreen, 1000/framerate);
     startGameTime();
 }// newGame()
 
@@ -834,7 +873,7 @@ function init() {
     }
 
     tickInterval = setInterval(tick, 1000/tickSpeed);
-    frameInterval = setInterval(updateScreen, 1000/framerate);
+    //frameInterval = setInterval(updateScreen, 1000/framerate);
     currentController = new KeyController(menuControlScheme);
     mainMenu();
 }// init()
