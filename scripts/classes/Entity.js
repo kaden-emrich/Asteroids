@@ -253,6 +253,16 @@ class Entity {
         return false;
     }// checkDistanceCollision()
 
+    checkAllDistColision() {
+        for(let i = 0; i < entities.length; i++) {
+            if(entities[i] != null && i != this.id && this.checkDistanceColision(entities[i])) {
+                return entities[i];
+            }
+        }
+
+        return null;
+    }// checkAllDistColision()
+
     boxIsTouching(e2) {
         var objectA = this.getBoundingBox();
         var objectB = e2.getBoundingBox();

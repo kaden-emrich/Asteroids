@@ -196,17 +196,17 @@ function updateFullScreen() {
     //w = iw * h / ih
     
     canvas.width = w;
-    canvas.style.width = window.innerWidth + "px";
-    gameDiv.style.width = window.innerWidth + "px";
+    // canvas.style.width = window.innerWidth + "px";
+    // gameDiv.style.width = window.innerWidth + "px";
 
     canvas.height = h;
-    canvas.style.height = window.innerHeight + "px";
-    gameDiv.style.height = window.innerHeight + "px";
+    // canvas.style.height = window.innerHeight + "px";
+    // gameDiv.style.height = window.innerHeight + "px";
 
-    if(currentMenu) {
-        menuDiv.style.width = window.innerWidth + "px";
-        menuDiv.style.height = window.innerHeight + "px";
-    }
+    // if(currentMenu) {
+    //     menuDiv.style.width = window.innerWidth + "px";
+    //     menuDiv.style.height = window.innerHeight + "px";
+    // }
     
 }// updateFullScreen()
 
@@ -241,7 +241,7 @@ function updateSize() {
             gameDiv.style.width = w + "px";
         }
     }
-    gameDiv.style.margin = "auto";
+    //gameDiv.style.margin = "auto";
 }// updateSize()
 
 function getNumAsteroids() {
@@ -402,16 +402,15 @@ function updateScreen() {
 
     drawEntities();
 
+    updateAlert();
+
     //if(currentMenu) currentMenu.draw();
     if(!currentMenu) drawStats();
     else {
         ctx.shadowBlur = 0;
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
-
-    
-    updateAlert();
+    }    
 }// updateScreen()
 
 function tick() {
@@ -610,7 +609,6 @@ var gameControlScheme = [
         ship.forward(shipAcceleration);
         fInterval = setInterval(() => {ship.forward(shipAcceleration);}, 1000/tickSpeed);
         //ship.forward(shipAcceleration);
-        
     }, 
     () => {
         arrowUpPressed = false;

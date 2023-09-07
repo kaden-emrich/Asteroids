@@ -44,9 +44,9 @@ class Asteroid extends Entity {
     }// constructor(x, y, dir, speed, size)
 
     updateColision() {
-        var colision = this.checkBoxColision();
+        var colision = this.checkAllDistColision();
 
-        if(this == null || colision == null || colision.type == null) return;
+        if(this == null || colision == null || colision.type == null) return;   
 
         for(let i = 0; i < entities.length; i++) {
             if(entities[i] != null) {
