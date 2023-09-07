@@ -5,9 +5,12 @@ var gameTimeInterval;
 var spawnTimeCounter = 0;
 var spawnTime = 100;
 
+var clock = 0;
+
 var canShoot = true;
 
 var frameFinished = true;
+var lastFrameTime = 0;
 var lastFrame = 0;
 var framesPerSecond = 0;
 
@@ -29,7 +32,7 @@ function calcAccuracy() {
 
 function startGameTime() {
     gameTimeInterval = setInterval(() => {
-        gameTime += 0.1;
+        gameTime += 0.01;
 
         // if(spawnTimeCounter >= spawnTime) {
         //     spawnTimeCounter = 0;
@@ -38,7 +41,7 @@ function startGameTime() {
         // else {
         //     spawnTimeCounter++;
         // }
-    }, 100);
+    }, 10);
 }// startGameTime()
 
 function pauseGameTime() {
@@ -208,16 +211,16 @@ function updateFullScreen() {
     //     menuDiv.style.width = window.innerWidth + "px";
     //     menuDiv.style.height = window.innerHeight + "px";
     // }
-    
+    return;
 }// updateFullScreen()
 
-function updateSize() {
+async function updateSize() {
     var h = window.innerHeight;
     var w = window.innerWidth;
 
     
     if(viewType == 1) {
-        updateFullScreen();
+        await updateFullScreen();
         ctx.lineWidth = Math.floor(canvas.height / 250);
     }
     else {
@@ -243,6 +246,7 @@ function updateSize() {
         }
     }
     //gameDiv.style.margin = "auto";
+    return;
 }// updateSize()
 
 function getNumAsteroids() {
@@ -306,16 +310,17 @@ function updateAsteroids() {
     // }
 }// updateAsteroids()
 
-function drawEntities() {
+async function drawEntities() {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
-            entities[i].draw();
+            await entities[i].draw();
 
             if(showBoundingBoxes) {
                 entities[i].drawBoundingBox();
             }
         }
     }
+    return;
 }// drawEntities()
 
 function drawStats() {
@@ -359,6 +364,9 @@ function drawStats() {
 
         ctx.fillStyle = palettes[currentPalette].text;
         ctx.fillText("difficulty: " + minAsteroids, 10, fontSize*4 + 50);
+
+        ctx.fillStyle = palettes[currentPalette].text;
+        ctx.fillText("clock: " + clock, 10, fontSize*5 + 60);
     }
 }// drawStats()
 
@@ -375,7 +383,7 @@ function newAlert(text, interval, length, callback) {
     alertCallback = callback;
 }// newAlert(text)
 
-function updateAlert() {
+async function updateAlert() {
     if(!currentAlert) return;
 
     if(alertTimer > alertLength) {
@@ -394,6 +402,7 @@ function updateAlert() {
     ctx.font = (fontSize * 4) + "px " + fontFamily;
 
     ctx.fillText(currentAlert, (canvas.width / 2), (canvas.height / 2));
+    return;
 }// updateAlert()
 
 function updateScreen() {
@@ -417,38 +426,41 @@ function updateScreen() {
     }    
 }// updateScreen()
 
-function drawFrame() {
+async function drawFrame() {
     // calculate fps
-    let frameTime = lastFrame;
-    lastFrame = 0;
-    framesPerSecond = 1 / (frameTime / 1000);
+    let frameTime = clock - lastFrame;
+    if(frameTime != 0) {
+        framesPerSecond = 1 / (frameTime / 1000);
+    }
+
+    lastFrame = clock;
 
     frameFinished = false;
     if(!trippyMode) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        await ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     fontSize = canvas.height * 1000 / 20;
-    updateSize();
+    await updateSize();
 
-    drawEntities();
+    await drawEntities();
 
     //if(currentMenu) currentMenu.draw();
     if(!currentMenu) drawStats();
     else {
         ctx.shadowBlur = 0;
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        await ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
 
     
-    updateAlert();
+    await updateAlert();
 
     frameFinished = true;
+    return;
 }// drawFrame()
 
 function tick() {
-    lastFrame += 1000/tickSpeed;
     if(!paused) {
         //updateCharacterMovement();
         updateMovement();
@@ -871,6 +883,16 @@ function init() {
     for(let i = 0; i < 3; i++) {
         spawnAsteroid();
     }
+
+    clock = 0;
+
+    setInterval(() => {
+        if(clock >=  Number.MAX_SAFE_INTEGER - 10) {
+            clock = 0;
+        } else {
+            clock += 10;
+        }
+    }, 10);
 
     tickInterval = setInterval(tick, 1000/tickSpeed);
     //frameInterval = setInterval(updateScreen, 1000/framerate);

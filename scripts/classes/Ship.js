@@ -9,7 +9,7 @@ class Ship extends Entity {
         this.dir = 135;
     }// constructor
 
-    draw() {
+    async draw() {
         if(noClip) {
             var colision = this.checkLineColision();
             if(colision != null && colision.type == "asteroid") {
@@ -19,7 +19,7 @@ class Ship extends Entity {
                 this.color = "#fff";
             }
         }
-        super.draw(this.x, this.y, this.dir, this.color);
+        await super.draw(this.x, this.y, this.dir, this.color);
 
         if(laserSight) {
             ctx.globalAlpha = 0.5;
@@ -33,6 +33,7 @@ class Ship extends Entity {
             
             ctx.globalAlpha = 1;
         }
+        return;
     }// draw()
 
     shoot() {

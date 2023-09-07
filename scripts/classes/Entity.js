@@ -138,8 +138,8 @@ class Entity {
         }
     }// updatePosition()
 
-    draw() {
-        this.shape.draw(this.x, this.y, this.dir, this.color);
+    async draw() {
+        await this.shape.draw(this.x, this.y, this.dir, this.color);
 
         if(showVelocity) {
             ctx.strokeStyle = "#00f";
@@ -162,6 +162,8 @@ class Entity {
         if(showMaxDeviation) {
             this.drawMaxDeviation();
         }
+
+        return;
     }// draw()*/
 
     drawWrap() {

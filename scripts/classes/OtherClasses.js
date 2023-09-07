@@ -151,22 +151,23 @@ class Shape {
         return maxPointDeviation;
     }// getMaxPointDeviation()
 
-    draw(x, y, dir, color) {
+    async draw(x, y, dir, color) {
         ctx.fillStyle = color;
         ctx.strokeStyle = color;
         ctx.shadowColor = color;
         ctx.shadowBlur = 10;
 
-        ctx.beginPath();
+        await ctx.beginPath();
 
-        ctx.moveTo(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)), y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
+        await ctx.moveTo(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)), y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
         for(let i = 1; i < this.points.length; i++) {
-            ctx.lineTo(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)), y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
+            await ctx.lineTo(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)), y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
         }
 
-        ctx.closePath();
+        await ctx.closePath();
 
-        ctx.stroke();
+        await ctx.stroke();
+        return;
     }// draw()
 
     // drawWrap(x, y, dir, color) {
