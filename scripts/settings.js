@@ -66,7 +66,7 @@ var showVelocity = false;
 var showMousePos = false;
 var showStats = true;
 var showExtraStats = false;
-var showNerdyStats = false;
+var showNerdyStats = true;
 var showTime = true;
 var laserSight = false;
 
