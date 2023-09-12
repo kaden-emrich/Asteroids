@@ -12,7 +12,7 @@ var droppedFrames = 0;
 var tickrateCheckIntervalms = 500;
 
 var canvas = document.getElementById("game");
-var ctx = canvas.getContext("2d");
+var ctx = canvas.getContext("2d", { alpha: false });
 ctx.imageSmothingEnabled = false;
 
 var gameDiv = document.getElementById("gameDiv");   
