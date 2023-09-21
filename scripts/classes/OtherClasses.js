@@ -159,9 +159,16 @@ class Shape {
 
         await ctx.beginPath();
 
-        await ctx.moveTo(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)), y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
+        let pointX = Math.floor(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)));
+        let pointY = Math.floor(y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
+
+        await ctx.moveTo(pointX, pointY);
+
         for(let i = 1; i < this.points.length; i++) {
-            await ctx.lineTo(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)), y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
+            pointX = Math.floor(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)));
+            pointY = Math.floor(y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
+
+            await ctx.lineTo(pointX, pointY);
         }
 
         await ctx.closePath();
