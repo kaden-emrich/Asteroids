@@ -5,6 +5,8 @@ var gameTime = 0;
 var gameTimeInterval;
 var spawnTime = 100;
 
+var urlParams = new URLSearchParams(window.location.search);
+
 var canShoot = true;
 
 var frameFinished = true;
@@ -900,14 +902,30 @@ var Menus = {
 // inits
 function init() {
     shipSkin = 0;
+
+    tick();
+    tickInterval = setInterval(tick, 1000/tickSpeed);
+    updateSize();
+
+    //frameInterval = setInterval(updateScreen, 1000/framerate);
+    currentController = new KeyController(menuControlScheme);
+    mainMenu();
+
     for(let i = 0; i < 3; i++) {
         spawnAsteroid();
     }
 
-    tickInterval = setInterval(tick, 1000/tickSpeed);
-    //frameInterval = setInterval(updateScreen, 1000/framerate);
-    currentController = new KeyController(menuControlScheme);
-    mainMenu();
+    if(urlParams.get('background') == 'true') {
+        currentMenu.hide();
+        currentMenu = undefined;
+
+        showStats = false;
+
+        for(let i = 0; i < 4; i++) {
+            spawnAsteroid();
+        }
+
+    }
 
     /*
     getElapsedTimems() = 0;
