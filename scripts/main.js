@@ -909,15 +909,15 @@ function init() {
 
     //frameInterval = setInterval(updateScreen, 1000/framerate);
     currentController = new KeyController(menuControlScheme);
-    mainMenu();
+
+    //mainMenu();
 
     for(let i = 0; i < 3; i++) {
         spawnAsteroid();
     }
 
     if(urlParams.get('background') == 'true') {
-        currentMenu.hide();
-        currentMenu = undefined;
+        menuDiv.style.display = "none";
 
         showStats = false;
 
@@ -925,6 +925,10 @@ function init() {
             spawnAsteroid();
         }
 
+    }
+    else {
+        menuDiv.style = "opacity: 100;";
+        mainMenu();
     }
 
     /*
