@@ -23,7 +23,7 @@ class Ship extends Entity {
 
         if(laserSight) {
             ctx.globalAlpha = 0.5;
-            ctx.shadowBlur = 0;
+            // ctx.shadowBlur = 0;
             ctx.strokeStyle = "#0f0";
 
             ctx.beginPath();
