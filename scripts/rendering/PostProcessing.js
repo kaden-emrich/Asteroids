@@ -40,6 +40,8 @@ function testRenderer(ctx) {
     let iData = ctx.createImageData(width, height);
     prepareImageData(iData);
 
+    //console.log(iData);
+
     //redTest(iData);
 
     ctx.putImageData(iData, 0, 0);

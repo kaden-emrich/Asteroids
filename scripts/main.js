@@ -459,7 +459,7 @@ async function drawFrame() {
     
     await updateAlert();
 
-    testRenderer(ctx);
+    //testRenderer(ctx);
 
     frameFinished = true;
     return;
