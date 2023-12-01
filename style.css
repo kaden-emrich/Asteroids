@@ -14,7 +14,7 @@ body {
 
 #layer2-game {
     position: absolute;
-    filter: blur(7px);
+    filter: blur(5px);
     opacity: 1;
     width: 100vw;
     height: 100vh;
