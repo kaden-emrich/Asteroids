@@ -12,6 +12,14 @@ body {
     src: url("fonts/munro/munro.ttf");
 }
 
+#layer2-game {
+    position: absolute;
+    filter: blur(5px);
+    opacity: 1;
+    width: 100vw;
+    height: 100vh;
+}
+
 #gameDiv {
     position: absolute;
     width: 100vw;
@@ -32,6 +40,7 @@ body {
 #menuDiv {
     display: none;
     position: absolute;
+    z-index: 5;
     width: 100vw;
     height: 100vh;
     top: 0;

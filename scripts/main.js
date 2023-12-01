@@ -208,7 +208,7 @@ async function updateSize() {
 
     
     if(viewType == 1) {
-        await updateFullScreen();
+        updateFullScreen();
         ctx.lineWidth = Math.floor(canvas.height / 250);
     }
     else {
@@ -234,6 +234,14 @@ async function updateSize() {
         }
     }
     //gameDiv.style.margin = "auto";
+
+    layer2Canvas.style.innerWidth = canvas.style.innerWidth;
+    layer2Canvas.style.innerHeight = canvas.style.innerHeight;
+    layer2Canvas.style.width = canvas.style.width;
+    layer2Canvas.style.height = canvas.style.height;
+    layer2Canvas.width = canvas.width;
+    layer2Canvas.height = canvas.height;
+
     return;
 }// updateSize()
 
@@ -313,7 +321,7 @@ async function drawEntities() {
 
 function drawStats() {
     if(!showStats) return;
-    ctx.shadowBlur = 10;
+    // ctx.shadowBlur = 10;
 
     fontSize = canvas.height / 20;
     ctx.font = fontSize + "px " + fontFamily;
@@ -321,7 +329,7 @@ function drawStats() {
     ctx.textAlign = "left";
 
     ctx.fillStyle = palettes[currentPalette].text;
-    ctx.shadowColor = palettes[currentPalette].text;
+    // ctx.shadowColor = palettes[currentPalette].text;
         
     ctx.fillText("score: " + score, 10, 10);
 
@@ -451,13 +459,16 @@ async function drawFrame() {
     //if(currentMenu) currentMenu.draw();
     if(!currentMenu) drawStats();
     else {
-        ctx.shadowBlur = 0;
+        // ctx.shadowBlur = 0;
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         await ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
 
     
     await updateAlert();
+
+    //testRenderer(ctx);
+    l2ctx.drawImage(canvas, 0, 0);
 
     frameFinished = true;
     return;

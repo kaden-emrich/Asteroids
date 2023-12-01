@@ -185,7 +185,7 @@ class Entity {
 
         if(showVelocity) {
             ctx.globalAlpha = 0.5;
-            ctx.shadowBlur = 0;
+            // ctx.shadowBlur = 0;
             ctx.strokeStyle = "#00f";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
@@ -206,8 +206,8 @@ class Entity {
 
         ctx.globalAlpha = 0.5;
         ctx.strokeStyle = boundingBoxColor;
-        ctx.shadowStyle = boundingBoxColor;
-        ctx.shadowBlur = 0;
+        // ctx.shadowStyle = boundingBoxColor;
+        // ctx.shadowBlur = 0;
         
         ctx.beginPath();
         ctx.moveTo(bBox[0].x, bBox[0].y);
@@ -223,8 +223,8 @@ class Entity {
     drawStandardDeviation() {
         ctx.globalAlpha = 0.5;
         ctx.strokeStyle = standardDeviationColor;
-        ctx.shadowStyle = standardDeviationColor;
-        ctx.shadowBlur = 0;
+        // ctx.shadowStyle = standardDeviationColor;
+        // ctx.shadowBlur = 0;
         
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.standardDeviation, 0, 2 * Math.PI);
@@ -236,8 +236,8 @@ class Entity {
     drawMaxDeviation() {
         ctx.globalAlpha = 0.5;
         ctx.strokeStyle = maxDeviationColor;
-        ctx.shadowStyle = maxDeviationColor;
-        ctx.shadowBlur = 0;
+        // ctx.shadowStyle = maxDeviationColor;
+        // ctx.shadowBlur = 0;
         
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.maxDeviation, 0, 2 * Math.PI);

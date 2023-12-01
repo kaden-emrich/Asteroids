@@ -154,8 +154,8 @@ class Shape {
     async draw(x, y, dir, color) {
         ctx.fillStyle = color;
         ctx.strokeStyle = color;
-        ctx.shadowColor = color;
-        ctx.shadowBlur = 10;
+        // ctx.shadowColor = color;
+        // ctx.shadowBlur = 10;
 
         await ctx.beginPath();
 

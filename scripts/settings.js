@@ -12,10 +12,13 @@ var droppedFrames = 0;
 var tickrateCheckIntervalms = 500;
 
 var canvas = document.getElementById("game");
+var layer2Canvas = document.getElementById('layer2-game')   
 var ctx = canvas.getContext("2d");
+var l2ctx = layer2Canvas.getContext("2d");
 ctx.imageSmothingEnabled = false;
+//l2ctx.imageSmothingEnabled = false;
 
-var gameDiv = document.getElementById("gameDiv");   
+var gameDiv = document.getElementById("gameDiv");
 
 var menuDiv = document.getElementById("menuDiv");
 
@@ -69,6 +72,8 @@ var showExtraStats = false;
 var showNerdyStats = true;
 var showTime = true;
 var laserSight = false;
+
+var bloom = false;
 
 var shootCooldownMS = 300;
 
