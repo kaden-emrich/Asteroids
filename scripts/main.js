@@ -208,7 +208,7 @@ async function updateSize() {
 
     
     if(viewType == 1) {
-        await updateFullScreen();
+        updateFullScreen();
         ctx.lineWidth = Math.floor(canvas.height / 250);
     }
     else {
@@ -234,6 +234,14 @@ async function updateSize() {
         }
     }
     //gameDiv.style.margin = "auto";
+
+    layer2Canvas.style.innerWidth = canvas.style.innerWidth;
+    layer2Canvas.style.innerHeight = canvas.style.innerHeight;
+    layer2Canvas.style.width = canvas.style.width;
+    layer2Canvas.style.height = canvas.style.height;
+    layer2Canvas.width = canvas.width;
+    layer2Canvas.height = canvas.height;
+
     return;
 }// updateSize()
 
@@ -460,6 +468,7 @@ async function drawFrame() {
     await updateAlert();
 
     //testRenderer(ctx);
+    l2ctx.drawImage(canvas, 0, 0);
 
     frameFinished = true;
     return;
