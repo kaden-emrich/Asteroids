@@ -70,6 +70,8 @@ var showNerdyStats = true;
 var showTime = true;
 var laserSight = false;
 
+var bloom = false;
+
 var shootCooldownMS = 300;
 
 var showBoundingBoxes = false;
