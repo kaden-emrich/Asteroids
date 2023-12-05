@@ -235,12 +235,14 @@ async function updateSize() {
     }
     //gameDiv.style.margin = "auto";
 
-    layer2Canvas.style.innerWidth = canvas.style.innerWidth;
-    layer2Canvas.style.innerHeight = canvas.style.innerHeight;
-    layer2Canvas.style.width = canvas.style.width;
-    layer2Canvas.style.height = canvas.style.height;
-    layer2Canvas.width = canvas.width;
-    layer2Canvas.height = canvas.height;
+    if(imgBloom) {
+        layer2Canvas.style.innerWidth = canvas.style.innerWidth;
+        layer2Canvas.style.innerHeight = canvas.style.innerHeight;
+        layer2Canvas.style.width = canvas.style.width;
+        layer2Canvas.style.height = canvas.style.height;
+        layer2Canvas.width = canvas.width;
+        layer2Canvas.height = canvas.height;
+    }
 
     return;
 }// updateSize()
@@ -468,7 +470,13 @@ async function drawFrame() {
     await updateAlert();
 
     //testRenderer(ctx);
-    l2ctx.drawImage(canvas, 0, 0);
+    if(imgBloom) {
+        layer2Canvas.style.display = "block";
+        l2ctx.drawImage(canvas, 0, 0);
+    }
+    else {
+        layer2Canvas.style.display = "none";
+    }
 
     frameFinished = true;
     return;
@@ -509,6 +517,17 @@ function tick() {
 }// tick()
 
 /*----- Update End -----*/
+
+function toggleBloom() {
+    if(imgBloom) {
+        imgBloom = false;
+    }
+    else {
+        imgBloom = true;
+    }
+
+    return imgBloom;
+}
 
 function toggleViewType() {
     if(viewType + 1 >= viewTypes.length) {
@@ -838,6 +857,12 @@ var Menus = {
                 temp.options[1].name = "ship skin: " + shipSkins[shipSkin].name;
                 menuButtons[1].innerText = temp.options[1].name;
                 //currentMenu.draw();
+            }),
+
+            new MenuOption("bloom: " + imgBloom, () => {
+                toggleBloom();
+                temp.options[2].name = "bloom: " + imgBloom;
+                menuButtons[2].innerText = "bloom: " + imgBloom;
             }),
 
             new MenuOption("back", returnFunc)

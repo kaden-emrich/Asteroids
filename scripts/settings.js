@@ -73,7 +73,7 @@ var showNerdyStats = true;
 var showTime = true;
 var laserSight = false;
 
-var bloom = false;
+var imgBloom = true;
 
 var shootCooldownMS = 300;
 
