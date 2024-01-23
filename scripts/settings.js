@@ -75,6 +75,8 @@ var showNerdyStats = true;
 var showTime = true;
 var laserSight = false;
 
+var showStars = false;
+
 var maxAsteroidTorque = 0.5;
 
 var imgBloom = true;
