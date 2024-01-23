@@ -459,11 +459,11 @@ async function drawFrame() {
 
     //if(currentMenu) currentMenu.draw();
     if(!currentMenu) drawStats();
-    else {
-        // ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        await ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
+    // else {
+    //     // ctx.shadowBlur = 0;
+    //     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+    //     await ctx.fillRect(0, 0, canvas.width, canvas.height)
+    // }
 
     
     await updateAlert();
