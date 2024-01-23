@@ -19,6 +19,7 @@ class Ship extends Entity {
                 this.color = "#fff";
             }
         }
+
         await super.draw(this.x, this.y, this.dir, this.color);
 
         if(laserSight) {
@@ -149,7 +150,8 @@ var shipSkins = [
 
     {
         name : "retro",
-        shape : new Shape(retroShipPoints)
+        shape : new Shape(retroShipPoints),
+        boosterShape : new Shape(retroBoosterShipPoints)
     },
 
     {

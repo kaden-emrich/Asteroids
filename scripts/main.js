@@ -712,11 +712,17 @@ var gameControlScheme = [
         arrowUpPressed = true;
         if(fInterval) return;
         ship.forward(shipAcceleration);
+
+        if(shipSkins[shipSkin].boosterShape) ship.shape = shipSkins[shipSkin].boosterShape;
+
         fInterval = setInterval(() => {ship.forward(shipAcceleration);}, 1000/tickSpeed);
         //ship.forward(shipAcceleration);
     }, 
     () => {
         arrowUpPressed = false;
+        
+        ship.shape = shipSkins[shipSkin].shape;
+
         clearInterval(fInterval);
         fInterval = undefined;
     }),
