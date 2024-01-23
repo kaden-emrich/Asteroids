@@ -465,7 +465,9 @@ async function drawFrame() {
     fontSize = canvas.height * 1000 / 20;
     await updateSize();
 
-    await drawStars();
+    if(showStars) {
+        await drawStars();
+    }
 
     await drawEntities();
 
