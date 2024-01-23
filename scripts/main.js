@@ -9,6 +9,8 @@ var urlParams = new URLSearchParams(window.location.search);
 
 var canShoot = true;
 
+var stars = [];
+
 var frameFinished = true;
 var lastFrameCheck = 0;
 var framesSenseLastCheck = 0;
@@ -444,6 +446,14 @@ function checkTickrate() {
     return output;
 }// checkTickrate()
 
+async function drawStars() {
+    for(let i = 0; i < stars.length; i++) {
+        await starShape.draw(stars[i].x, stars[i].y, 0, palettes[currentPalette].text);
+    }
+
+    return;
+}
+
 async function drawFrame() {
     framesSenseLastCheck++;
 
@@ -454,6 +464,8 @@ async function drawFrame() {
 
     fontSize = canvas.height * 1000 / 20;
     await updateSize();
+
+    await drawStars();
 
     await drawEntities();
 
@@ -638,6 +650,8 @@ function newGame() {
     resetGameTime();
     minAsteroids = 0;
     resetControlIntervals();
+
+    stars = generateStars(numStars);
 
     canShoot = true;
 
@@ -940,6 +954,18 @@ var Menus = {
     } 
 };
 
+function generateStars(num) {
+    var newStars = [];
+    for(let i = 0; i < num; i++) {
+        newStars.push({
+            x : Math.floor(Math.random() * canvas.width),
+            y : Math.floor(Math.random() * canvas.height)
+        });
+    }
+
+    return newStars;
+}
+
 // inits
 function init() {
     shipSkin = 0;
@@ -971,6 +997,8 @@ function init() {
         menuDiv.style = "opacity: 100;";
         mainMenu();
     }
+
+    stars = generateStars(numStars);
 
     /*
     getElapsedTimems() = 0;
