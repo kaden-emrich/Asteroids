@@ -369,10 +369,7 @@ function drawStats() {
             ctx.fillText("fps: " + framesPerSecond.toFixed(0), 10, fontSize*4 + 50);
 
             ctx.fillStyle = palettes[currentPalette].text;
-            ctx.fillText("tps: " + tps.toFixed(0), 10, fontSize*5 + 60);
-
-            ctx.fillStyle = palettes[currentPalette].text;
-            ctx.fillText("Elapsed Time: " + (getElapsedTimems() / 1000).toFixed(3), 10, fontSize*6 + 70);
+            ctx.fillText("Elapsed Time: " + (getElapsedTimems() / 1000).toFixed(3), 10, fontSize*5 + 60);
         }
     }
 }// drawStats()
@@ -792,7 +789,7 @@ var Menus = {
         return new Menu("asteroids", "a game by kaden", [
             new MenuOption("start", newGame), 
             new MenuOption("settings", settingsMenu), 
-            new MenuOption("credit", () => {
+            new MenuOption("info", () => {
                 currentMenu = Menus.credit(); 
                 currentMenu.draw();
             })
@@ -934,7 +931,7 @@ var Menus = {
     },
 
     credit : function() {
-        return new Menu("credit", "created by: kaden emrich\nadditional help: stack overflow", [
+        return new Menu("info", "created by: kaden emrich \n " + RELEASE_VERSION, [
             new MenuOption("go to website", () => {
                 window.open('https://kadenemrich.com', '_blank');
             }), 

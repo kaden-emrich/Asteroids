@@ -161,13 +161,13 @@ var breadShipPoints = [
 
 var shipSkins = [
     {
-        name : "classic",
+        name : "default",
         shape : new Shape(classicShipPoints),
         boosterShape : new Shape(classicBoosterShipPoints)
     },
 
     {
-        name : "retro",
+        name : "classic",
         shape : new Shape(retroShipPoints),
         boosterShape : new Shape(retroBoosterShipPoints)
     },

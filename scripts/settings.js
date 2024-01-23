@@ -1,5 +1,7 @@
 // Kaden Emrich
 
+const RELEASE_VERSION = "v1.5.0"
+
 const startTime = Date.now();
 
 function getElapsedTimems() {
