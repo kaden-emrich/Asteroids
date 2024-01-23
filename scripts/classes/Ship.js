@@ -104,6 +104,19 @@ var classicShipPoints = [
     new PointValue(-10, -15).getPolar()
 ];
 
+var classicBoosterShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-10, 10).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-5, -5).getPolar(),
+    new PointValue(-15, 0).getPolar(),
+    new PointValue(-5, 5).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-10, -10).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
 var retroShipPoints = [
     new PointValue(30, 0).getPolar(),
     new PointValue(-10, 15).getPolar(),
@@ -149,7 +162,8 @@ var breadShipPoints = [
 var shipSkins = [
     {
         name : "classic",
-        shape : new Shape(classicShipPoints)
+        shape : new Shape(classicShipPoints),
+        boosterShape : new Shape(classicBoosterShipPoints)
     },
 
     {
