@@ -1,7 +1,7 @@
 // Kaden Emrich
 
 class Asteroid extends Entity {
-    constructor(x, y, dir, speed, size) {
+    constructor(x, y, dir, speed, size, torque = 0) {
         // randomly generate asteroid shape
         let asteroidPoints = [];
         let min = 60;
@@ -39,19 +39,20 @@ class Asteroid extends Entity {
         this.dir = dir;
         this.size = size;
         this.rollOverDist = rd;
+        this.torque = torque;
     
         this.forward(speed);
     }// constructor(x, y, dir, speed, size)
 
     explode() {
         if(this.size == 2) {
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1);
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
         }
         else if(this.size == 3) {
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2);
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2, Asteroid.getRandomTorqueValue());
+            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2, Asteroid.getRandomTorqueValue());
         }
 
         entities[this.id] = null;
@@ -86,6 +87,10 @@ class Asteroid extends Entity {
     // draw() {
     //     super.drawWrap();
     // }// draw()
+
+    static getRandomTorqueValue() {
+        return (Math.random() * (maxAsteroidTorque * 2)) - maxAsteroidTorque;
+    }
 
     update() {
 

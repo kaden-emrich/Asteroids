@@ -6,6 +6,7 @@ class Entity {
         this.x = canvas.width/2;
         this.y = canvas.height/2;
         this.dir = 0;
+        this.torque = 0;
         this.speedVector = new Vector(this.dir, 0);
         this.color = color;
         this.type = type;
@@ -118,6 +119,8 @@ class Entity {
         else if(this.speedVector.mag < 0-this.maxVelocity) {
             this.speedVector.mag = 0 - this.maxVelocity;
         }
+
+        this.dir += this.torque;
 
         this.x += this.speedVector.x;
         this.y += this.speedVector.y;

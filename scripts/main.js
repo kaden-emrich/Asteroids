@@ -92,6 +92,8 @@ function spawnAsteroid() {
     var x = Math.random() * canvas.width;
     var y = Math.random() * canvas.height;
 
+    var t = Asteroid.getRandomTorqueValue();
+
     if(Math.floor(Math.random() * 2) == 1) {
         if(Math.floor(Math.random() * 2) == 1) 
             var x = 0 - 90;
@@ -105,7 +107,7 @@ function spawnAsteroid() {
             var y = canvas.height + 90;
     }
 
-    new Asteroid(x, y, dir, asteroidSpeed, 3);
+    var nextAsteroid = new Asteroid(x, y, dir, asteroidSpeed, 3, t);
 }// spawnAsteroid()
 
 /*----- Update -----*/
