@@ -867,10 +867,10 @@ var Menus = {
                 //currentMenu.draw();
             }),
 
-            new MenuOption("bloom: " + imgBloom, () => {
+            new MenuOption("bloom: " + (imgBloom ? "on" : "off"), () => {
                 toggleBloom();
-                temp.options[2].name = "bloom: " + imgBloom;
-                menuButtons[2].innerText = "bloom: " + imgBloom;
+                temp.options[2].name = "bloom: " + (imgBloom ? "on" : "off");
+                menuButtons[2].innerText = "bloom: " + (imgBloom ? "on" : "off");
             }),
 
             new MenuOption("back", returnFunc)
