@@ -92,6 +92,8 @@ function spawnAsteroid() {
     var x = Math.random() * canvas.width;
     var y = Math.random() * canvas.height;
 
+    var t = Asteroid.getRandomTorqueValue();
+
     if(Math.floor(Math.random() * 2) == 1) {
         if(Math.floor(Math.random() * 2) == 1) 
             var x = 0 - 90;
@@ -105,7 +107,7 @@ function spawnAsteroid() {
             var y = canvas.height + 90;
     }
 
-    new Asteroid(x, y, dir, asteroidSpeed, 3);
+    var nextAsteroid = new Asteroid(x, y, dir, asteroidSpeed, 3, t);
 }// spawnAsteroid()
 
 /*----- Update -----*/
@@ -367,10 +369,7 @@ function drawStats() {
             ctx.fillText("fps: " + framesPerSecond.toFixed(0), 10, fontSize*4 + 50);
 
             ctx.fillStyle = palettes[currentPalette].text;
-            ctx.fillText("tps: " + tps.toFixed(0), 10, fontSize*5 + 60);
-
-            ctx.fillStyle = palettes[currentPalette].text;
-            ctx.fillText("Elapsed Time: " + (getElapsedTimems() / 1000).toFixed(3), 10, fontSize*6 + 70);
+            ctx.fillText("Elapsed Time: " + (getElapsedTimems() / 1000).toFixed(3), 10, fontSize*5 + 60);
         }
     }
 }// drawStats()
@@ -460,11 +459,11 @@ async function drawFrame() {
 
     //if(currentMenu) currentMenu.draw();
     if(!currentMenu) drawStats();
-    else {
-        // ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        await ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
+    // else {
+    //     // ctx.shadowBlur = 0;
+    //     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+    //     await ctx.fillRect(0, 0, canvas.width, canvas.height)
+    // }
 
     
     await updateAlert();
@@ -710,11 +709,17 @@ var gameControlScheme = [
         arrowUpPressed = true;
         if(fInterval) return;
         ship.forward(shipAcceleration);
+
+        if(shipSkins[shipSkin].boosterShape) ship.shape = shipSkins[shipSkin].boosterShape;
+
         fInterval = setInterval(() => {ship.forward(shipAcceleration);}, 1000/tickSpeed);
         //ship.forward(shipAcceleration);
     }, 
     () => {
         arrowUpPressed = false;
+        
+        ship.shape = shipSkins[shipSkin].shape;
+
         clearInterval(fInterval);
         fInterval = undefined;
     }),
@@ -784,7 +789,7 @@ var Menus = {
         return new Menu("asteroids", "a game by kaden", [
             new MenuOption("start", newGame), 
             new MenuOption("settings", settingsMenu), 
-            new MenuOption("credit", () => {
+            new MenuOption("info", () => {
                 currentMenu = Menus.credit(); 
                 currentMenu.draw();
             })
@@ -859,10 +864,10 @@ var Menus = {
                 //currentMenu.draw();
             }),
 
-            new MenuOption("bloom: " + imgBloom, () => {
+            new MenuOption("bloom: " + (imgBloom ? "on" : "off"), () => {
                 toggleBloom();
-                temp.options[2].name = "bloom: " + imgBloom;
-                menuButtons[2].innerText = "bloom: " + imgBloom;
+                temp.options[2].name = "bloom: " + (imgBloom ? "on" : "off");
+                menuButtons[2].innerText = "bloom: " + (imgBloom ? "on" : "off");
             }),
 
             new MenuOption("back", returnFunc)
@@ -926,7 +931,7 @@ var Menus = {
     },
 
     credit : function() {
-        return new Menu("credit", "created by: kaden emrich\nadditional help: stack overflow", [
+        return new Menu("info", "created by: kaden emrich \n " + RELEASE_VERSION, [
             new MenuOption("go to website", () => {
                 window.open('https://kadenemrich.com', '_blank');
             }), 

@@ -19,6 +19,7 @@ class Ship extends Entity {
                 this.color = "#fff";
             }
         }
+
         await super.draw(this.x, this.y, this.dir, this.color);
 
         if(laserSight) {
@@ -73,6 +74,17 @@ var coolShipPoints = [
     new PointValue(-10, -15).getPolar()
 ];
 
+var coolBoosterShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-5, -7.5).getPolar(),
+    new PointValue(-15, 0).getPolar(),
+    new PointValue(-5, 7.5).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
 var arrowShipPoints = [
     new PointValue(30, 0).getPolar(),
     new PointValue(0, 15).getPolar(),
@@ -89,6 +101,39 @@ var classicShipPoints = [
     new PointValue(-10, 10).getPolar(),
     new PointValue(0, 0).getPolar(),
     new PointValue(-10, -10).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
+var classicBoosterShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-10, 10).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-5, -5).getPolar(),
+    new PointValue(-15, 0).getPolar(),
+    new PointValue(-5, 5).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-10, -10).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
+var retroShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-2, 12).getPolar(),
+    new PointValue(-2, -12).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
+var retroBoosterShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(-2, 12).getPolar(),
+    new PointValue(-2, 5).getPolar(),
+    new PointValue(-15, 0).getPolar(),
+    new PointValue(-2, -5).getPolar(),
+    new PointValue(-2, 5).getPolar(),
+    new PointValue(-2, -12).getPolar(),
     new PointValue(-10, -15).getPolar()
 ];
 
@@ -117,12 +162,20 @@ var breadShipPoints = [
 var shipSkins = [
     {
         name : "default",
-        shape : new Shape(coolShipPoints)
+        shape : new Shape(classicShipPoints),
+        boosterShape : new Shape(classicBoosterShipPoints)
     },
 
     {
         name : "classic",
-        shape : new Shape(classicShipPoints)
+        shape : new Shape(retroShipPoints),
+        boosterShape : new Shape(retroBoosterShipPoints)
+    },
+
+    {
+        name : "winged",
+        shape : new Shape(coolShipPoints),
+        boosterShape : new Shape(coolBoosterShipPoints)
     },
 
     {

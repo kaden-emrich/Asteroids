@@ -48,6 +48,7 @@ body {
     padding: 0;
     color: #fff;
     display: block;
+    backdrop-filter: brightness(60%);
 }
 #menuDiv h1 {
     position: relative;

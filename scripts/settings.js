@@ -1,5 +1,7 @@
 // Kaden Emrich
 
+const RELEASE_VERSION = "v1.5.0"
+
 const startTime = Date.now();
 
 function getElapsedTimems() {
@@ -72,6 +74,8 @@ var showExtraStats = false;
 var showNerdyStats = true;
 var showTime = true;
 var laserSight = false;
+
+var maxAsteroidTorque = 0.5;
 
 var imgBloom = true;
 
