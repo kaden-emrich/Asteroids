@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.5.0"
+const RELEASE_VERSION = "v1.5.1";
 
 const startTime = Date.now();
 
@@ -80,6 +80,8 @@ var maxAsteroidTorque = 0.5;
 var imgBloom = true;
 
 var shootCooldownMS = 300;
+
+var numStars = 10;
 
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";

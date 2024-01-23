@@ -211,3 +211,21 @@ class Shape {
     //     ctx.stroke();
     // }// draw()
 }// class Shape
+
+var starShape = new Shape([
+    new PointValue(1, -1).getPolar(),
+    new PointValue(-1, -1).getPolar(),
+    new PointValue(-1, 1).getPolar(),
+    new PointValue(1, 1).getPolar()
+]);
+
+var twinkeStarShape = new Shape([
+    new PointValue(3, 0).getPolar(),
+    new PointValue(1, -1).getPolar(),
+    new PointValue(0, -3).getPolar(),
+    new PointValue(-1, -1).getPolar(),
+    new PointValue(-3, 0).getPolar(),
+    new PointValue(-1, 1).getPolar(),
+    new PointValue(0, 3).getPolar(),
+    new PointValue(1, 1).getPolar()
+]);
