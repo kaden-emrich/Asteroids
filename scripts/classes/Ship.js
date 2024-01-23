@@ -74,6 +74,17 @@ var coolShipPoints = [
     new PointValue(-10, -15).getPolar()
 ];
 
+var coolBoosterShipPoints = [
+    new PointValue(30, 0).getPolar(),
+    new PointValue(-10, 15).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-5, -7.5).getPolar(),
+    new PointValue(-15, 0).getPolar(),
+    new PointValue(-5, 7.5).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(-10, -15).getPolar()
+];
+
 var arrowShipPoints = [
     new PointValue(30, 0).getPolar(),
     new PointValue(0, 15).getPolar(),
@@ -98,8 +109,7 @@ var retroShipPoints = [
     new PointValue(-10, 15).getPolar(),
     new PointValue(-2, 12).getPolar(),
     new PointValue(-2, -12).getPolar(),
-    new PointValue(-10, -15).getPolar(),
-    new PointValue(30, 0).getPolar()
+    new PointValue(-10, -15).getPolar()
 ];
 
 var retroBoosterShipPoints = [
@@ -111,8 +121,7 @@ var retroBoosterShipPoints = [
     new PointValue(-2, -5).getPolar(),
     new PointValue(-2, 5).getPolar(),
     new PointValue(-2, -12).getPolar(),
-    new PointValue(-10, -15).getPolar(),
-    new PointValue(30, 0).getPolar()
+    new PointValue(-10, -15).getPolar()
 ];
 
 var brickShipPoints = [
@@ -139,11 +148,6 @@ var breadShipPoints = [
 
 var shipSkins = [
     {
-        name : "default",
-        shape : new Shape(coolShipPoints)
-    },
-
-    {
         name : "classic",
         shape : new Shape(classicShipPoints)
     },
@@ -152,6 +156,12 @@ var shipSkins = [
         name : "retro",
         shape : new Shape(retroShipPoints),
         boosterShape : new Shape(retroBoosterShipPoints)
+    },
+
+    {
+        name : "winged",
+        shape : new Shape(coolShipPoints),
+        boosterShape : new Shape(coolBoosterShipPoints)
     },
 
     {
