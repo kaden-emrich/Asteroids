@@ -46,14 +46,21 @@ class Asteroid extends Entity {
 
     explode() {
         if(this.size == 2) {
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
+            for(let i = 0; i < 3; i++) {
+                new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
+            }
+            this.spawnShrapnel(7, asteroidShrapnelLife*2);
         }
         else if(this.size == 3) {
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2, Asteroid.getRandomTorqueValue());
-            new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2, Asteroid.getRandomTorqueValue());
+            for(let i = 0; i < 2; i++) {
+                new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2, Asteroid.getRandomTorqueValue());
+            }
+            this.spawnShrapnel(9, asteroidShrapnelLife*3);
         }
+        else if(this.size = 1) {
+            this.spawnShrapnel();
+        }
+
 
         entities[this.id] = null;
     }// explode()
@@ -87,6 +94,12 @@ class Asteroid extends Entity {
     // draw() {
     //     super.drawWrap();
     // }// draw()
+
+    spawnShrapnel(shrapAmount = asteroidShrapnelAmount, shrapLife = asteroidShrapnelLife, shrapSpeed = asteroidShrapnelSpeed) {
+        Shrapnel.explosion(this.x, this.y, shrapAmount, shrapSpeed, shrapLife);
+
+        return;
+    }
 
     static getRandomTorqueValue() {
         return (Math.random() * (maxAsteroidTorque * 2)) - maxAsteroidTorque;
