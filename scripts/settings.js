@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.5.2";
+const RELEASE_VERSION = "v1.5.3";
 
 const startTime = Date.now();
 
@@ -74,6 +74,14 @@ var showExtraStats = false;
 var showNerdyStats = true;
 var showTime = true;
 var laserSight = false;
+
+var doShrapnel = true;
+
+var defaultShrapnelSpeed = 5;
+var defaultShrapnelLife = 10;
+var asteroidShrapnelSpeed = 5;
+var asteroidShrapnelLife = 10;
+var asteroidShrapnelAmount = 3;
 
 var showStars = false;
 

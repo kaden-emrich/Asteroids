@@ -144,9 +144,7 @@ function killPlayer() {
         return;
     }
 
-    new Asteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
-    new Asteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
-    new Asteroid(ship.x, ship.y, Math.random() * 360, asteroidSpeed, 0);
+    Shrapnel.explosion(ship.x, ship.y, 20, defaultShrapnelSpeed, 60);
 
     gameEnd();
 }// killPlayer()

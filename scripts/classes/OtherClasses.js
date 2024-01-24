@@ -151,9 +151,10 @@ class Shape {
         return maxPointDeviation;
     }// getMaxPointDeviation()
 
-    async draw(x, y, dir, color) {
+    async draw(x, y, dir, color, alpha = 1.0) {
         ctx.fillStyle = color;
         ctx.strokeStyle = color;
+        ctx.globalAlpha = alpha;
         // ctx.shadowColor = color;
         // ctx.shadowBlur = 10;
 
@@ -174,6 +175,8 @@ class Shape {
         await ctx.closePath();
 
         await ctx.stroke();
+
+        ctx.globalAlpha = 1.0;
         return;
     }// draw()
 
