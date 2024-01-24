@@ -58,7 +58,7 @@ class Asteroid extends Entity {
             this.spawnShrapnel(9, asteroidShrapnelLife*3);
         }
         else if(this.size = 1) {
-            this.spawnShrapnel();
+            this.spawnShrapnel(4);
         }
 
 
