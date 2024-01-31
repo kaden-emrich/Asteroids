@@ -539,12 +539,22 @@ function toggleBloom() {
 
     return imgBloom;
 }
+
 function toggleStars() {
     if(showStars) {
         showStars = false;
     }
     else {
         showStars = true;
+    }
+}
+
+function toggleShrapnel() {
+    if(doShrapnel) {
+        doShrapnel = false;
+    }
+    else {
+        doShrapnel = true;
     }
 }
 
@@ -585,10 +595,10 @@ function equipPalette(p) {
     menuSubtitle.style.color = palettes[currentPalette].text;
     menuSubtitle.style.textShadow = palettes[currentPalette].text + " 0 0 0.8vh";
 
-    for(let i = 0; i < 4; i++) {
-        menuButtons[i].style.color = palettes[currentPalette].text;
-        menuButtons[i].style.textShadow = palettes[currentPalette].text + " 0 0 0.7vh"
-    }
+    // for(let i = 0; i < 4; i++) {
+    //     menuButtons[i].style.color = palettes[currentPalette].text;
+    //     menuButtons[i].style.textShadow = palettes[currentPalette].text + " 0 0 0.7vh"
+    // }
 
 
     for(let e of entities) {
@@ -618,6 +628,17 @@ function cyclePalette() {
 
     equipPalette(currentPalette);
 }// cyclePalette()
+
+function makeClassic() {
+    currentPalette = 1;
+    equipPalette(currentPalette);
+
+    shipSkin = 1;
+    equipShipSkin(shipSkin);
+
+    showStars = true;
+    doShrapnel = true;
+}
 
 function settingsMenu() {
     currentMenu = Menus.settings();
@@ -848,6 +869,8 @@ var Menus = {
         }// returnFunc
 
         let temp = new Menu("settings", null, [
+            new MenuOption("back", returnFunc),
+
             new MenuOption("customization", () => {
                 currentMenu = Menus.customizationSettings(returnMenu);
             }),
@@ -855,9 +878,11 @@ var Menus = {
             new MenuOption("stats / ui", () => {
                 currentMenu = Menus.statsSettings(returnMenu);
                 //currentMenu.draw();
-            }), 
+            }),
 
-            new MenuOption("back", returnFunc)
+            new MenuOption("classic mode", () => {
+                makeClassic();
+            }),
         ], "options");
 
         return temp;
@@ -872,33 +897,39 @@ var Menus = {
         }// returnFunc
 
         let temp = new Menu("customization", null, [
+            new MenuOption("back", returnFunc),
+
             new MenuOption("palette: " + palettes[currentPalette].name, () => {
                 cyclePalette();
-                temp.options[0].name = "palette: " + palettes[currentPalette].name;
-                menuButtons[0].innerText = temp.options[0].name;
+                temp.options[1].name = "palette: " + palettes[currentPalette].name;
+                menuButtons[1].innerText = temp.options[1].name;
                 //currentMenu.draw();
             }), 
 
             new MenuOption("ship skin: " + shipSkins[shipSkin].name, () => {
                 cycleShipSkin();
-                temp.options[1].name = "ship skin: " + shipSkins[shipSkin].name;
-                menuButtons[1].innerText = temp.options[1].name;
+                temp.options[2].name = "ship skin: " + shipSkins[shipSkin].name;
+                menuButtons[2].innerText = temp.options[2].name;
                 //currentMenu.draw();
+            }),
+
+            new MenuOption("shrapnel: " + (doShrapnel ? "on" : "off"), () => {
+                toggleShrapnel();
+                temp.options[3].name = "shrapnel: " + (doShrapnel ? "on" : "off");
+                menuButtons[3].innerText = "shrapnel: " + (doShrapnel ? "on" : "off");
             }),
 
             new MenuOption("bloom: " + (imgBloom ? "on" : "off"), () => {
                 toggleBloom();
-                temp.options[2].name = "bloom: " + (imgBloom ? "on" : "off");
-                menuButtons[2].innerText = "bloom: " + (imgBloom ? "on" : "off");
+                temp.options[4].name = "bloom: " + (imgBloom ? "on" : "off");
+                menuButtons[4].innerText = "bloom: " + (imgBloom ? "on" : "off");
             }),
 
             new MenuOption("stars: " + (showStars ? "on" : "off"), () => {
                 toggleStars();
-                temp.options[3].name = "stars: " + (showStars ? "on" : "off");
-                menuButtons[3].innerText = "stars: " + (showStars ? "on" : "off");
-            }),
-
-            new MenuOption("back", returnFunc)
+                temp.options[5].name = "stars: " + (showStars ? "on" : "off");
+                menuButtons[5].innerText = "stars: " + (showStars ? "on" : "off");
+            })
         ], "options");
 
         return temp;
@@ -914,6 +945,8 @@ var Menus = {
         }// returnFunc()
 
         let temp = new Menu("more settings", null, [
+            new MenuOption("back", returnFunc),
+
             new MenuOption("show stats: " + showStats, () => {
                 if(showStats) {
                     showStats = false;
@@ -922,8 +955,8 @@ var Menus = {
                     showStats = true;
                 }
 
-                temp.options[0].name = "show stats: " + showStats;
-                menuButtons[0].innerText = temp.options[0].name;
+                temp.options[1].name = "show stats: " + showStats;
+                menuButtons[1].innerText = temp.options[1].name;
             }), 
             
             new MenuOption("show time: " + showTime, () => {
@@ -934,8 +967,8 @@ var Menus = {
                     showTime = true;
                 }
 
-                temp.options[1].name = "show time: " + showTime;
-                menuButtons[1].innerText = temp.options[1].name;
+                temp.options[2].name = "show time: " + showTime;
+                menuButtons[2].innerText = temp.options[2].name;
             }),
 
             new MenuOption("extra stats: " + showExtraStats, () => {
@@ -948,11 +981,9 @@ var Menus = {
                     //showVelocity = true;
                 }
 
-                temp.options[2].name = "extra stats: " + showExtraStats;
-                menuButtons[2].innerText = temp.options[2].name;
-            }), 
-
-            new MenuOption("back", returnFunc)
+                temp.options[3].name = "extra stats: " + showExtraStats;
+                menuButtons[3].innerText = temp.options[3].name;
+            })
         ], "main")
 
         return temp;
