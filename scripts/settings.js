@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.5.5";
+const RELEASE_VERSION = "v1.5.6";
 
 const startTime = Date.now();
 
