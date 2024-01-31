@@ -66,15 +66,24 @@ body {
     margin-top: -4vh;
     padding: 0;
     font-size: 5vh;
+    min-height: 5vh;
+    line-height: 1;
     text-align: center;
     color: #fff;
     text-shadow: #fff 0 0 0.7vh;
 }
 #menuDiv #buttonDiv {
     position: relative;
-    display: flex;
-    margin-top: 4vh;
+    /* display: flex; */
+    max-height: 53vh;
+    width: min-content;
+    margin: auto;
+    margin-top: 2vh;
+    overflow-y: auto;
+    scrollbar-color: gray rgba(0, 0, 0, 0.4);
     flex-direction: column;
+    background-color: rgba(100, 100, 100, 0.2);
+    border: 0.5vh solid rgba(100, 100, 100, 0.2);
 }
 #menuDiv #buttonDiv button {
     position: relative;
@@ -82,30 +91,29 @@ body {
     min-width: 55vw;
     overflow: hidden;
     height: 12vh;
-    margin: 1vh auto;
-    padding: auto;
+    margin: 1vh 1vh;
+    padding: 0;
+    /* padding: auto; */
     align-self: center;
     font-family: "Munro";
     font-size: 10vh;
     color: #fff;
-    border-width: .4vh;
-    border-style: solid;
-    border-color: #aaa #444 #222 #888;
-    background-color: rgba(100, 100, 100, 0.6);
+    border: 0.4vh outset rgba(50, 50, 50, 0.8);
+    background-color: rgba(60, 60, 60, 0.8);
     text-shadow: #fff 0 0 .5vh;
     cursor: pointer;
 }
 #menuDiv #buttonDiv button:hover {
     border-width: .4vh;
     font-size: 9vh;
-    border-color: #333;
-    background-color: rgba(50, 50, 50, 0.6);
+    border: 0.5vh outset rgba(50, 50, 50, 0.8);
+    background-color: rgba(50, 50, 50, 0.8);
     text-shadow: #555 0 0 1vh;
 }
 #menuDiv #buttonDiv button:active {
     font-size: 9vh;
-    border-color: #222 #888 #aaa #444;
-    background-color: rgba(30, 30, 30, 0.8);
+    border: 0.4vh inset rgba(30, 30, 30, 0.8);
+    background-color: rgba(30, 30, 30, 1);
     text-shadow: #fff 0 0 1vh;
 }
 
