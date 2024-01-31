@@ -180,6 +180,35 @@ class Shape {
         return;
     }// draw()
 
+    async fill(x, y, dir, color, alpha = 1.0) {
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = alpha;
+        // ctx.shadowColor = color;
+        // ctx.shadowBlur = 10;
+
+        await ctx.beginPath();
+
+        let pointX = Math.floor(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)));
+        let pointY = Math.floor(y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
+
+        await ctx.moveTo(pointX, pointY);
+
+        for(let i = 1; i < this.points.length; i++) {
+            pointX = Math.floor(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)));
+            pointY = Math.floor(y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
+
+            await ctx.lineTo(pointX, pointY);
+        }
+
+        await ctx.closePath();
+
+        await ctx.fill();
+
+        ctx.globalAlpha = 1.0;
+        return;
+    }// fill()
+
     // drawWrap(x, y, dir, color) {
     //     ctx.fillStyle = color;
     //     ctx.strokeStyle = color;
@@ -216,10 +245,10 @@ class Shape {
 }// class Shape
 
 var starShape = new Shape([
-    new PointValue(1, -1).getPolar(),
-    new PointValue(-1, -1).getPolar(),
-    new PointValue(-1, 1).getPolar(),
-    new PointValue(1, 1).getPolar()
+    new PointValue(3, 0).getPolar(),
+    new PointValue(0, 0).getPolar(),
+    new PointValue(0, 3).getPolar(),
+    new PointValue(3, 3).getPolar()
 ]);
 
 var twinkeStarShape = new Shape([

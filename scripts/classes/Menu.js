@@ -2,6 +2,7 @@
 
 var menuTitle = document.getElementById("menuTitle");
 var menuSubtitle = document.getElementById("menuSubtitle")
+var buttonDiv = document.getElementById("buttonDiv");
 var menuButtons = [
     document.getElementById("menuButton1"),
     document.getElementById("menuButton2"),
@@ -48,6 +49,17 @@ class Menu {
         menuDiv.style = "display: none;";
     }// hide()
 
+    static clearButtons() {
+        buttonDiv.innerHTML = "";
+    }
+
+    static createButton() {
+        var newButton = document.createElement("button");
+        buttonDiv.appendChild(newButton);
+
+        return newButton;
+    }
+
     draw() {
         //this.hide;
         //menuDiv.style.opacity = "0";
@@ -58,16 +70,20 @@ class Menu {
         menuSubtitle.innerText = this.subtitle;
         menuSubtitle.style.color = palettes[currentPalette].text;
 
-        var numOptions = this.options.length;
-        if(this.options.length > 4)
-            numOptions = 4;
+        Menu.clearButtons();
+        menuButtons = [];
 
-        for(let i = 0; i < 4; i++) {
+        var numOptions = this.options.length;
+
+        for(let i = 0; i < numOptions; i++) {
             if(i < numOptions) {
-                menuButtons[i].style = "display: block;";
-                menuButtons[i].style.color = palettes[currentPalette].text;
-                menuButtons[i].innerText = this.options[i].name;
-                menuButtons[i].onclick = this.options[i].action;
+                var nextButton = Menu.createButton();
+
+                nextButton.style = "display: block;";
+                nextButton.style.color = palettes[currentPalette].text;
+                nextButton.innerText = this.options[i].name;
+                nextButton.onclick = this.options[i].action;
+                menuButtons.push(nextButton);
             }
             else {
                 menuButtons[i].style = "display: none;";

@@ -342,7 +342,7 @@ function drawStats() {
         ctx.fillStyle = palettes[currentPalette].text;
         fontSize = canvas.height / 15;
         ctx.font = fontSize + "px " + fontFamily;
-        ctx.fillText((gameTime / 1000).toFixed(1), canvas.width/2, 10);
+        ctx.fillText((gameTime / 1000).toFixed(), canvas.width/2, 10);
     }
 
     ctx.textAlign = "left";
@@ -369,7 +369,7 @@ function drawStats() {
             ctx.fillText("fps: " + framesPerSecond.toFixed(0), 10, fontSize*4 + 50);
 
             ctx.fillStyle = palettes[currentPalette].text;
-            ctx.fillText("Elapsed Time: " + (getElapsedTimems() / 1000).toFixed(3), 10, fontSize*5 + 60);
+            ctx.fillText("Elapsed Time: " + (getElapsedTimems() / 1000).toFixed(1), 10, fontSize*5 + 60);
         }
     }
 }// drawStats()
@@ -446,7 +446,7 @@ function checkTickrate() {
 
 async function drawStars() {
     for(let i = 0; i < stars.length; i++) {
-        await starShape.draw(stars[i].x, stars[i].y, 0, palettes[currentPalette].text);
+        await starShape.fill(stars[i].x, stars[i].y, 0, palettes[currentPalette].text, 0.6);
     }
 
     return;
@@ -538,6 +538,14 @@ function toggleBloom() {
     }
 
     return imgBloom;
+}
+function toggleStars() {
+    if(showStars) {
+        showStars = false;
+    }
+    else {
+        showStars = true;
+    }
 }
 
 function toggleViewType() {
@@ -882,6 +890,12 @@ var Menus = {
                 toggleBloom();
                 temp.options[2].name = "bloom: " + (imgBloom ? "on" : "off");
                 menuButtons[2].innerText = "bloom: " + (imgBloom ? "on" : "off");
+            }),
+
+            new MenuOption("stars: " + (showStars ? "on" : "off"), () => {
+                toggleStars();
+                temp.options[3].name = "stars: " + (showStars ? "on" : "off");
+                menuButtons[3].innerText = "stars: " + (showStars ? "on" : "off");
             }),
 
             new MenuOption("back", returnFunc)

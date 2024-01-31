@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.5.4";
+const RELEASE_VERSION = "v1.5.5";
 
 const startTime = Date.now();
 
@@ -26,7 +26,7 @@ var menuDiv = document.getElementById("menuDiv");
 
 ctx.strokeStyle = "#fff";
 ctx.fillStyle = "#fff";
-ctx.lineWidth = 4;
+ctx.lineWidth = 1;
 
 var tickInterval;
 var frameInterval;
@@ -91,7 +91,7 @@ var imgBloom = true;
 
 var shootCooldownMS = 300;
 
-var numStars = 10;
+var numStars = 50;
 
 var showBoundingBoxes = false;
 var boundingBoxColor = "#0ff";
