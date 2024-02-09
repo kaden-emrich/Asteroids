@@ -27,7 +27,12 @@ class KeyController {
 }// class KeyController
 
 document.addEventListener("keydown", (event) => {
+    if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(event.code) > -1) {
+        event.preventDefault();
+    }
+
     document.body.style.cursor = "none";
+
     if(!currentController) return;
     for(let h of currentController.handlers) {
         for(let k in h.keys) {
