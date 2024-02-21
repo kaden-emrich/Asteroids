@@ -91,8 +91,8 @@ function shoot() {
 
 function spawnAsteroid() {
     var dir = Math.random() * 360;
-    var x = Math.random() * canvas.width;
-    var y = Math.random() * canvas.height;
+    var x = Math.random() * spaceWidth;
+    var y = Math.random() * spaceHeight;
 
     var t = Asteroid.getRandomTorqueValue();
 
@@ -100,13 +100,13 @@ function spawnAsteroid() {
         if(Math.floor(Math.random() * 2) == 1) 
             var x = 0 - 90;
         else
-            var x = canvas.width + 90;
+            var x = spaceWidth + 90;
     }
     else {
         if(Math.floor(Math.random() * 2) == 1)
             var y = 0 - 90;
         else
-            var y = canvas.height + 90;
+            var y = spaceHeight + 90;
     }
 
     var nextAsteroid = new Asteroid(x, y, dir, asteroidSpeed, 3, t);
@@ -183,8 +183,17 @@ function updateCollision() {
 }// updateCollision()
 
 function updateFullScreen() {
-    var h = 1000;
-    var w = window.innerWidth * h / window.innerHeight;
+    // var h = 1000;
+    // var w = window.innerWidth * h / window.innerHeight;
+
+    spaceHeight = 1000;
+    spaceWidth = window.innerWidth * spaceHeight / window.innerHeight;
+    spaceScale = window.innerHeight / spaceHeight;
+
+    ctx.lineWidth = 1;
+
+    var h = window.innerHeight;
+    var w = window.innerWidth;
 
     // w/h = iw/ih
     //w = iw * h / ih
@@ -705,9 +714,9 @@ function newGame() {
 
     currentDifficulty = 1;
     
-    new Asteroid(canvas.width/2, canvas.height/2, 0, 0, 3);
+    new Asteroid(spaceWidth/2, spaceHeight/2, 0, 0, 3);
 
-    ship.dir = Math.atan((canvas.height/2 - ship.y) / (canvas.width/2 - ship.x)) * 180/Math.PI + 180;
+    ship.dir = Math.atan((spaceHeight/2 - ship.y) / (spaceWidth/2 - ship.x)) * 180/Math.PI + 180;
 
 
     // start update interval

@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.5.7";
+const RELEASE_VERSION = "v1.5.8";
 
 const startTime = Date.now();
 
@@ -35,6 +35,10 @@ var ship;
 var entities = [];
 
 var score = 0;
+
+var spaceHeight = 1000;
+var spaceWidth = 1000;
+var spaceScale = 1;
 
 var arrowUpPressed = false;
 var arrowDownPressed = false;
@@ -83,7 +87,7 @@ var asteroidShrapnelSpeed = 5;
 var asteroidShrapnelLife = 10;
 var asteroidShrapnelAmount = 3;
 
-var showStars = false;
+var showStars = true;
 
 var maxAsteroidTorque = 0.5;
 

@@ -4,8 +4,8 @@ class Ship extends Entity {
     constructor() {
         super(shipSkins[shipSkin].shape, palettes[currentPalette].ship, "ship", shipSpeed);
 
-        this.x = canvas.width * 0.75;
-        this.y = canvas.height * 0.25;
+        this.x = spaceWidth * 0.75;
+        this.y = spaceHeight * 0.25;
         this.dir = 135;
     }// constructor
 
@@ -29,7 +29,7 @@ class Ship extends Entity {
 
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x + (canvas.width * 2) * Math.cos(this.dir * (Math.PI / 180)), this.y + (canvas.width * 2) * Math.sin(this.dir * (Math.PI / 180)));
+            ctx.lineTo(this.x + (spaceWidth * 2) * Math.cos(this.dir * (Math.PI / 180)), this.y + (spaceWidth * 2) * Math.sin(this.dir * (Math.PI / 180)));
             ctx.stroke();
             
             ctx.globalAlpha = 1;
