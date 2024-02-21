@@ -28,6 +28,16 @@ body {
     margin: 0;
 }
 
+/* #scan-lines {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    height: 200%;
+    mix-blend-mode:soft-light;
+    pointer-events: none;
+    image-rendering: pixelated;
+} */
+
 #game {
     position: absolute;
     margin: auto;
@@ -88,7 +98,7 @@ body {
 #menuDiv #buttonDiv button {
     position: relative;
     box-sizing: border-box;
-    min-width: 55vw;
+    min-width: 60vw;
     overflow: hidden;
     height: 12vh;
     margin: 1vh 1vh;
@@ -96,7 +106,7 @@ body {
     /* padding: auto; */
     align-self: center;
     font-family: "Munro";
-    font-size: 10vh;
+    font-size: 9vh;
     color: #fff;
     border: 0.4vh outset rgba(50, 50, 50, 0.8);
     background-color: rgba(60, 60, 60, 0.8);

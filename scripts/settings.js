@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.5.8";
+const RELEASE_VERSION = "v1.5.9";
 
 const startTime = Date.now();
 
@@ -15,7 +15,7 @@ var tickrateCheckIntervalms = 500;
 
 var canvas = document.getElementById("game");
 var layer2Canvas = document.getElementById('layer2-game')   
-var ctx = canvas.getContext("2d");
+var ctx = canvas.getContext("2d", { willReadFrequently: true });
 var l2ctx = layer2Canvas.getContext("2d");
 ctx.imageSmothingEnabled = false;
 //l2ctx.imageSmothingEnabled = false;
@@ -24,9 +24,15 @@ var gameDiv = document.getElementById("gameDiv");
 
 var menuDiv = document.getElementById("menuDiv");
 
+var spaceHeight = 1000;
+var spaceWidth = 1000;
+var spaceScale = 1;
+
+var lineThickness = 5;
+
 ctx.strokeStyle = "#fff";
 ctx.fillStyle = "#fff";
-ctx.lineWidth = 1;
+ctx.lineWidth = 2 * spaceScale;
 
 var tickInterval;
 var frameInterval;
@@ -35,10 +41,6 @@ var ship;
 var entities = [];
 
 var score = 0;
-
-var spaceHeight = 1000;
-var spaceWidth = 1000;
-var spaceScale = 1;
 
 var arrowUpPressed = false;
 var arrowDownPressed = false;
@@ -91,7 +93,9 @@ var showStars = true;
 
 var maxAsteroidTorque = 0.5;
 
-var imgBloom = true;
+var doPostProcessing = true;
+var doChromaticAberration = false;
+
 
 var shootCooldownMS = 300;
 
@@ -133,7 +137,7 @@ const palettes = [
         laser : "#fff",
         title : "#0f0",
         text : "#fff",
-        background : "#000"
+        background : "#030303"
     },
 
     {

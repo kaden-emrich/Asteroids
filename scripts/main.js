@@ -30,6 +30,18 @@ var bInterval;
 var lInterval;
 var rInterval;
 
+async function chromaticAberration(context, intensity, phase) {
+    var imageData = await context.getImageData(0, 0, canvas.width, canvas.height);
+    var data = imageData.data;
+
+    for(var i = phase % 4; i < data.length; i += 4) {
+        data[i] = data[i + 4 * intensity];
+    }
+    await context.putImageData(imageData, 0, 0);
+
+    return;
+}
+
 function calcAccuracy() {
     let acc = Math.floor(score / shotsFired);
     if(!acc) return 0;
@@ -186,14 +198,14 @@ function updateFullScreen() {
     // var h = 1000;
     // var w = window.innerWidth * h / window.innerHeight;
 
+    var h = window.innerHeight;
+    var w = window.innerWidth;
+
     spaceHeight = 1000;
     spaceWidth = window.innerWidth * spaceHeight / window.innerHeight;
     spaceScale = window.innerHeight / spaceHeight;
 
-    ctx.lineWidth = 1;
-
-    var h = window.innerHeight;
-    var w = window.innerWidth;
+    // ctx.lineWidth = Math.floor(4 * spaceScale);
 
     // w/h = iw/ih
     //w = iw * h / ih
@@ -220,7 +232,7 @@ async function updateSize() {
     
     if(viewType == 1) {
         updateFullScreen();
-        ctx.lineWidth = Math.floor(canvas.height / 250);
+        // ctx.lineWidth = Math.floor(canvas.height / 250);
     }
     else {
         canvas.width = 1000;
@@ -246,7 +258,7 @@ async function updateSize() {
     }
     //gameDiv.style.margin = "auto";
 
-    if(imgBloom) {
+    if(doPostProcessing) {
         layer2Canvas.style.innerWidth = canvas.style.innerWidth;
         layer2Canvas.style.innerHeight = canvas.style.innerHeight;
         layer2Canvas.style.width = canvas.style.width;
@@ -472,6 +484,8 @@ async function drawFrame() {
     fontSize = canvas.height * 1000 / 20;
     await updateSize();
 
+    ctx.lineWidth = Math.floor(lineThickness * spaceScale);
+
     if(showStars) {
         await drawStars();
     }
@@ -485,12 +499,16 @@ async function drawFrame() {
     //     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
     //     await ctx.fillRect(0, 0, canvas.width, canvas.height)
     // }
-
     
     await updateAlert();
 
-    //testRenderer(ctx);
-    if(imgBloom) {
+    if(doChromaticAberration) {
+        await chromaticAberration(ctx, 2, 0);
+    }
+
+    if(doPostProcessing) {
+        
+
         layer2Canvas.style.display = "block";
         l2ctx.drawImage(canvas, 0, 0);
     }
@@ -538,15 +556,17 @@ function tick() {
 
 /*----- Update End -----*/
 
-function toggleBloom() {
-    if(imgBloom) {
-        imgBloom = false;
+function togglePostProcessing() {
+    if(doPostProcessing) {
+        doPostProcessing = false;
+        // document.getElementById("scan-lines").style.display = "none";
     }
     else {
-        imgBloom = true;
+        doPostProcessing = true;
+        // document.getElementById("scan-lines").style.display = "block";
     }
 
-    return imgBloom;
+    return doPostProcessing;
 }
 
 function toggleStars() {
@@ -928,10 +948,10 @@ var Menus = {
                 menuButtons[3].innerText = "shrapnel: " + (doShrapnel ? "on" : "off");
             }),
 
-            new MenuOption("bloom: " + (imgBloom ? "on" : "off"), () => {
-                toggleBloom();
-                temp.options[4].name = "bloom: " + (imgBloom ? "on" : "off");
-                menuButtons[4].innerText = "bloom: " + (imgBloom ? "on" : "off");
+            new MenuOption("post-processing: " + (doPostProcessing ? "on" : "off"), () => {
+                togglePostProcessing();
+                temp.options[4].name = "post-processing: " + (doPostProcessing ? "on" : "off");
+                menuButtons[4].innerText = "post-processing: " + (doPostProcessing ? "on" : "off");
             }),
 
             new MenuOption("stars: " + (showStars ? "on" : "off"), () => {
@@ -1051,6 +1071,9 @@ function init() {
         menuDiv.style = "opacity: 100;";
         mainMenu();
     }
+
+    currentPalette = 0;
+    equipPalette(currentPalette);
 
     stars = generateStars(numStars);
 
