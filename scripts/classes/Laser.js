@@ -26,7 +26,7 @@ class Laser extends Entity {
 
         
         // off screen delete
-        if(this.x < -100  ||  this.x > canvas.width + 100  ||  this.y < -100  || this.y > canvas.height + 100) {
+        if(this.x < -100  ||  this.x > spaceWidth + 100  ||  this.y < -100  || this.y > spaceHeight + 100) {
             entities[this.id] = null;
         }
     }// updatePosition()

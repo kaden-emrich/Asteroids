@@ -3,8 +3,8 @@ class Entity {
         if(maxVelocity > velocityLimit) maxVelocity = velocityLimit;
         this.maxVelocity = maxVelocity;
 
-        this.x = canvas.width/2;
-        this.y = canvas.height/2;
+        this.x = spaceWidth/2;
+        this.y = spaceHeight/2;
         this.dir = 0;
         this.torque = 0;
         this.speedVector = new Vector(this.dir, 0);
@@ -127,15 +127,15 @@ class Entity {
         
         // off screen roll-over
         if(this.x < 0-this.rollOverDist) {
-            this.x = canvas.width + this.rollOverDist;
+            this.x = spaceWidth + this.rollOverDist;
         }
-        else if(this.x > canvas.width + this.rollOverDist) {
+        else if(this.x > spaceWidth + this.rollOverDist) {
             this.x = 0-this.rollOverDist;
         }
         if(this.y < 0-this.rollOverDist) {
-            this.y = canvas.height + this.rollOverDist;
+            this.y = spaceHeight + this.rollOverDist;
         }
-        else if(this.y > canvas.height + this.rollOverDist) {
+        else if(this.y > spaceHeight + this.rollOverDist) {
             this.y = 0-this.rollOverDist;
         }
     }// updatePosition()
@@ -146,14 +146,14 @@ class Entity {
         if(showVelocity) {
             ctx.strokeStyle = "#00f";
             ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x + this.speedVector.x*10, this.y);
+            ctx.moveTo(this.x * spaceScale, this.y * spaceScale);
+            ctx.lineTo(this.x + this.speedVector.x*10 * spaceScale, this.y * spaceScale);
             ctx.stroke();
     
             ctx.strokeStyle = "#f00";
             ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x, this.y + this.speedVector.y*20);
+            ctx.moveTo(this.x * spaceScale, this.y * spaceScale);
+            ctx.lineTo(this.x * spaceScale, this.y + this.speedVector.y*20 * spaceScale);
             ctx.stroke();
         }
 
@@ -174,16 +174,16 @@ class Entity {
         var bb = this.getBoundingBox();
 
         if(bb[0].x < 0) {
-            this.shape.draw(this.x + canvas.width, this.y, this.dir, this.color);
+            this.shape.draw(this.x + spaceWidth, this.y, this.dir, this.color);
         }
         if(bb[0].y < 0) {
-            this.shape.draw(this.x, this.y + canvas.height, this.dir, this.color);
+            this.shape.draw(this.x, this.y + spaceHeight, this.dir, this.color);
         }
-        if(bb[2].x > canvas.width) {
-            this.shape.draw(this.x - canvas.width, this.y, this.dir, this.color);
+        if(bb[2].x > spaceWidth) {
+            this.shape.draw(this.x - spaceWidth, this.y, this.dir, this.color);
         }
-        if(bb[2].y > canvas.height) {
-            this.shape.draw(this.x, this.y - canvas.height, this.dir, this.color);
+        if(bb[2].y > spaceHeight) {
+            this.shape.draw(this.x, this.y - spaceHeight, this.dir, this.color);
         }
 
         if(showVelocity) {
@@ -213,9 +213,9 @@ class Entity {
         // ctx.shadowBlur = 0;
         
         ctx.beginPath();
-        ctx.moveTo(bBox[0].x, bBox[0].y);
+        ctx.moveTo(bBox[0].x * spaceScale, bBox[0].y * spaceScale);
         for(let i = 1; i < bBox.length; i++) {
-            ctx.lineTo(bBox[i].x, bBox[i].y);   
+            ctx.lineTo(bBox[i].x * spaceScale, bBox[i].y * spaceScale);   
         }
         ctx.closePath();
         ctx.stroke();
@@ -230,7 +230,7 @@ class Entity {
         // ctx.shadowBlur = 0;
         
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.standardDeviation, 0, 2 * Math.PI);
+        ctx.arc(this.x * spaceScale, this.y * spaceScale, this.standardDeviation * spaceScale, 0 * spaceScale, 2 * Math.PI);
         ctx.stroke();
         
         ctx.globalAlpha = 1;
@@ -243,7 +243,7 @@ class Entity {
         // ctx.shadowBlur = 0;
         
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.maxDeviation, 0, 2 * Math.PI);
+        ctx.arc(this.x * spaceScale, this.y * spaceScale, this.maxDeviation * spaceScale, 0 * spaceScale, 2 * Math.PI);
         ctx.stroke();
 
         ctx.globalAlpha = 1;

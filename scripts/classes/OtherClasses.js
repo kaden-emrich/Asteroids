@@ -25,6 +25,11 @@ class PointValue {
 
         return new PolarPoint(r, dir);
     }// getPolar()
+
+    // getCanvasPosition() {
+    //     var newX = this.x / spaceWidth * canvas.clientWidth;
+    //     var newY = this.y / spaceHeight * canvas.clientHeight;
+    // }
 }// class PointValue
 
 relMousePos = new PointValue(0, 0)
@@ -163,13 +168,13 @@ class Shape {
         let pointX = Math.floor(x + this.points[0].r * Math.cos((this.points[0].dir + dir) * (Math.PI / 180)));
         let pointY = Math.floor(y + this.points[0].r * Math.sin((this.points[0].dir + dir) * (Math.PI / 180)));
 
-        await ctx.moveTo(pointX, pointY);
+        await ctx.moveTo(pointX * spaceScale, pointY * spaceScale);
 
         for(let i = 1; i < this.points.length; i++) {
             pointX = Math.floor(x + this.points[i].r * Math.cos((this.points[i].dir + dir) * (Math.PI / 180)));
             pointY = Math.floor(y + this.points[i].r * Math.sin((this.points[i].dir + dir) * (Math.PI / 180)));
 
-            await ctx.lineTo(pointX, pointY);
+            await ctx.lineTo(pointX * spaceScale, pointY * spaceScale);
         }
 
         await ctx.closePath();
