@@ -75,15 +75,24 @@ function pause() {
     if(paused == true) {
         gameStart = getElapsedTimems() - gameTime;
         currentMenu.hide();
-        resetControlIntervals();
+        // resetControlIntervals();
         currentController = new KeyController(gameControlScheme);
         paused = false;
         currentMenu = undefined;
+        arrowUpPressed = false;
+        arrowDownPressed = false;
+        arrowLeftPressed = false;
+        arrowRightPressed = false;
+        renderFrame();
     }
     else {
+        arrowUpPressed = false;
+        arrowDownPressed = false;
+        arrowLeftPressed = false;
+        arrowRightPressed = false;
         paused = true;
         pauseGameTime();
-        resetControlIntervals();
+        // resetControlIntervals();
         currentController = new KeyController(menuControlScheme);
         currentMenu = Menus.paused();
         currentMenu.draw();
@@ -93,6 +102,8 @@ function pause() {
 function shoot() {
     if(!ship) return;
     if(!canShoot) return;
+
+    console.log('shoot'); // for debugging
 
     ship.shoot();
     canShoot = false;
@@ -130,7 +141,7 @@ function gameEnd() {
     var finalGameTime = gameTime / 1000;
     lastGameResult = "score: " + score + "\naccuracy: " + calcAccuracy() + "%\n time: " + finalGameTime.toFixed(1) + "s";
     resetGameTime();
-    resetControlIntervals();
+    // resetControlIntervals();
     if(ship) {
         entities[ship.id] = null;
         ship = null;
@@ -146,7 +157,6 @@ function gameEnd() {
     currentMenu.draw();
     currentController = new KeyController(menuControlScheme);
     gameStatus = "menu";
-
     
 }// gameEnd()
 
@@ -161,7 +171,7 @@ function killPlayer() {
     gameEnd();
 }// killPlayer()
 
-function updateCharacterMovement() {
+function updateCharacterMovement(frameTime = 1/60) {
     if(!ship) return;
 
     if(arrowUpPressed) {
@@ -171,17 +181,17 @@ function updateCharacterMovement() {
         ship.forward(0-shipAcceleration);
     }
     if(arrowLeftPressed) {
-        ship.turnLeft();
+        ship.turnLeft(frameTime);
     }
     if(arrowRightPressed) {
-        ship.turnRight();
+        ship.turnRight(frameTime);
     }
 }// updateCharacterMovement()
 
-function updateMovement() {
+function updateMovement(frameTime = 1/60) {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
-            entities[i].updatePosition();
+            entities[i].updatePosition(frameTime);
         }
     }
 }// updateMovement()
@@ -520,11 +530,13 @@ async function drawFrame() {
     return;
 }// drawFrame()
 
-function tick() {
+function tick(frameTime = 1/60) {
+
+    console.log("tick");
     if(!paused) {
         gameTime = (getElapsedTimems() - gameStart);
-        //updateCharacterMovement();
-        updateMovement();
+        updateCharacterMovement(frameTime);
+        updateMovement(frameTime);
         updateCollision();
 
         updateAsteroids();
@@ -553,6 +565,51 @@ function tick() {
 
     ticksSenseLastCheck++;
 }// tick()
+
+var startTimeStamp, previoustimeStamp;
+var animationFrame = undefined;
+
+async function renderFrame(timeStamp) {
+
+    if(startTimeStamp === undefined) {
+        startTimeStamp = timeStamp;
+        //console.log(`startTimeStamp: ${startTimeStamp}`); // for debugging
+    }
+    if(previoustimeStamp === undefined) {
+        previoustimeStamp = timeStamp;
+    }
+
+    var frameTime = (timeStamp - previoustimeStamp) / 1000;
+    if(isNaN(frameTime)) {
+        frameTime = 0;
+    }
+
+    gameTime = (getElapsedTimems() - gameStart);
+    updateCharacterMovement(frameTime);
+    updateMovement(frameTime);
+    updateCollision();
+
+    updateAsteroids();
+
+    framesPerSecond = 1 / frameTime;
+
+    await drawFrame();
+
+    ticksSenseLastCheck++;
+    
+    // console.log(`frameTime: ${frameTime}`); // for debugging
+
+    if(!paused) {
+        previoustimeStamp = timeStamp;
+        animationFrame = window.requestAnimationFrame(renderFrame);
+    }
+    else {
+        window.cancelAnimationFrame(animationFrame);
+        startTimeStamp = undefined;
+        previoustimeStamp = undefined;
+    }
+
+}
 
 /*----- Update End -----*/
 
@@ -602,6 +659,7 @@ function equipShipSkin(s) {
     shipSkin = s;
 
     ship.shape = shipSkins[s].shape;
+    drawFrame();
 }// equipShipSkin(s)
 
 function cycleShipSkin() {
@@ -647,6 +705,7 @@ function equipPalette(p) {
     }
 
     canvas.style.backgroundColor = palettes[currentPalette].background;
+    drawFrame();
 }// equipPalette(p)
 
 function cyclePalette() {
@@ -707,15 +766,16 @@ function toggleFullscreen() {
 function newGame() {
     resetGameTime();
     minAsteroids = 0;
-    resetControlIntervals();
+    // resetControlIntervals();
 
     stars = generateStars(numStars);
 
     canShoot = true;
 
     currentController = new KeyController(gameControlScheme);
-    frameInterval = clearInterval(frameInterval);
-    tickInterval = clearInterval(tickInterval);
+    // frameInterval = clearInterval(frameInterval);
+    // tickInterval = clearInterval(tickInterval);
+    window.cancelAnimationFrame(animationFrame);
     gameStatus = "game";
     currentMenu.hide();
     currentMenu = undefined;
@@ -738,9 +798,9 @@ function newGame() {
 
     ship.dir = Math.atan((spaceHeight/2 - ship.y) / (spaceWidth/2 - ship.x)) * 180/Math.PI + 180;
 
-
+    renderFrame();
     // start update interval
-    tickInterval = setInterval(tick, 1000/tickSpeed);
+    // tickInterval = setInterval(tick, 1000/tickSpeed);
     //frameInterval = setInterval(updateScreen, 1000/framerate);
 }// newGame()
 
@@ -748,8 +808,10 @@ function newGame() {
 
 // logic
 function mainMenu() {
-    resetControlIntervals();
+    // resetControlIntervals();
     paused = false;
+    window.cancelAnimationFrame(animationFrame);
+    renderFrame();
     gameEnd();
     gameStatus = "menu";
     currentMenu = Menus.main();
@@ -779,66 +841,66 @@ var gameControlScheme = [
     () => {
         if(!ship) return;
         arrowUpPressed = true;
-        if(fInterval) return;
-        ship.forward(shipAcceleration);
+        // if(fInterval) return;
+        // ship.forward(shipAcceleration);
 
-        if(shipSkins[shipSkin].boosterShape) ship.shape = shipSkins[shipSkin].boosterShape;
+        // if(shipSkins[shipSkin].boosterShape) ship.shape = shipSkins[shipSkin].boosterShape;
 
-        fInterval = setInterval(() => {ship.forward(shipAcceleration);}, 1000/tickSpeed);
+        // fInterval = setInterval(() => {ship.forward(shipAcceleration);}, 1000/tickSpeed);
         //ship.forward(shipAcceleration);
     }, 
     () => {
         arrowUpPressed = false;
         
-        ship.shape = shipSkins[shipSkin].shape;
+        // ship.shape = shipSkins[shipSkin].shape;
 
-        clearInterval(fInterval);
-        fInterval = undefined;
+        // clearInterval(fInterval);
+        // fInterval = undefined;
     }),
 
     new KeyHandler(["ArrowDown", "s", "S"], 
     () => {
         if(!ship) return;
         arrowDownPressed = true;
-        if(bInterval) return;
-        ship.forward(0-shipAcceleration);
-        bInterval = setInterval(() => {ship.forward(0-shipAcceleration);}, 1000/tickSpeed);
+        // if(bInterval) return;
+        // ship.forward(0-shipAcceleration);
+        // bInterval = setInterval(() => {ship.forward(0-shipAcceleration);}, 1000/tickSpeed);
         //ship.forward(0-shipAcceleration);
     }, 
     () => {
         arrowDownPressed = false;
-        clearInterval(bInterval);
-        bInterval = undefined;
+        // clearInterval(bInterval);
+        // bInterval = undefined;
     }),
     
     new KeyHandler(["ArrowLeft", "a", "A"], 
     () => {
         if(!ship) return;
         arrowLeftPressed = true;
-        if(lInterval) return;
-        ship.turnLeft();
-        lInterval = setInterval(() => {ship.turnLeft();}, 1000/tickSpeed);
+        // if(lInterval) return;
+        // ship.turnLeft();
+        // lInterval = setInterval(() => {ship.turnLeft();}, 1000/tickSpeed);
         //ship.turnLeft();
     }, 
     () => {
         arrowLeftPressed = false;
-        clearInterval(lInterval);
-        lInterval = undefined;
+        // clearInterval(lInterval);
+        // lInterval = undefined;
     }),
     
     new KeyHandler(["ArrowRight", "d", "D"], 
     () => {
         if(!ship) return;
         arrowRightPressed = true;
-        if(rInterval) return;
-        ship.turnRight();
-        rInterval = setInterval(() => {ship.turnRight();}, 1000/tickSpeed);
+        // if(rInterval) return;
+        // ship.turnRight();
+        // rInterval = setInterval(() => {ship.turnRight();}, 1000/tickSpeed);
         //ship.turnRight();
     }, 
     () => {
         arrowRightPressed = false;
-        clearInterval(rInterval);
-        rInterval = undefined;
+        // clearInterval(rInterval);
+        // rInterval = undefined;
     }),
     
     new KeyHandler(["Enter", " "], shoot),
@@ -1044,8 +1106,9 @@ function generateStars(num) {
 function init() {
     shipSkin = 0;
 
-    tick();
-    tickInterval = setInterval(tick, 1000/tickSpeed);
+    // tick();
+    //tickInterval = setInterval(tick, 1000/tickSpeed);
+    renderFrame();
     updateSize();
 
     //frameInterval = setInterval(updateScreen, 1000/framerate);

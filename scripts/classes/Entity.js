@@ -95,24 +95,24 @@ class Entity {
     
     changeDir(amount) {
         this.dir += amount;
-        this.draw;
+        // this.draw;
     }// changeDir(amount)
 
-    turnLeft() {
-        this.changeDir(0 - turnSpeed);
+    turnLeft(frameTime = 1/60) {
+        this.changeDir((0 - turnSpeed) * frameTime);
     }// turnLeft() 
-    turnRight() {
-        this.changeDir(turnSpeed);
+    turnRight(frameTime = 1/60) {
+        this.changeDir(turnSpeed * frameTime);
     }// turnRight()
 
-    forward(speed) {
+    forward(speed, frameTime = 1/60) {
         this.addSpeedVector(new Vector(this.dir*Math.PI/180, speed));
         if(this.speedVector.mag > this.maxVelocity) {
             this.speedVector.mag = this.maxVelocity;
         }
     }// forward(speed)
 
-    updatePosition() {
+    updatePosition(frameTime = 1 / 60) {
         if(this.speedVector.mag > this.maxVelocity) {
             this.speedVector.mag = this.maxVelocity;
         }
@@ -120,10 +120,10 @@ class Entity {
             this.speedVector.mag = 0 - this.maxVelocity;
         }
 
-        this.dir += this.torque;
+        this.dir += this.torque * frameTime;
 
-        this.x += this.speedVector.x;
-        this.y += this.speedVector.y;
+        this.x += this.speedVector.x * frameTime;
+        this.y += this.speedVector.y * frameTime;
         
         // off screen roll-over
         if(this.x < 0-this.rollOverDist) {

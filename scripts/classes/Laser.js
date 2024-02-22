@@ -20,9 +20,9 @@ class Laser extends Entity {
         shotsFired++;
     }// constructor
 
-    updatePosition() {
-        this.x += this.speedVector.x;
-        this.y += this.speedVector.y;
+    updatePosition(frameTime = 1/60) {
+        this.x += this.speedVector.x * frameTime;
+        this.y += this.speedVector.y * frameTime;
 
         
         // off screen delete

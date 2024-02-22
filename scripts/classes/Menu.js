@@ -92,8 +92,8 @@ class Menu {
 
         this.show();
         
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // ctx.fillStyle = "#fff";
+        // ctx.fillRect(0, 0, canvas.width, canvas.height);
         //menuDiv.style.opacity = "1";
     }// draw()
 }// class Menu
