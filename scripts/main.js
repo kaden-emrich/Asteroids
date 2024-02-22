@@ -79,9 +79,17 @@ function pause() {
         currentController = new KeyController(gameControlScheme);
         paused = false;
         currentMenu = undefined;
+        arrowUpPressed = false;
+        arrowDownPressed = false;
+        arrowLeftPressed = false;
+        arrowRightPressed = false;
         renderFrame();
     }
     else {
+        arrowUpPressed = false;
+        arrowDownPressed = false;
+        arrowLeftPressed = false;
+        arrowRightPressed = false;
         paused = true;
         pauseGameTime();
         // resetControlIntervals();
@@ -561,7 +569,7 @@ function tick(frameTime = 1/60) {
 var startTimeStamp, previoustimeStamp;
 var animationFrame = undefined;
 
-function renderFrame(timeStamp) {
+async function renderFrame(timeStamp) {
 
     if(startTimeStamp === undefined) {
         startTimeStamp = timeStamp;
@@ -585,7 +593,7 @@ function renderFrame(timeStamp) {
 
     framesPerSecond = 1 / frameTime;
 
-    drawFrame();
+    await drawFrame();
 
     ticksSenseLastCheck++;
     
