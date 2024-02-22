@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.6.0";
+const RELEASE_VERSION = "v1.6.1";
 
 const startTime = Date.now();
 
@@ -135,7 +135,7 @@ var laserSpeed = 1200;
 var asteroidSpeed = 120;
 var velocityLimit = 1800;
 var turnSpeed = 300;
-var shipAcceleration = 12;
+var shipAcceleration = 6;
 
 var currentPalette;
 var shipSkin;

@@ -176,6 +176,10 @@ function updateCharacterMovement(frameTime = 1/60) {
 
     if(arrowUpPressed) {
         ship.forward(shipAcceleration);
+        if(shipSkins[shipSkin].boosterShape) ship.shape = shipSkins[shipSkin].boosterShape;
+    }
+    else {
+        ship.shape = shipSkins[shipSkin].shape;
     }
     if(arrowDownPressed) {
         ship.forward(0-shipAcceleration);
