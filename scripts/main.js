@@ -651,6 +651,7 @@ function equipShipSkin(s) {
     shipSkin = s;
 
     ship.shape = shipSkins[s].shape;
+    drawFrame();
 }// equipShipSkin(s)
 
 function cycleShipSkin() {
@@ -696,6 +697,7 @@ function equipPalette(p) {
     }
 
     canvas.style.backgroundColor = palettes[currentPalette].background;
+    drawFrame();
 }// equipPalette(p)
 
 function cyclePalette() {
