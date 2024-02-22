@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.5.9";
+const RELEASE_VERSION = "v1.5.10";
 
 const startTime = Date.now();
 
@@ -83,15 +83,21 @@ var laserSight = false;
 
 var doShrapnel = true;
 
-var defaultShrapnelSpeed = 5;
+// var defaultShrapnelSpeed = 5;
+// var defaultShrapnelLife = 10;
+// var asteroidShrapnelSpeed = 5;
+// var asteroidShrapnelLife = 10;
+// var asteroidShrapnelAmount = 3;
+
+var defaultShrapnelSpeed = 300;
 var defaultShrapnelLife = 10;
-var asteroidShrapnelSpeed = 5;
+var asteroidShrapnelSpeed = 300;
 var asteroidShrapnelLife = 10;
 var asteroidShrapnelAmount = 3;
 
 var showStars = true;
 
-var maxAsteroidTorque = 0.5;
+var maxAsteroidTorque = 30;
 
 var doPostProcessing = true;
 var doChromaticAberration = false;
@@ -117,12 +123,19 @@ var noClip = false;
 
 var hideCursorOnKeyboardInput = true;
 
-var shipSpeed = 20;
-var laserSpeed = 20;
-var asteroidSpeed = 2;
-var velocityLimit = 30;
-var turnSpeed = 5;
-var shipAcceleration = 0.2;
+// var shipSpeed = 20;
+// var laserSpeed = 20;
+// var asteroidSpeed = 2;
+// var velocityLimit = 30;
+// var turnSpeed = 5;
+// var shipAcceleration = 0.2;
+
+var shipSpeed = 1200;
+var laserSpeed = 1200;
+var asteroidSpeed = 120;
+var velocityLimit = 1800;
+var turnSpeed = 300;
+var shipAcceleration = 12;
 
 var currentPalette;
 var shipSkin;
