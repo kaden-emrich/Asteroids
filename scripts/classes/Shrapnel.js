@@ -13,17 +13,17 @@ class Shrapnel extends Asteroid {
         this.liveTicks = 0;
         this.maxVelocity = velocityLimit;
         this.type = "shrapnel";
-        this.forward(speed);
+        this.forward(speed, 1);
     }
 
-    updatePosition() {
-        this.liveTicks++;
+    updatePosition(frameTime = 1/60) {
+        this.liveTicks += 1000 * frameTime;
 
         if(this.liveTicks >= this.ticks) {
             this.kill();
         }
         else {
-            super.updatePosition();
+            super.updatePosition(frameTime);
         }
     }
 

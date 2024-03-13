@@ -106,7 +106,7 @@ class Entity {
     }// turnRight()
 
     forward(speed, frameTime = 1/60) {
-        this.addSpeedVector(new Vector(this.dir*Math.PI/180, speed));
+        this.addSpeedVector(new Vector(this.dir*Math.PI/180, speed * frameTime));
         if(this.speedVector.mag > this.maxVelocity) {
             this.speedVector.mag = this.maxVelocity;
         }

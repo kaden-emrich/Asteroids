@@ -166,7 +166,7 @@ function killPlayer() {
         return;
     }
 
-    Shrapnel.explosion(ship.x, ship.y, 20, defaultShrapnelSpeed, 60);
+    Shrapnel.explosion(ship.x, ship.y, 20, defaultShrapnelSpeed, 1000);
 
     gameEnd();
 }// killPlayer()
@@ -175,14 +175,14 @@ function updateCharacterMovement(frameTime = 1/60) {
     if(!ship) return;
 
     if(arrowUpPressed) {
-        ship.forward(shipAcceleration);
+        ship.forward(shipAcceleration, frameTime);
         if(shipSkins[shipSkin].boosterShape) ship.shape = shipSkins[shipSkin].boosterShape;
     }
     else {
         ship.shape = shipSkins[shipSkin].shape;
     }
     if(arrowDownPressed) {
-        ship.forward(0-shipAcceleration);
+        ship.forward(0-shipAcceleration, frameTime);
     }
     if(arrowLeftPressed) {
         ship.turnLeft(frameTime);
