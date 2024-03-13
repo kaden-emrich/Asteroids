@@ -41,7 +41,7 @@ class Asteroid extends Entity {
         this.rollOverDist = rd;
         this.torque = torque;
     
-        this.forward(speed);
+        this.forward(speed, 1);
     }// constructor(x, y, dir, speed, size)
 
     explode() {

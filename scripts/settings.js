@@ -92,7 +92,7 @@ var doShrapnel = true;
 var defaultShrapnelSpeed = 300;
 var defaultShrapnelLife = 10;
 var asteroidShrapnelSpeed = 300;
-var asteroidShrapnelLife = 10;
+var asteroidShrapnelLife = 1000/6;
 var asteroidShrapnelAmount = 3;
 
 var showStars = true;
@@ -135,7 +135,7 @@ var laserSpeed = 1200;
 var asteroidSpeed = 120;
 var velocityLimit = 1800;
 var turnSpeed = 300;
-var shipAcceleration = 6;
+var shipAcceleration = 720;
 
 var currentPalette;
 var shipSkin;
