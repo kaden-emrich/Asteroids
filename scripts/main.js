@@ -42,6 +42,51 @@ async function chromaticAberration(context, intensity, phase) {
     return;
 }
 
+// async function newchromaticAberration(context, intensity) {
+//     let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+//     let data = imageData.data;
+
+//     let redImageData = context.createImageData(canvas.width, canvas.height);
+//     let greenImageData = context.createImageData(canvas.width, canvas.height);
+//     let blueImageData = context.createImageData(canvas.width, canvas.height);
+
+//     for(let i = 0; i < data.length; i += 4) {
+//         redImageData.data[i] = data[i]; // Red
+//         redImageData.data[i + 1] = 0;
+//         redImageData.data[i + 2] = 0;
+//         redImageData.data[i + 3] = data[i + 3]; // Alpha
+
+//         greenImageData.data[i] = 0;
+//         greenImageData.data[i + 1] = data[i + 1]; // Green
+//         greenImageData.data[i + 2] = 0;
+//         greenImageData.data[i + 3] = data[i + 3]; // Alpha
+
+//         blueImageData.data[i] = 0;
+//         blueImageData.data[i + 1] = 0;
+//         blueImageData.data[i + 2] = data[i + 2]; // Blue
+//         blueImageData.data[i + 3] = data[i + 3]; // Alpha
+//     }
+
+//     // redContext.drawImage(canvas, intensity, 0);
+//     // greenContext.drawImage(canvas, 0, 0);
+//     // blueContext.drawImage(canvas, -intensity, 0);
+
+//     redContext.putImageData(redImageData, 0, 0);
+//     greenContext.putImageData(greenImageData, 0, 0);
+//     blueContext.putImageData(blueImageData, 0, 0);
+
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     ctx.globalCompositeOperation = 'lighter';
+
+//     context.drawImage(redCanvas, intensity, 0);
+//     context.drawImage(greenCanvas, 0, 0);
+//     context.drawImage(blueCanvas, -intensity, 0);
+
+//     ctx.globalCompositeOperation = 'source-over';
+
+//     return;
+// }
+
 function calcAccuracy() {
     let acc = Math.floor(score / shotsFired);
     if(!acc) return 0;
@@ -103,7 +148,7 @@ function shoot() {
     if(!ship) return;
     if(!canShoot) return;
 
-    console.log('shoot'); // for debugging
+    // console.log('shoot'); // for debugging
 
     ship.shoot();
     canShoot = false;
@@ -555,9 +600,9 @@ function tick(frameTime = 1/60) {
         // }
     }
 
-    if(getElapsedTimems() - lastFrameCheck >= frameCheckIntervalms) {
-        framesPerSecond = checkFPS();
-    }
+    // if(getElapsedTimems() - lastFrameCheck >= frameCheckIntervalms) {
+    //     framesPerSecond = checkFPS();
+    // }
 
     if(frameFinished) {
         drawFrame();
@@ -570,10 +615,19 @@ function tick(frameTime = 1/60) {
     ticksSenseLastCheck++;
 }// tick()
 
+var currentTimestamp = 0;
 var startTimeStamp, previoustimeStamp;
 var animationFrame = undefined;
 
+function checkTimestamps() {
+    console.log(`${previoustimeStamp} -> ${currentTimestamp} : ${framesPerSecond}}`);
+}
+
 async function renderFrame(timeStamp) {
+    if(timeStamp === undefined) {
+        timeStamp = 0;
+    }
+    currentTimestamp = timeStamp;
 
     if(startTimeStamp === undefined) {
         startTimeStamp = timeStamp;
@@ -585,8 +639,13 @@ async function renderFrame(timeStamp) {
 
     var frameTime = (timeStamp - previoustimeStamp) / 1000;
     if(isNaN(frameTime)) {
+        console.log('help');
         frameTime = 0;
     }
+    framesPerSecond = 1 / frameTime;
+
+    checkTimestamps();
+    
 
     gameTime = (getElapsedTimems() - gameStart);
     updateCharacterMovement(frameTime);
@@ -595,8 +654,6 @@ async function renderFrame(timeStamp) {
 
     updateAsteroids();
 
-    framesPerSecond = 1 / frameTime;
-
     await drawFrame();
 
     ticksSenseLastCheck++;
@@ -604,6 +661,9 @@ async function renderFrame(timeStamp) {
     // console.log(`frameTime: ${frameTime}`); // for debugging
 
     if(!paused) {
+        if(previoustimeStamp != 0 && timeStamp != 0 && timeStamp === previoustimeStamp) { // if this is true, there is another animationFrame that should not be running and this corrects it.
+            return;
+        }
         previoustimeStamp = timeStamp;
         animationFrame = window.requestAnimationFrame(renderFrame);
     }
@@ -770,6 +830,8 @@ function toggleFullscreen() {
 function newGame() {
     resetGameTime();
     minAsteroids = 0;
+    
+    window.cancelAnimationFrame(animationFrame);
     // resetControlIntervals();
 
     stars = generateStars(numStars);
@@ -779,7 +841,6 @@ function newGame() {
     currentController = new KeyController(gameControlScheme);
     // frameInterval = clearInterval(frameInterval);
     // tickInterval = clearInterval(tickInterval);
-    window.cancelAnimationFrame(animationFrame);
     gameStatus = "game";
     currentMenu.hide();
     currentMenu = undefined;
