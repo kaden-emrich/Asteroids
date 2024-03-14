@@ -644,9 +644,6 @@ async function renderFrame(timeStamp) {
     }
     framesPerSecond = 1 / frameTime;
 
-    checkTimestamps();
-    
-
     gameTime = (getElapsedTimems() - gameStart);
     updateCharacterMovement(frameTime);
     updateMovement(frameTime);
