@@ -625,7 +625,9 @@ function checkTimestamps() {
 
 async function renderFrame(timeStamp) {
     if(timeStamp === undefined) {
-        timeStamp = 0;
+        timeStamp = previoustimeStamp;
+        animationFrame = window.requestAnimationFrame(renderFrame);
+        return;
     }
     currentTimestamp = timeStamp;
 
@@ -639,7 +641,7 @@ async function renderFrame(timeStamp) {
 
     var frameTime = (timeStamp - previoustimeStamp) / 1000;
     if(isNaN(frameTime)) {
-        console.log('help');
+        console.log(`help! ${previoustimeStamp} -> ${timeStamp}`); // for debugging
         frameTime = 0;
     }
     framesPerSecond = 1 / frameTime;
@@ -658,9 +660,9 @@ async function renderFrame(timeStamp) {
     // console.log(`frameTime: ${frameTime}`); // for debugging
 
     if(!paused) {
-        if(previoustimeStamp != 0 && timeStamp != 0 && timeStamp === previoustimeStamp) { // if this is true, there is another animationFrame that should not be running and this corrects it.
-            return;
-        }
+        // if(previoustimeStamp != 0 && timeStamp != 0 && timeStamp === previoustimeStamp) { // if this is true, there is another animationFrame that should not be running and this corrects it.
+        //     return;
+        // }
         previoustimeStamp = timeStamp;
         animationFrame = window.requestAnimationFrame(renderFrame);
     }
@@ -1170,7 +1172,7 @@ function init() {
 
     // tick();
     //tickInterval = setInterval(tick, 1000/tickSpeed);
-    renderFrame();
+    // renderFrame();
     updateSize();
 
     //frameInterval = setInterval(updateScreen, 1000/framerate);
