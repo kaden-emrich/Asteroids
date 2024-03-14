@@ -30,6 +30,12 @@ var bInterval;
 var lInterval;
 var rInterval;
 
+window.onresize = () => {
+    if(paused) {
+        drawFrame();
+    }
+};
+
 async function chromaticAberration(context, intensity, phase) {
     var imageData = await context.getImageData(0, 0, canvas.width, canvas.height);
     var data = imageData.data;
