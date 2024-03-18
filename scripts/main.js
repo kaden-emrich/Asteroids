@@ -1199,6 +1199,7 @@ function init() {
             spawnAsteroid();
         }
 
+        renderFrame();
     }
     else {
         menuDiv.style = "opacity: 100;";
