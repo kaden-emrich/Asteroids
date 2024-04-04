@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.6.8";
+const RELEASE_VERSION = "v1.6.9";
 
 const startTime = Date.now();
 
@@ -46,6 +46,7 @@ var arrowUpPressed = false;
 var arrowDownPressed = false;
 var arrowLeftPressed = false;
 var arrowRightPressed = false;
+var shootPressed = false;
 
 var relMousePos;
 
@@ -57,6 +58,7 @@ var currentController;
 
 var currentDifficulty = 1;
 var shotsFired = 0;
+var shotsHit = 0;
 
 var currentAlert = null;
 
@@ -83,6 +85,13 @@ var laserSight = false;
 
 var doShrapnel = true;
 
+let autoFire = false;
+let shootCooldownMS = 300;
+let shootSpread = 0;
+let shootAmount = 1;
+let shootPenetration = 0;
+
+
 // var defaultShrapnelSpeed = 5;
 // var defaultShrapnelLife = 10;
 // var asteroidShrapnelSpeed = 5;
@@ -101,9 +110,6 @@ var maxAsteroidTorque = 30;
 
 var doPostProcessing = true;
 var doChromaticAberration = false;
-
-
-var shootCooldownMS = 300;
 
 var numStars = 50;
 

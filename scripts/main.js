@@ -48,6 +48,15 @@ async function chromaticAberration(context, intensity, phase) {
     return;
 }
 
+function godMode() {
+    autoFire = true;
+    noClip = true;
+    shootAmount = 5;
+    shootSpread = 30;
+    shootPenetration = 10;
+    shootCooldownMS = 100;
+}
+
 // async function newchromaticAberration(context, intensity) {
 //     let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 //     let data = imageData.data;
@@ -94,7 +103,7 @@ async function chromaticAberration(context, intensity, phase) {
 // }
 
 function calcAccuracy() {
-    let acc = Math.floor(score / shotsFired);
+    let acc = Math.floor(100 * shotsHit / shotsFired);
     if(!acc) return 0;
     else return acc;
 }// calcAccuracy()
@@ -156,7 +165,7 @@ function shoot() {
 
     // console.log('shoot'); // for debugging
 
-    ship.shoot();
+    ship.shoot(shootAmount, shootSpread);
     canShoot = false;
     setTimeout(() => {
         canShoot = true;
@@ -653,6 +662,10 @@ async function renderFrame(timeStamp) {
     framesPerSecond = 1 / frameTime;
 
     gameTime = (getElapsedTimems() - gameStart);
+
+    if(autoFire && canShoot && shootPressed) {
+        shoot();
+    }
     updateCharacterMovement(frameTime);
     updateMovement(frameTime);
     updateCollision();
@@ -858,6 +871,7 @@ function newGame() {
     entities = [];
     score = 0;
     shotsFired = 0;
+    shotsHit = 0;
 
     arrowUpPressed = false;
     arrowDownPressed = false;
@@ -977,7 +991,17 @@ var gameControlScheme = [
         // rInterval = undefined;
     }),
     
-    new KeyHandler(["Enter", " "], shoot),
+    new KeyHandler(["Enter", " "], 
+        () => {
+            if(!shootPressed) {
+                shoot();
+                shootPressed = true;
+            }
+        },
+        () => {
+            shootPressed = false;
+        }
+    ),
     
     new KeyHandler(["Escape", "p", "P"], pause),
     

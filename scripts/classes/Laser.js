@@ -1,21 +1,26 @@
 // Kaden Emrich
 
+const laserLength = 10;
 var laserPoints = [
-    new PointValue(15, 0).getPolar(),
-    new PointValue(-15, 0).getPolar(),
-    new PointValue(-15, -1).getPolar(),
-    new PointValue(15, -1).getPolar()
+    new PointValue(laserLength, 0).getPolar(),
+    new PointValue(-laserLength, 0).getPolar(),
+    new PointValue(-laserLength, -1).getPolar(),
+    new PointValue(laserLength, -1).getPolar()
 ];
 
 class Laser extends Entity {
-    constructor(ship) {
+    constructor(ship, overrideDir) {
         super(new Shape(laserPoints), palettes[currentPalette].laser, "laser", laserSpeed);
 
         this.dir = ship.dir;
+        if(overrideDir) this.dir = overrideDir;
+
         this.x = ship.getPoints()[0].x;
         this.y = ship.getPoints()[0].y;
 
-        this.speedVector = new Vector(ship.dir * Math.PI/180, laserSpeed);
+        this.speedVector = new Vector(this.dir * Math.PI/180, laserSpeed);
+
+        this.penetration = shootPenetration;
 
         shotsFired++;
     }// constructor
@@ -50,7 +55,16 @@ class Laser extends Entity {
             }
 
             if(c.type == "asteroid" && this.checkDistanceCollision(c)) {
-                entities[this.id] = null;
+                if(this.penetration == shootPenetration) { // only if it is the lasers first collision count it as a new hit
+                    shotsHit++;
+                }
+
+                if(this.penetration > 0) {
+                    this.penetration--;
+                }
+                else {
+                    entities[this.id] = null;
+                }
                 score += 100;
 
                 c.explode();
