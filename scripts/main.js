@@ -770,6 +770,10 @@ function equipPalette(p) {
             case "laser":
                 e.color = palettes[currentPalette].laser;
                 break;
+
+            case "shrapnel":
+                e.color = palettes[currentPalette].asteroid;
+                break;
         }
     }
 
