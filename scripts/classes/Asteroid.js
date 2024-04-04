@@ -75,7 +75,7 @@ class Asteroid extends Entity {
                 continue;
             }
 
-            if(c.type == "ship" && this.isTouching(c)) {
+            if(!noClip && c.type == "ship" && this.isTouching(c)) {
                 if(noClip == false) {
                     killPlayer();
                     this.explode();

@@ -7,17 +7,16 @@ class Ship extends Entity {
         this.x = spaceWidth * 0.75;
         this.y = spaceHeight * 0.25;
         this.dir = 135;
+
+        this.isColiding = false;
     }// constructor
 
     async draw() {
-        if(noClip) {
-            var collision = this.checkLineCollision();
-            if(collision != null && collision.type == "asteroid") {
-                this.color = "#f00";
-            }
-            else {
-                this.color = "#fff";
-            }
+        if(noClip && this.isColiding) {
+            this.color = palettes[currentPalette].asteroid;
+        }
+        else {
+            this.color = palettes[currentPalette].ship;
         }
 
         await super.draw(this.x, this.y, this.dir, this.color);
@@ -37,11 +36,15 @@ class Ship extends Entity {
         return;
     }// draw()
 
-    shoot() {
-        new Laser(this);
+    shoot(amount = 1, spread = 0) {
+        for(let i = 0; i < amount; i++) {
+            const nextDir = this.dir + (spread*(i/(amount-1))) - (spread/2);
+            let nextLaser = new Laser(this, nextDir);
+        }
     }// shoot()
 
     updateCollision() {
+        let testColide = false;
         let collisions = this.checkAllDistCollision();
 
         if(this == null || collisions.length < 1) return;   
@@ -51,13 +54,17 @@ class Ship extends Entity {
                 continue;
             }
 
-            if(c.type == "asteroid" && !noClip && this.isTouching(c)) {
-                killPlayer();
-                
-                c.explode();
-                continue;
+            if(c.type == "asteroid" && this.isTouching(c)) {
+                testColide = true;
+                if(!noClip) {
+                    killPlayer();
+                    
+                    c.explode();
+                    continue;
+                }
             }
         }
+        this.isColiding = testColide;
     }// updateCollision()
 }// class Ship
 
