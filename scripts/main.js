@@ -837,6 +837,8 @@ function makeClassic() {
     shipSkin = 1;
     equipShipSkin(shipSkin);
 
+    showTextBlips = true;
+
     showStars = true;
     doShrapnel = true;
 }
