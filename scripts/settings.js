@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.6.11";
+const RELEASE_VERSION = "v1.7.0";
 
 const startTime = Date.now();
 
@@ -67,6 +67,25 @@ var gameOver = false;
 
 var viewTypes = ["square", "full"];
 var isFullscreen = false;
+
+let doScreenShake = true;
+let screenShakeIntensity = 0;
+let screenShakeReturn = 0.1;
+function setScreenShake(intensity, returnSpeed) {
+    if(screenShakeIntensity > 0) {
+        screenShakeReturn = returnSpeed < screenShakeReturn ? returnSpeed : screenShakeReturn;
+    }
+    else {
+        screenShakeReturn = returnSpeed;
+    }
+
+    if(!doScreenShake) {
+        screenShakeIntensity = 0;
+        screenShakeReturn = 0;
+        return;
+    }
+    screenShakeIntensity = intensity > screenShakeIntensity ? intensity : screenShakeIntensity;
+}
 
 /*----- Game Settings -----*/
 
