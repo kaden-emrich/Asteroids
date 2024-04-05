@@ -12,6 +12,8 @@ class Entity {
         this.type = type;
         this.rollOverDist = 30;
 
+        this.drawAfterBlur = false
+
         this.id = -1;
 
         for(let e in entities) {
@@ -29,8 +31,14 @@ class Entity {
 
         this.shape = shape;
 
-        this.standardDeviation = this.shape.getStandardPointDeviation();
-        this.maxDeviation = this.shape.getMaxPointDeviation();
+        if(shape) {
+            this.standardDeviation = this.shape.getStandardPointDeviation();
+            this.maxDeviation = this.shape.getMaxPointDeviation();
+        }
+        else {
+            this.standardDeviation = 0;
+            this.maxDeviation = 0;
+        }
     }// constructor()
 
     getPolarPoints() {

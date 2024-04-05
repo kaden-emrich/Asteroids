@@ -11,6 +11,8 @@ var canShoot = true;
 
 var stars = [];
 
+let postblurEntities = [];
+
 var frameFinished = true;
 var lastFrameCheck = 0;
 var framesSenseLastCheck = 0;
@@ -31,6 +33,8 @@ var lInterval;
 var rInterval;
 
 window.onresize = () => {
+    stars = generateStars(numStars);
+    
     if(paused) {
         drawFrame();
     }
@@ -226,6 +230,7 @@ function killPlayer() {
         return;
     }
 
+    // new TextBlip(ship.x * spaceScale, ship.y * spaceScale, "BOOM", 0, 0, 40, 1000);
     Shrapnel.explosion(ship.x, ship.y, 20, defaultShrapnelSpeed, 1000);
 
     gameEnd();
@@ -408,10 +413,29 @@ function updateAsteroids() {
 async function drawEntities() {
     for(let i = 0; i < entities.length; i++) {
         if(entities[i] != null) {
+            if(entities[i].drawAfterBlur) {
+                postblurEntities.push(entities[i]);
+                continue;
+            }
+
             await entities[i].draw();
 
             if(showBoundingBoxes) {
                 entities[i].drawBoundingBox();
+            }
+        }
+    }
+    return;
+}// drawEntities()
+
+async function drawPostBlurEntities() {
+    for(let i = 0; i < postblurEntities.length; i++) {
+        if(postblurEntities[i] != null) {
+
+            await postblurEntities[i].draw();
+
+            if(showBoundingBoxes) {
+                postblurEntities[i].drawBoundingBox();
             }
         }
     }
@@ -548,6 +572,7 @@ async function drawStars() {
 }
 
 async function drawFrame() {
+    postblurEntities = [];
     framesSenseLastCheck++;
 
     frameFinished = false;
@@ -589,6 +614,8 @@ async function drawFrame() {
     else {
         layer2Canvas.style.display = "none";
     }
+
+    drawPostBlurEntities();
 
     frameFinished = true;
     return;
@@ -1108,16 +1135,22 @@ var Menus = {
                 menuButtons[3].innerText = "shrapnel: " + (doShrapnel ? "on" : "off");
             }),
 
+            new MenuOption("text blips: " + (showTextBlips ? "on" : "off"), () => {
+                showTextBlips = !showTextBlips;
+                temp.options[4].name = "text blips: " + (showTextBlips ? "on" : "off");
+                menuButtons[4].innerText = "text blips: " + (showTextBlips ? "on" : "off");
+            }),
+
             new MenuOption("post-processing: " + (doPostProcessing ? "on" : "off"), () => {
                 togglePostProcessing();
-                temp.options[4].name = "post-processing: " + (doPostProcessing ? "on" : "off");
-                menuButtons[4].innerText = "post-processing: " + (doPostProcessing ? "on" : "off");
+                temp.options[5].name = "post-processing: " + (doPostProcessing ? "on" : "off");
+                menuButtons[5].innerText = "post-processing: " + (doPostProcessing ? "on" : "off");
             }),
 
             new MenuOption("stars: " + (showStars ? "on" : "off"), () => {
                 toggleStars();
-                temp.options[5].name = "stars: " + (showStars ? "on" : "off");
-                menuButtons[5].innerText = "stars: " + (showStars ? "on" : "off");
+                temp.options[6].name = "stars: " + (showStars ? "on" : "off");
+                menuButtons[6].innerText = "stars: " + (showStars ? "on" : "off");
             })
         ], "options");
 
