@@ -960,7 +960,12 @@ var menuControlScheme = [
     // new KeyHandler(["ArrowUp", "w", "W"], () => {currentMenu.last();}),
     // new KeyHandler(["ArrowDown", "s", "S"], () => {currentMenu.next();}),
     // new KeyHandler(["Enter", " "], () => {currentMenu.select();}),
-    new KeyHandler(["Escape", "p"], () => {if(gameStatus == "game") pause();})
+    new KeyHandler(["Escape", "p"], () => {if(gameStatus == "game") pause();}),
+
+    new KeyHandler(["r", "R"], () => {
+        gameEnd();
+        newGame();
+    }),
 ];
 
 var gameControlScheme = [
