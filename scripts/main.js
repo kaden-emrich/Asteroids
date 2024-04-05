@@ -232,6 +232,7 @@ function killPlayer() {
 
     // new TextBlip(ship.x * spaceScale, ship.y * spaceScale, "BOOM", 0, 0, 40, 1000);
     Shrapnel.explosion(ship.x, ship.y, 20, defaultShrapnelSpeed, 1000);
+    setScreenShake(10, 0.1);
 
     gameEnd();
 }// killPlayer()
@@ -705,6 +706,11 @@ async function renderFrame(timeStamp) {
     
     // console.log(`frameTime: ${frameTime}`); // for debugging
 
+    screenShakeIntensity = screenShakeIntensity > 0 ? screenShakeIntensity - screenShakeReturn : 0;
+    screenShakeIntensity = screenShakeIntensity < 0 ? 0 : screenShakeIntensity;
+    gameDiv.style.top = (Math.random() * screenShakeIntensity * 2 - screenShakeIntensity) + "px";
+    gameDiv.style.left = (Math.random() * screenShakeIntensity * 2 - screenShakeIntensity) + "px";
+
     if(!paused) {
         // if(previoustimeStamp != 0 && timeStamp != 0 && timeStamp === previoustimeStamp) { // if this is true, there is another animationFrame that should not be running and this corrects it.
         //     return;
@@ -837,6 +843,9 @@ function makeClassic() {
     shipSkin = 1;
     equipShipSkin(shipSkin);
 
+    showTextBlips = true;
+
+    doScreenShake = true;
     showStars = true;
     doShrapnel = true;
 }
@@ -904,6 +913,9 @@ function newGame() {
     arrowDownPressed = false;
     arrowLeftPressed = false;
     arrowRightPressed = false;
+
+    screenShakeIntensity = 0;
+    screenShakeReturn = 0.1;
 
     ship = new Ship();
 
@@ -1151,6 +1163,12 @@ var Menus = {
                 toggleStars();
                 temp.options[6].name = "stars: " + (showStars ? "on" : "off");
                 menuButtons[6].innerText = "stars: " + (showStars ? "on" : "off");
+            }),
+
+            new MenuOption("screen shake: " + (doScreenShake ? "on" : "off"), () => {
+                doScreenShake = !doScreenShake;
+                temp.options[7].name = "screen shake: " + (doScreenShake ? "on" : "off");
+                menuButtons[7].innerText = "screen shake: " + (doScreenShake ? "on" : "off");
             })
         ], "options");
 

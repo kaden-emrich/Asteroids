@@ -50,15 +50,18 @@ class Asteroid extends Entity {
                 new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
             }
             this.spawnShrapnel(7, asteroidShrapnelLife*2);
+            setScreenShake(3, 0.1);
         }
         else if(this.size == 3) {
             for(let i = 0; i < 2; i++) {
                 new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2, Asteroid.getRandomTorqueValue());
             }
             this.spawnShrapnel(9, asteroidShrapnelLife*3);
+            setScreenShake(4, 0.1);
         }
         else if(this.size = 1) {
             this.spawnShrapnel(4);
+            setScreenShake(2.5, 0.3);
         }
 
 
