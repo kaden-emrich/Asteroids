@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.6.9";
+const RELEASE_VERSION = "v1.6.10";
 
 const startTime = Date.now();
 
@@ -84,6 +84,10 @@ var showTime = true;
 var laserSight = false;
 
 var doShrapnel = true;
+let showTextBlips = true;
+let textBlipSpeed = 100;
+
+let scoreIncrement = 100;
 
 let autoFire = false;
 let shootCooldownMS = 300;

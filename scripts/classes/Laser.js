@@ -59,13 +59,15 @@ class Laser extends Entity {
                     shotsHit++;
                 }
 
+                new TextBlip(this.x * spaceScale, this.y * spaceScale, `+${scoreIncrement}`, this.dir+180);
+                score += scoreIncrement;
+
                 if(this.penetration > 0) {
                     this.penetration--;
                 }
                 else {
                     entities[this.id] = null;
                 }
-                score += 100;
 
                 c.explode();
                 return;
