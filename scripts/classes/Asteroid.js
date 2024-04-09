@@ -44,8 +44,9 @@ class Asteroid extends Entity {
         this.forward(speed, 1);
     }// constructor(x, y, dir, speed, size)
 
-    explode() {
+    explode(playsound = true) {
         if(this.size == 2) {
+            if(playsound) explosionSound.play(0.7);
             for(let i = 0; i < 3; i++) {
                 new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 1, Asteroid.getRandomTorqueValue());
             }
@@ -53,6 +54,7 @@ class Asteroid extends Entity {
             setScreenShake(3, 0.1);
         }
         else if(this.size == 3) {
+            if(playsound) explosionSound.play(1);
             for(let i = 0; i < 2; i++) {
                 new Asteroid(this.x, this.y, Math.random() * 360, asteroidSpeed, 2, Asteroid.getRandomTorqueValue());
             }
@@ -60,6 +62,7 @@ class Asteroid extends Entity {
             setScreenShake(4, 0.1);
         }
         else if(this.size = 1) {
+            if(playsound) explosionSound.play(0.4);
             this.spawnShrapnel(4);
             setScreenShake(2.5, 0.3);
         }
@@ -81,7 +84,7 @@ class Asteroid extends Entity {
             if(!noClip && c.type == "ship" && this.isTouching(c)) {
                 if(noClip == false) {
                     killPlayer();
-                    this.explode();
+                    this.explode(false);
                 }
                 return;
             }
