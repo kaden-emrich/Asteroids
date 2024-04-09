@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.7.2";
+const RELEASE_VERSION = "v1.7.3";
 
 const startTime = Date.now();
 
@@ -87,6 +87,13 @@ function setScreenShake(intensity, returnSpeed) {
     }
     screenShakeIntensity = intensity > screenShakeIntensity ? intensity : screenShakeIntensity;
 }
+
+// sounds
+const laserSound = new sound("sound-effects/8-bit-laser.wav");
+const explosionSound = new sound("sound-effects/8-bit-explosion.wav");
+const deathSound = new sound("sound-effects/extreme-explosion.wav");
+const newGameSound = new sound("sound-effects/game-start.mp3");
+const menuSelectSound = new sound("sound-effects/light-impact.mp3");
 
 /*----- Game Settings -----*/
 

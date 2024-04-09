@@ -82,7 +82,10 @@ class Menu {
                 nextButton.style = "display: block;";
                 nextButton.style.color = palettes[currentPalette].text;
                 nextButton.innerText = this.options[i].name;
-                nextButton.onclick = this.options[i].action;
+                nextButton.onclick = () => {
+                    menuSelectSound.play();
+                    this.options[i].action();
+                };
                 menuButtons.push(nextButton);
             }
             else {

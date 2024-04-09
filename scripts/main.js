@@ -169,6 +169,7 @@ function shoot() {
 
     // console.log('shoot'); // for debugging
 
+    laserSound.play();
     ship.shoot(shootAmount, shootSpread);
     canShoot = false;
     setTimeout(() => {
@@ -231,6 +232,7 @@ function killPlayer() {
     }
 
     // new TextBlip(ship.x * spaceScale, ship.y * spaceScale, "BOOM", 0, 0, 40, 1000);
+    deathSound.play();
     Shrapnel.explosion(ship.x, ship.y, 20, defaultShrapnelSpeed, 1000);
     setScreenShake(10, 0.1);
 
@@ -931,6 +933,7 @@ function newGame() {
     // start update interval
     // tickInterval = setInterval(tick, 1000/tickSpeed);
     //frameInterval = setInterval(updateScreen, 1000/framerate);
+    newGameSound.play();
 }// newGame()
 
 /* ------------------------------- Menu start ------------------------------- */

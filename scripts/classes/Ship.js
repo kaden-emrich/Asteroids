@@ -59,7 +59,7 @@ class Ship extends Entity {
                 if(!noClip) {
                     killPlayer();
                     
-                    c.explode();
+                    c.explode(false);
                     continue;
                 }
             }
