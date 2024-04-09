@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.7.1";
+const RELEASE_VERSION = "v1.7.2";
 
 const startTime = Date.now();
 
@@ -71,6 +71,7 @@ var isFullscreen = false;
 let doScreenShake = true;
 let screenShakeIntensity = 0;
 let screenShakeReturn = 0.1;
+let screenShakeIntensityOffset = 0.5;
 function setScreenShake(intensity, returnSpeed) {
     if(screenShakeIntensity > 0) {
         screenShakeReturn = returnSpeed < screenShakeReturn ? returnSpeed : screenShakeReturn;

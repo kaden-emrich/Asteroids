@@ -708,8 +708,10 @@ async function renderFrame(timeStamp) {
 
     screenShakeIntensity = screenShakeIntensity > 0 ? screenShakeIntensity - screenShakeReturn : 0;
     screenShakeIntensity = screenShakeIntensity < 0 ? 0 : screenShakeIntensity;
-    gameDiv.style.top = (Math.random() * screenShakeIntensity * 2 - screenShakeIntensity) + "px";
-    gameDiv.style.left = (Math.random() * screenShakeIntensity * 2 - screenShakeIntensity) + "px";
+
+    adjustedScreenShakeIntensity = screenShakeIntensity * (spaceScale + screenShakeIntensityOffset);
+    gameDiv.style.top = (Math.random() * adjustedScreenShakeIntensity * 2 - adjustedScreenShakeIntensity) + "px";
+    gameDiv.style.left = (Math.random() * adjustedScreenShakeIntensity * 2 - adjustedScreenShakeIntensity) + "px";
 
     if(!paused) {
         // if(previoustimeStamp != 0 && timeStamp != 0 && timeStamp === previoustimeStamp) { // if this is true, there is another animationFrame that should not be running and this corrects it.
