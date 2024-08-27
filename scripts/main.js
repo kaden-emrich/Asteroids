@@ -161,6 +161,8 @@ function pause() {
         currentMenu = Menus.paused();
         currentMenu.draw();
     }
+
+    updateStats(true);
 }// pause()
 
 function shoot() {
@@ -445,7 +447,7 @@ async function drawPostBlurEntities() {
     return;
 }// drawEntities()
 
-function drawStats() {
+function drawStats() { // unused now
     if(!showStats) return;
     // ctx.shadowBlur = 10;
 
@@ -495,6 +497,56 @@ function drawStats() {
         }
     }
 }// drawStats()
+
+function updateStats(changeView = false) {
+    if(changeView) {
+        hud.setColor(palettes[currentPalette].text);
+
+        if(paused || !showStats) {
+            hud.hide();
+        }
+        else {
+            hud.show();
+        }
+
+        if(showTime) {
+            hud.elements['time'].show;
+        }
+        else {
+            hud.elements['time'].hide;
+        }
+
+
+        if(showExtraStats) {
+            hud.showStatType('extra-stat');
+        }
+        else {
+            hud.hideStatType('extra-stat');
+        }
+
+        if(showNerdyStats) {
+            hud.showStatType('nerd-stat');
+        }
+        else {
+            hud.hideStatType('nerd-stat');
+        }
+    }
+
+    hud.setDisplay('score', score);
+
+    hud.setDisplay('time', (gameTime / 1000).toFixed());
+
+    hud.setDisplay('accuracy', calcAccuracy() + "%", 10, fontSize + 20);
+
+    hud.setDisplay('asteroids', getNumAsteroids(), 10, fontSize*2 + 30);
+
+    hud.setDisplay('difficulty', minAsteroids, 10, fontSize*3 + 40);
+
+    hud.setDisplay('fps', framesPerSecond.toFixed(0), 10, fontSize*4 + 50);
+
+    hud.setDisplay('elapsed-time', (getElapsedTimems() / 1000).toFixed(1));
+
+}// updateStats()
 
 var alertInterval = 0;
 var alertLength = 0;
@@ -595,7 +647,7 @@ async function drawFrame() {
     await drawEntities();
 
     //if(currentMenu) currentMenu.draw();
-    if(!currentMenu) drawStats();
+    if(!currentMenu) updateStats();
     // else {
     //     // ctx.shadowBlur = 0;
     //     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
@@ -934,6 +986,7 @@ function newGame() {
     // tickInterval = setInterval(tick, 1000/tickSpeed);
     //frameInterval = setInterval(updateScreen, 1000/framerate);
     newGameSound.play();
+    updateStats(true);
 }// newGame()
 
 /* ------------------------------- Menu start ------------------------------- */
@@ -1141,6 +1194,7 @@ var Menus = {
                 cyclePalette();
                 temp.options[1].name = "palette: " + palettes[currentPalette].name;
                 menuButtons[1].innerText = temp.options[1].name;
+                currentMenu.draw();
                 //currentMenu.draw();
             }), 
 
@@ -1233,6 +1287,20 @@ var Menus = {
 
                 temp.options[3].name = "extra stats: " + showExtraStats;
                 menuButtons[3].innerText = temp.options[3].name;
+            }),
+
+            new MenuOption("nerdy stats: " + showNerdyStats, () => {
+                if(showNerdyStats) {
+                    showNerdyStats = false;
+                    //showVelocity = false;
+                }
+                else {
+                    showNerdyStats = true;
+                    //showVelocity = true;
+                }
+
+                temp.options[4].name = "nerdy stats: " + showNerdyStats;
+                menuButtons[4].innerText = temp.options[4].name;
             })
         ], "main")
 
@@ -1265,6 +1333,10 @@ function generateStars(num) {
 function init() {
     shipSkin = 0;
 
+    hud = HudHandler.defaultSetup();
+
+    updateStats(true);
+    hud.hide();
     // tick();
     //tickInterval = setInterval(tick, 1000/tickSpeed);
     // renderFrame();
