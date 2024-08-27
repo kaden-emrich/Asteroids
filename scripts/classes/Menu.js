@@ -81,6 +81,7 @@ class Menu {
 
                 nextButton.style = "display: block;";
                 nextButton.style.color = palettes[currentPalette].text;
+                nextButton.style.textShadow = "0 0 0.5vh " + palettes[currentPalette].text;
                 nextButton.innerText = this.options[i].name;
                 nextButton.onclick = () => {
                     menuSelectSound.play();

@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.7.3";
+const RELEASE_VERSION = "v1.8.0";
 
 const startTime = Date.now();
 
@@ -23,6 +23,8 @@ ctx.imageSmothingEnabled = false;
 var gameDiv = document.getElementById("gameDiv");
 
 var menuDiv = document.getElementById("menuDiv");
+
+var hud;
 
 var spaceHeight = 1000;
 var spaceWidth = 1000;
@@ -106,7 +108,7 @@ var showVelocity = false;
 var showMousePos = false;
 var showStats = true;
 var showExtraStats = false;
-var showNerdyStats = true;
+var showNerdyStats = false;
 var showTime = true;
 var laserSight = false;
 

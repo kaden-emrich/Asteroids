@@ -28,6 +28,10 @@ body {
     margin: 0;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* #scan-lines {
     position: absolute;
     z-index: 10;
@@ -119,7 +123,7 @@ body {
     font-size: 9vh;
     border: 0.5vh outset rgba(50, 50, 50, 0.8);
     background-color: rgba(50, 50, 50, 0.8);
-    text-shadow: #555 0 0 1vh;
+    text-shadow: #555 0 0 1vh !important;
 }
 #menuDiv #buttonDiv button:active {
     font-size: 9vh;
@@ -135,4 +139,35 @@ body {
     margin: 0;
     z-index: 1;
     color: white;
+}
+
+#hud-wrapper {
+    position: absolute;
+    pointer-events: none;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    margin: 0;
+    padding: 1vmin;
+    font-size: 5vh;
+    color: #fff;
+    text-shadow: 0 0 5px #fff;
+}
+
+.hud-section span {
+    display: block;
+}
+
+.hud-section span span {
+    display: inline;
+}
+
+#hud-top-middle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    margin: 0;
+    padding: 1vmin;
+    text-align: center;
 }
