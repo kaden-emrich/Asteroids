@@ -1,6 +1,9 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.8.0";
+const RELEASE_VERSION = "v1.8.1";
+
+var versionDisplay = document.getElementById('version-display');
+versionDisplay.innerText = RELEASE_VERSION;
 
 const startTime = Date.now();
 
