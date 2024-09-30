@@ -220,6 +220,7 @@ function gameEnd() {
     arrowRightPressed = false;
 
     gameOver = true;
+    hud.hide();
     currentMenu = Menus.over();
     currentMenu.draw();
     currentController = new KeyController(menuControlScheme);
