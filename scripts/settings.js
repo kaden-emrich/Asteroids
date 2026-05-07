@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.2.0";
+const RELEASE_VERSION = "v1.2.1";
 
 var versionDisplay = document.getElementById('version-display');
 versionDisplay.innerText = RELEASE_VERSION;
@@ -195,6 +195,18 @@ const touchBButton = document.getElementById("touch-b-button");
 const touchSButton = document.getElementById("touch-s-button");
 
 const touchPButton = document.getElementById("touch-p-button");
+
+function isRunningAsPWA() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  if (isStandalone) {
+    return true; // Running as an installed PWA
+  }
+  return false; // Running in a standard browser tab
+}
+
+if(isRunningAsPWA()) {
+    enableTouchControls = true;
+}
 
 /*----- Game Settings End -----*/
 
