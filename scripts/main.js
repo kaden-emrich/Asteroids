@@ -1394,6 +1394,8 @@ function init() {
     equipPalette(currentPalette);
 
     stars = generateStars(numStars);
+    toggleTouchControls();
+    toggleTouchControls();
 
     /*
     getElapsedTimems() = 0;

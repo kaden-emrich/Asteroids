@@ -13,18 +13,33 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      // Return the cached version if we have it
-      if (cachedResponse) return cachedResponse;
+  const url = new URL(event.request.url);
 
-      // Otherwise, fetch from network AND save to cache for next time
-      return fetch(event.request).then((networkResponse) => {
-        return caches.open('dynamic-cache').then((cache) => {
-          cache.put(event.request, networkResponse.clone()); // Automatic save
-          return networkResponse;
+  // Strategy for HTML pages (Network First)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          return caches.open('pages-cache').then((cache) => {
+            cache.put(event.request, response.clone());
+            return response;
+          });
+        })
+        .catch(() => caches.match(event.request))
+    );
+  } 
+  // Strategy for Images/CSS/JS (Cache First)
+  else {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request).then((networkResponse) => {
+          return caches.open('assets-cache').then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
         });
-      });
-    })
-  );
+      })
+    );
+  }
 });
+
