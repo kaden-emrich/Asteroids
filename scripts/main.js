@@ -27,10 +27,10 @@ var lastGameResult = "";
 var minAsteroids = 1;
 var asteroidSpawnBuffer = true;
 
-var fInterval; // For the game controll Scheme
-var bInterval;
-var lInterval;
-var rInterval;
+// var fInterval; // For the old game controll Scheme 
+// var bInterval;
+// var lInterval;
+// var rInterval;
 
 window.onresize = () => {
     stars = generateStars(numStars);
@@ -123,17 +123,17 @@ function resetGameTime() {
     //console.log(gameTimeInterval);
 }// resetGameTime()
 
-function resetControlIntervals() {
-    clearInterval(fInterval);
-    clearInterval(bInterval);
-    clearInterval(lInterval);
-    clearInterval(rInterval);
+// function resetControlIntervals() {
+//     clearInterval(fInterval);
+//     clearInterval(bInterval);
+//     clearInterval(lInterval);
+//     clearInterval(rInterval);
 
-    fInterval = undefined;
-    bInterval = undefined;
-    lInterval = undefined;
-    rInterval = undefined;
-}// resetControlIntervals()
+//     fInterval = undefined;
+//     bInterval = undefined;
+//     lInterval = undefined;
+//     rInterval = undefined;
+// }// resetControlIntervals()
 
 function pause() {
     if(paused == true) {
@@ -1047,7 +1047,8 @@ var gameControlScheme = [
 
         // clearInterval(fInterval);
         // fInterval = undefined;
-    }),
+    },
+    [touchFButton]),
 
     new KeyHandler(["ArrowDown", "s", "S"], 
     () => {
@@ -1062,7 +1063,8 @@ var gameControlScheme = [
         arrowDownPressed = false;
         // clearInterval(bInterval);
         // bInterval = undefined;
-    }),
+    },
+    [touchBButton]),
     
     new KeyHandler(["ArrowLeft", "a", "A"], 
     () => {
@@ -1077,7 +1079,8 @@ var gameControlScheme = [
         arrowLeftPressed = false;
         // clearInterval(lInterval);
         // lInterval = undefined;
-    }),
+    },
+    [touchLButton]),
     
     new KeyHandler(["ArrowRight", "d", "D"], 
     () => {
@@ -1092,7 +1095,8 @@ var gameControlScheme = [
         arrowRightPressed = false;
         // clearInterval(rInterval);
         // rInterval = undefined;
-    }),
+    },
+    [touchRButton]),
     
     new KeyHandler(["Enter", " "], 
         () => {
@@ -1103,10 +1107,11 @@ var gameControlScheme = [
         },
         () => {
             shootPressed = false;
-        }
+        },
+        [touchSButton]
     ),
     
-    new KeyHandler(["Escape", "p", "P"], pause),
+    new KeyHandler(["Escape", "p", "P"], pause, undefined, [touchPButton]),
     
     new KeyHandler(["r", "R"], () => {
         gameEnd();
@@ -1117,6 +1122,19 @@ var gameControlScheme = [
 ];
 
 /* ----------------------------- controllers end ---------------------------- */
+function toggleTouchControls() {
+    enableTouchControls = !enableTouchControls;
+
+    if(enableTouchControls) {
+        mobileControlWrapper.style.display = "block";
+    }
+    else {
+        mobileControlWrapper.style.display = "none";
+    }
+
+    return enableTouchControls;
+}
+
 
 // menus
 var Menus = {
@@ -1127,6 +1145,10 @@ var Menus = {
             new MenuOption("info", () => {
                 currentMenu = Menus.credit(); 
                 currentMenu.draw();
+            }),
+            new MenuOption("touch controls: " + (enableTouchControls ? "ON" : "OFF"), () => {
+                toggleTouchControls();
+                menuButtons[3].innerText = "touch controls: " + (enableTouchControls ? "ON" : "OFF");
             })
         ], "main");
     },
