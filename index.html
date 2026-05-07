@@ -8,6 +8,17 @@
         <link rel="stylesheet" href="style.css">
         <link rel="shortcut icon" href="assets/anAsteroid.PNG" type="image/x-icon">
 
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#000000">
+        <link rel="apple-touch-icon" href="assets/anAsteroid.PNG">
+
+        <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log("Service Worker Registered"));
+        }
+        </script>
+
         <title>asteroids</title>
     </head>
 
