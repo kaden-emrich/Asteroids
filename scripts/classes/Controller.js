@@ -1,12 +1,17 @@
 class KeyHandler {
-    constructor(keys, pressAction, releaseAction) {
+    constructor(keys, pressAction, releaseAction, uiButtons = []) {
         this.keys = keys;
         this.pressAction = pressAction;
         this.releaseAction = releaseAction;
+        this.uiButtons = uiButtons;
 
         this.pressed = [];
         for(let i = 0; i < this.keys.length; i++) {
             this.pressed[i] = false;
+        }
+
+        for(let i = 0; i < this.uiButtons.length; i++) {
+            this.addUiButton(this.uiButtons[i]);
         }
     }// constructor
 
@@ -18,6 +23,18 @@ class KeyHandler {
 
         return true;
     }
+
+    addUiButton(element) {
+        element.addEventListener("touchstart", (event) => {
+            event.preventDefault();
+            if(this.pressAction) this.pressAction();
+        });
+
+        element.addEventListener("touchend", (event) => {
+            event.preventDefault();
+            if(this.releaseAction) this.releaseAction();
+        });
+    } 
 }// class KeyHandler
 
 class KeyController {
@@ -68,7 +85,3 @@ document.addEventListener("mousedown", () => {
 //     document.body.style.cursor = "unset";
 // });// mouse up
 
-
-function updateKeys() {
-
-}// updateKeys();

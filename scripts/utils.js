@@ -10,7 +10,7 @@ class sound {
         this.sound.setAttribute("preload", "auto");
         this.sound.setAttribute("controls", "none");
         this.sound.style.display = "none";
-        this.sound.volume = 0.5;
+        this.sound.volume = 0.01;
 
         document.body.appendChild(this.sound);
 

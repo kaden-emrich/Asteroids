@@ -1,6 +1,6 @@
 // Kaden Emrich
 
-const RELEASE_VERSION = "v1.8.2";
+const RELEASE_VERSION = "v1.2.0";
 
 var versionDisplay = document.getElementById('version-display');
 versionDisplay.innerText = RELEASE_VERSION;
@@ -181,6 +181,20 @@ var shipAcceleration = 720;
 
 var currentPalette;
 var shipSkin;
+
+// mobile controls
+var enableTouchControls = false;
+
+const mobileControlWrapper = document.getElementById("mobile-controls");
+
+const touchLButton = document.getElementById("touch-l-button");
+const touchRButton = document.getElementById("touch-r-button");
+const touchFButton = document.getElementById("touch-f-button");
+const touchBButton = document.getElementById("touch-b-button");
+
+const touchSButton = document.getElementById("touch-s-button");
+
+const touchPButton = document.getElementById("touch-p-button");
 
 /*----- Game Settings End -----*/
 
